@@ -15,6 +15,7 @@ import DonorDashboard from './pages/donor/Dashboard';
 import BloodRequest from './pages/blood/Request';
 import BloodSearch from './pages/blood/Search';
 import EmergencyRequest from './pages/blood/EmergencyRequest';
+import Dashboard from './pages/Dashboard';
 
 // Theme
 import theme from './theme';
@@ -48,6 +49,9 @@ function App() {
               <Route path="/donor" element={<MainLayout />}>
                 <Route path="dashboard" element={<DonorDashboard />} />
               </Route>
+
+              {/* New routes */}
+              <Route path="/dashboard" element={<Dashboard />} />
             </Routes>
           </Router>
         </ThemeProvider>
