@@ -89,7 +89,7 @@ const MainLayout = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <AppBar position="static">
-        <Container maxWidth="xl">
+        <Container maxWidth="xl" disableGutters>
           <Toolbar disableGutters>
             {isMobile && (
               <IconButton
