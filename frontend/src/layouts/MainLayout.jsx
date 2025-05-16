@@ -19,6 +19,13 @@ import {
   ListItemText,
   useTheme,
   useMediaQuery,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -37,6 +44,8 @@ import { logout } from '../store/slices/authSlice';
 const MainLayout = () => {
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
@@ -55,10 +64,24 @@ const MainLayout = () => {
     setAnchorElUser(null);
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogoutClick = () => {
+    setShowLogoutDialog(true);
     handleCloseUserMenu();
+  };
+
+  const handleLogoutConfirm = () => {
+    dispatch(logout());
+    setShowLogoutDialog(false);
+    setShowLogoutAlert(true);
     navigate('/');
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutDialog(false);
+  };
+
+  const handleCloseLogoutAlert = () => {
+    setShowLogoutAlert(false);
   };
 
   const menuItems = [
@@ -157,7 +180,7 @@ const MainLayout = () => {
                       </ListItemIcon>
                       <Typography textAlign="center">Dashboard</Typography>
                     </MenuItem>
-                    <MenuItem onClick={handleLogout}>
+                    <MenuItem onClick={handleLogoutClick}>
                       <ListItemIcon>
                         <Login fontSize="small" />
                       </ListItemIcon>
@@ -225,6 +248,43 @@ const MainLayout = () => {
           </Typography>
         </Container>
       </Box>
+
+      {/* Logout Confirmation Dialog */}
+      <Dialog
+        open={showLogoutDialog}
+        onClose={handleLogoutCancel}
+        aria-labelledby="logout-dialog-title"
+        aria-describedby="logout-dialog-description"
+      >
+        <DialogTitle id="logout-dialog-title">
+          Logout Confirmation
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="logout-dialog-description">
+            Are you sure you want to logout?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleLogoutCancel} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleLogoutConfirm} color="error" autoFocus>
+            Logout
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Logout Success Alert */}
+      <Snackbar
+        open={showLogoutAlert}
+        autoHideDuration={3000}
+        onClose={handleCloseLogoutAlert}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseLogoutAlert} severity="success">
+          Logout successfully!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
