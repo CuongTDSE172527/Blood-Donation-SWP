@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -8,17 +10,28 @@ import {
   Paper,
   Grid,
   MenuItem,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 
 const Request = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState('error');
+
   const [formData, setFormData] = useState({
     bloodType: '',
     units: '',
     hospital: '',
     reason: '',
     urgency: 'normal',
-    contactName: '',
-    contactPhone: '',
+    contactName: user?.name || '',
+    contactPhone: user?.phone || '',
+    doctorName: '',
+    doctorPhone: '',
+    requiredDate: '',
   });
 
   const handleChange = (e) => {
@@ -30,8 +43,26 @@ const Request = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    if (!isAuthenticated) {
+      setAlertMessage('Please login to submit a blood request');
+      setAlertSeverity('error');
+      setShowAlert(true);
+      setTimeout(() => {
+        navigate('/login', { state: { from: '/blood-request' } });
+      }, 2000);
+      return;
+    }
+
     // TODO: Implement blood request submission
     console.log('Blood request data:', formData);
+    setAlertMessage('Blood request submitted successfully');
+    setAlertSeverity('success');
+    setShowAlert(true);
+  };
+
+  const handleCloseAlert = () => {
+    setShowAlert(false);
   };
 
   return (
@@ -40,6 +71,13 @@ const Request = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           Request Blood
         </Typography>
+        
+        {!isAuthenticated && (
+          <Alert severity="warning" sx={{ mb: 4 }}>
+            You need to be logged in to submit a blood request. Please login or create an account.
+          </Alert>
+        )}
+
         <Paper elevation={3} sx={{ p: 4 }}>
           <Box component="form" onSubmit={handleSubmit}>
             <Grid container spacing={3}>
@@ -85,6 +123,26 @@ const Request = () => {
                   onChange={handleChange}
                 />
               </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  required
+                  fullWidth
+                  label="Doctor's Name"
+                  name="doctorName"
+                  value={formData.doctorName}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  required
+                  fullWidth
+                  label="Doctor's Phone"
+                  name="doctorPhone"
+                  value={formData.doctorPhone}
+                  onChange={handleChange}
+                />
+              </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
@@ -109,8 +167,19 @@ const Request = () => {
                 >
                   <MenuItem value="normal">Normal</MenuItem>
                   <MenuItem value="urgent">Urgent</MenuItem>
-                  <MenuItem value="emergency">Emergency</MenuItem>
                 </TextField>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  required
+                  fullWidth
+                  type="date"
+                  label="Required Date"
+                  name="requiredDate"
+                  value={formData.requiredDate}
+                  onChange={handleChange}
+                  InputLabelProps={{ shrink: true }}
+                />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -120,9 +189,10 @@ const Request = () => {
                   name="contactName"
                   value={formData.contactName}
                   onChange={handleChange}
+                  disabled={isAuthenticated}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   required
                   fullWidth
@@ -130,6 +200,7 @@ const Request = () => {
                   name="contactPhone"
                   value={formData.contactPhone}
                   onChange={handleChange}
+                  disabled={isAuthenticated}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -139,6 +210,7 @@ const Request = () => {
                   color="primary"
                   size="large"
                   fullWidth
+                  disabled={!isAuthenticated}
                 >
                   Submit Request
                 </Button>
@@ -147,6 +219,17 @@ const Request = () => {
           </Box>
         </Paper>
       </Box>
+
+      <Snackbar
+        open={showAlert}
+        autoHideDuration={6000}
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseAlert} severity={alertSeverity}>
+          {alertMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

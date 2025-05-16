@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -10,12 +11,17 @@ import {
   MenuItem,
   Alert,
   Snackbar,
+  CircularProgress,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 
 const EmergencyRequest = () => {
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState('error');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationStep, setVerificationStep] = useState(1);
+
   const [formData, setFormData] = useState({
     bloodType: '',
     units: '',
@@ -29,6 +35,9 @@ const EmergencyRequest = () => {
     contactName: '',
     contactPhone: '',
     contactRelation: '',
+    doctorName: '',
+    doctorPhone: '',
+    hospitalPhone: '',
     additionalNotes: '',
   });
 
@@ -39,15 +48,53 @@ const EmergencyRequest = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handlePhoneVerification = async () => {
+    setIsVerifying(true);
+    // TODO: Implement phone verification logic
+    // This would typically send an OTP to the phone number
+    setTimeout(() => {
+      setIsVerifying(false);
+      setVerificationStep(2);
+      setAlertMessage('Verification code sent to your phone');
+      setAlertSeverity('success');
+      setShowAlert(true);
+    }, 2000);
+  };
+
+  const handleHospitalVerification = async () => {
+    setIsVerifying(true);
+    // TODO: Implement hospital verification logic
+    // This would typically verify the hospital details
+    setTimeout(() => {
+      setIsVerifying(false);
+      setVerificationStep(3);
+      setAlertMessage('Hospital verification successful');
+      setAlertSeverity('success');
+      setShowAlert(true);
+    }, 2000);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsVerifying(true);
+    
     // TODO: Implement emergency blood request submission
     console.log('Emergency blood request data:', formData);
-    setShowAlert(true);
-    // Redirect to blood search after 3 seconds
+    
     setTimeout(() => {
-      navigate('/blood-search');
-    }, 3000);
+      setIsVerifying(false);
+      setAlertMessage('Emergency request submitted successfully. Help is on the way!');
+      setAlertSeverity('success');
+      setShowAlert(true);
+      // Redirect to blood search after 3 seconds
+      setTimeout(() => {
+        navigate('/blood-search');
+      }, 3000);
+    }, 2000);
+  };
+
+  const handleCloseAlert = () => {
+    setShowAlert(false);
   };
 
   return (
@@ -55,6 +102,7 @@ const EmergencyRequest = () => {
       <Box sx={{ mt: 4, mb: 4 }}>
         <Alert severity="error" sx={{ mb: 4 }}>
           This is an emergency blood request form. Please fill in all required details accurately.
+          Your request will be processed immediately after verification.
         </Alert>
 
         <Typography variant="h4" component="h1" gutterBottom>
@@ -163,6 +211,36 @@ const EmergencyRequest = () => {
                   onChange={handleChange}
                 />
               </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  required
+                  fullWidth
+                  label="Hospital Phone"
+                  name="hospitalPhone"
+                  value={formData.hospitalPhone}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  required
+                  fullWidth
+                  label="Doctor's Name"
+                  name="doctorName"
+                  value={formData.doctorName}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  required
+                  fullWidth
+                  label="Doctor's Phone"
+                  name="doctorPhone"
+                  value={formData.doctorPhone}
+                  onChange={handleChange}
+                />
+              </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
@@ -238,30 +316,58 @@ const EmergencyRequest = () => {
               </Grid>
 
               <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="error"
-                  size="large"
-                  fullWidth
-                >
-                  Submit Emergency Request
-                </Button>
+                {verificationStep === 1 && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    fullWidth
+                    onClick={handlePhoneVerification}
+                    disabled={isVerifying || !formData.contactPhone}
+                  >
+                    {isVerifying ? <CircularProgress size={24} /> : 'Verify Contact Phone'}
+                  </Button>
+                )}
+                {verificationStep === 2 && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    fullWidth
+                    onClick={handleHospitalVerification}
+                    disabled={isVerifying || !formData.hospitalPhone}
+                  >
+                    {isVerifying ? <CircularProgress size={24} /> : 'Verify Hospital'}
+                  </Button>
+                )}
+                {verificationStep === 3 && (
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="error"
+                    size="large"
+                    fullWidth
+                    disabled={isVerifying}
+                  >
+                    {isVerifying ? <CircularProgress size={24} /> : 'Submit Emergency Request'}
+                  </Button>
+                )}
               </Grid>
             </Grid>
           </Box>
         </Paper>
-
-        <Snackbar
-          open={showAlert}
-          autoHideDuration={3000}
-          onClose={() => setShowAlert(false)}
-        >
-          <Alert severity="success" onClose={() => setShowAlert(false)}>
-            Emergency request submitted successfully! Redirecting to blood search...
-          </Alert>
-        </Snackbar>
       </Box>
+
+      <Snackbar
+        open={showAlert}
+        autoHideDuration={6000}
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseAlert} severity={alertSeverity}>
+          {alertMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
