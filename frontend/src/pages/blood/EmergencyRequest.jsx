@@ -12,6 +12,9 @@ import {
   Alert,
   Snackbar,
   CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
 } from '@mui/material';
 
 const EmergencyRequest = () => {
@@ -39,7 +42,12 @@ const EmergencyRequest = () => {
     doctorPhone: '',
     hospitalPhone: '',
     additionalNotes: '',
+    rareBloodType: '',
   });
+
+  const bloodTypes = [
+    'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Other (rare)'
+  ];
 
   const handleChange = (e) => {
     setFormData({
@@ -114,7 +122,7 @@ const EmergencyRequest = () => {
             <Grid container spacing={3}>
               {/* Patient Information */}
               <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom sx={{ mb: 1 }}>
                   Patient Information
                 </Typography>
               </Grid>
@@ -126,6 +134,7 @@ const EmergencyRequest = () => {
                   name="patientName"
                   value={formData.patientName}
                   onChange={handleChange}
+                  sx={{ mt: 0 }}
                 />
               </Grid>
               <Grid item xs={12} md={3}>
@@ -138,6 +147,7 @@ const EmergencyRequest = () => {
                   value={formData.patientAge}
                   onChange={handleChange}
                   inputProps={{ min: 0, max: 120 }}
+                  sx={{ mt: 0 }}
                 />
               </Grid>
               <Grid item xs={12} md={3}>
@@ -149,6 +159,7 @@ const EmergencyRequest = () => {
                   name="patientGender"
                   value={formData.patientGender}
                   onChange={handleChange}
+                  sx={{ mt: 0 }}
                 >
                   <MenuItem value="male">Male</MenuItem>
                   <MenuItem value="female">Female</MenuItem>
@@ -158,29 +169,40 @@ const EmergencyRequest = () => {
 
               {/* Blood Requirements */}
               <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom sx={{ mb: 1 }}>
                   Blood Requirements
                 </Typography>
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField
-                  required
-                  fullWidth
-                  select
-                  label="Blood Type"
-                  name="bloodType"
-                  value={formData.bloodType}
-                  onChange={handleChange}
-                >
-                  <MenuItem value="A+">A+</MenuItem>
-                  <MenuItem value="A-">A-</MenuItem>
-                  <MenuItem value="B+">B+</MenuItem>
-                  <MenuItem value="B-">B-</MenuItem>
-                  <MenuItem value="AB+">AB+</MenuItem>
-                  <MenuItem value="AB-">AB-</MenuItem>
-                  <MenuItem value="O+">O+</MenuItem>
-                  <MenuItem value="O-">O-</MenuItem>
-                </TextField>
+                <FormControl fullWidth margin="none" sx={{ mt: 0 }} required>
+                  <InputLabel id="blood-type-label">Blood Type</InputLabel>
+                  <Select
+                    labelId="blood-type-label"
+                    id="blood-type"
+                    name="bloodType"
+                    value={formData.bloodType}
+                    label="Blood Type"
+                    onChange={(e) => {
+                      setFormData({ ...formData, bloodType: e.target.value, rareBloodType: '' });
+                    }}
+                  >
+                    {bloodTypes.map((type) => (
+                      <MenuItem key={type} value={type}>{type}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                {formData.bloodType === 'Other (rare)' && (
+                  <TextField
+                    fullWidth
+                    margin="none"
+                    sx={{ mt: 2 }}
+                    label="Enter Rare Blood Type"
+                    name="rareBloodType"
+                    value={formData.rareBloodType || ''}
+                    onChange={(e) => setFormData({ ...formData, rareBloodType: e.target.value })}
+                    required
+                  />
+                )}
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -192,6 +214,8 @@ const EmergencyRequest = () => {
                   value={formData.units}
                   onChange={handleChange}
                   inputProps={{ min: 1 }}
+                  margin="none"
+                  sx={{ mt: 0 }}
                 />
               </Grid>
 

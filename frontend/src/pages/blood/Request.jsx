@@ -12,6 +12,9 @@ import {
   MenuItem,
   Alert,
   Snackbar,
+  FormControl,
+  InputLabel,
+  Select,
 } from '@mui/material';
 
 const Request = () => {
@@ -32,7 +35,12 @@ const Request = () => {
     doctorName: '',
     doctorPhone: '',
     requiredDate: '',
+    rareBloodType: '',
   });
+
+  const bloodTypes = [
+    'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Other (rare)'
+  ];
 
   const handleChange = (e) => {
     setFormData({
@@ -82,24 +90,35 @@ const Request = () => {
           <Box component="form" onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
-                <TextField
-                  required
-                  fullWidth
-                  select
-                  label="Blood Type"
-                  name="bloodType"
-                  value={formData.bloodType}
-                  onChange={handleChange}
-                >
-                  <MenuItem value="A+">A+</MenuItem>
-                  <MenuItem value="A-">A-</MenuItem>
-                  <MenuItem value="B+">B+</MenuItem>
-                  <MenuItem value="B-">B-</MenuItem>
-                  <MenuItem value="AB+">AB+</MenuItem>
-                  <MenuItem value="AB-">AB-</MenuItem>
-                  <MenuItem value="O+">O+</MenuItem>
-                  <MenuItem value="O-">O-</MenuItem>
-                </TextField>
+                <FormControl fullWidth margin="none" sx={{ mt: 2 }} required>
+                  <InputLabel id="blood-type-label">Blood Type</InputLabel>
+                  <Select
+                    labelId="blood-type-label"
+                    id="blood-type"
+                    name="bloodType"
+                    value={formData.bloodType}
+                    label="Blood Type"
+                    onChange={(e) => {
+                      setFormData({ ...formData, bloodType: e.target.value, rareBloodType: '' });
+                    }}
+                  >
+                    {bloodTypes.map((type) => (
+                      <MenuItem key={type} value={type}>{type}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                {formData.bloodType === 'Other (rare)' && (
+                  <TextField
+                    fullWidth
+                    margin="none"
+                    sx={{ mt: 2 }}
+                    label="Enter Rare Blood Type"
+                    name="rareBloodType"
+                    value={formData.rareBloodType || ''}
+                    onChange={(e) => setFormData({ ...formData, rareBloodType: e.target.value })}
+                    required
+                  />
+                )}
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -111,6 +130,8 @@ const Request = () => {
                   value={formData.units}
                   onChange={handleChange}
                   inputProps={{ min: 1 }}
+                  margin="none"
+                  sx={{ mt: 2 }}
                 />
               </Grid>
               <Grid item xs={12}>
