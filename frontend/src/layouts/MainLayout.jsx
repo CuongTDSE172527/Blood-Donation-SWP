@@ -89,7 +89,6 @@ const MainLayout = () => {
     { text: 'About', icon: <Info />, path: '/about' },
     { text: 'Request Blood', icon: <LocalHospital />, path: '/blood-request' },
     { text: 'Search Blood', icon: <Search />, path: '/blood-search' },
-    { text: 'Emergency', icon: <Warning />, path: '/emergency' },
   ];
 
   const drawer = (

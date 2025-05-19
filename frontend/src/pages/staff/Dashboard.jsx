@@ -225,14 +225,27 @@ const StaffDashboard = () => {
                   Emergency Requests
                 </Typography>
                 <Typography variant="body2" color="text.secondary" paragraph>
-                  View and manage emergency blood requests
+                  Create and manage emergency blood requests
                 </Typography>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button 
+                    size="small" 
+                    color="error" 
+                    variant="contained"
+                    onClick={() => navigate('/staff/emergency')}
+                  >
+                    Create Emergency Request
+                  </Button>
+                  <Button 
+                    size="small" 
+                    color="primary" 
+                    variant="outlined"
+                    onClick={() => navigate('/staff/emergency/list')}
+                  >
+                    View All Requests
+                  </Button>
+                </Box>
               </CardContent>
-              <CardActions>
-                <Button size="small" onClick={() => navigate('/staff/emergency')}>
-                  View Emergency Requests
-                </Button>
-              </CardActions>
             </Card>
           </Grid>
 

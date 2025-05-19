@@ -1,7 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { useSelector } from 'react-redux';
 
 // Layout
 import MainLayout from './layouts/MainLayout';
@@ -29,6 +30,21 @@ import store from './store';
 // Create a client
 const queryClient = new QueryClient();
 
+// Protected Route Component
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" />;
+  }
+
+  return children;
+};
+
 function App() {
   return (
     <Provider store={store}>
@@ -45,39 +61,102 @@ function App() {
                 <Route path="register" element={<Register />} />
                 <Route path="blood-request" element={<BloodRequest />} />
                 <Route path="blood-search" element={<BloodSearch />} />
-                <Route path="emergency" element={<EmergencyRequest />} />
               </Route>
 
               {/* Protected Routes */}
               <Route path="/donor" element={<MainLayout />}>
-                <Route path="dashboard" element={<DonorDashboard />} />
+                <Route path="dashboard" element={
+                  <ProtectedRoute allowedRoles={['donor']}>
+                    <DonorDashboard />
+                  </ProtectedRoute>
+                } />
               </Route>
 
               {/* Admin Routes */}
               <Route path="/admin" element={<MainLayout />}>
-                <Route path="dashboard" element={<AdminDashboard />} />
-                <Route path="donors" element={<div>Donors Management</div>} />
-                <Route path="requests" element={<div>Requests Management</div>} />
-                <Route path="inventory" element={<div>Inventory Management</div>} />
-                <Route path="staff" element={<div>Staff Management</div>} />
-                <Route path="settings" element={<div>System Settings</div>} />
+                <Route path="dashboard" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="donors" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <div>Donors Management</div>
+                  </ProtectedRoute>
+                } />
+                <Route path="requests" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <div>Requests Management</div>
+                  </ProtectedRoute>
+                } />
+                <Route path="inventory" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <div>Inventory Management</div>
+                  </ProtectedRoute>
+                } />
+                <Route path="staff" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <div>Staff Management</div>
+                  </ProtectedRoute>
+                } />
+                <Route path="settings" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <div>System Settings</div>
+                  </ProtectedRoute>
+                } />
               </Route>
 
               {/* Staff Routes */}
               <Route path="/staff" element={<MainLayout />}>
-                <Route path="dashboard" element={<StaffDashboard />} />
-                <Route path="requests" element={<div>Requests Management</div>} />
-                <Route path="inventory" element={<div>Inventory Management</div>} />
-                <Route path="donors" element={<div>Donor Management</div>} />
-                <Route path="emergency" element={<div>Emergency Requests</div>} />
+                <Route path="dashboard" element={
+                  <ProtectedRoute allowedRoles={['staff', 'admin']}>
+                    <StaffDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="requests" element={
+                  <ProtectedRoute allowedRoles={['staff', 'admin']}>
+                    <div>Requests Management</div>
+                  </ProtectedRoute>
+                } />
+                <Route path="inventory" element={
+                  <ProtectedRoute allowedRoles={['staff', 'admin']}>
+                    <div>Inventory Management</div>
+                  </ProtectedRoute>
+                } />
+                <Route path="donors" element={
+                  <ProtectedRoute allowedRoles={['staff', 'admin']}>
+                    <div>Donor Management</div>
+                  </ProtectedRoute>
+                } />
+                <Route path="emergency" element={
+                  <ProtectedRoute allowedRoles={['staff', 'admin']}>
+                    <EmergencyRequest />
+                  </ProtectedRoute>
+                } />
               </Route>
 
               {/* User Routes */}
               <Route path="/user" element={<MainLayout />}>
-                <Route path="dashboard" element={<UserDashboard />} />
-                <Route path="profile" element={<div>User Profile</div>} />
-                <Route path="donation-history" element={<div>Donation History</div>} />
-                <Route path="donate" element={<div>Schedule Donation</div>} />
+                <Route path="dashboard" element={
+                  <ProtectedRoute allowedRoles={['user', 'donor', 'staff', 'admin']}>
+                    <UserDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="profile" element={
+                  <ProtectedRoute allowedRoles={['user', 'donor', 'staff', 'admin']}>
+                    <div>User Profile</div>
+                  </ProtectedRoute>
+                } />
+                <Route path="donation-history" element={
+                  <ProtectedRoute allowedRoles={['user', 'donor', 'staff', 'admin']}>
+                    <div>Donation History</div>
+                  </ProtectedRoute>
+                } />
+                <Route path="donate" element={
+                  <ProtectedRoute allowedRoles={['user', 'donor', 'staff', 'admin']}>
+                    <div>Schedule Donation</div>
+                  </ProtectedRoute>
+                } />
               </Route>
 
               {/* New routes */}

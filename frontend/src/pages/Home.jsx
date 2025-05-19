@@ -14,7 +14,6 @@ import {
 import {
   LocalHospital,
   Search,
-  Warning,
   HowToReg,
 } from '@mui/icons-material';
 
@@ -32,13 +31,6 @@ const features = [
     icon: <Search sx={{ fontSize: 48 }} />,
     path: '/blood-search',
     color: 'success.main',
-  },
-  {
-    title: 'Emergency',
-    description: 'Urgent need? Submit an emergency request for immediate assistance from our network.',
-    icon: <Warning sx={{ fontSize: 48 }} />,
-    path: '/emergency',
-    color: 'error.main',
   },
   {
     title: 'Become a Donor',
