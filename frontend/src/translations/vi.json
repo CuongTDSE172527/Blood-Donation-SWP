@@ -1,0 +1,80 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "bloodSchedule": "Lịch hiến máu",
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "logout": "Đăng xuất",
+    "dashboard": "Bảng điều khiển"
+  },
+  "schedule": {
+    "title": "Lịch Hiến Máu",
+    "selectTime": "Bạn cần đặt lịch vào thời gian nào?",
+    "search": "Tìm kiếm",
+    "availableDates": "Ngày hiến máu khả dụng",
+    "noDates": "Không có ngày nào khả dụng trong khoảng thời gian này.",
+    "fromDate": "Từ ngày",
+    "toDate": "Đến ngày"
+  },
+  "home": {
+    "hero": {
+      "title": "Hiến Máu, Cứu Người",
+      "subtitle": "Tham gia mạng lưới hiến máu của chúng tôi và tạo sự khác biệt trong cuộc sống của ai đó ngay hôm nay.",
+      "becomeDonor": "Trở Thành Người Hiến Máu"
+    },
+    "bloodTypes": {
+      "title": "Nhóm Máu và Tính Tương Thích",
+      "universalDonor": "Người Cho Phổ Thông",
+      "mostCommon": "Nhóm Máu Phổ Biến Nhất",
+      "rareType": "Nhóm Máu Hiếm",
+      "commonType": "Nhóm Máu Thường Gặp",
+      "canReceive": "Có Thể Nhận Từ",
+      "canDonateTo": "Có Thể Cho"
+    },
+    "info": {
+      "title": "Tìm Hiểu Về Hiến Máu",
+      "bloodTypes": {
+        "title": "Nhóm Máu",
+        "content": "Có bốn nhóm máu chính được xác định bởi sự có mặt hoặc vắng mặt của hai kháng nguyên A và B trên bề mặt hồng cầu. Ngoài kháng nguyên A và B, còn có một protein gọi là yếu tố Rh, có thể có (+) hoặc không có (–), tạo ra 8 nhóm máu phổ biến nhất (A+, A-, B+, B-, O+, O-, AB+, AB-)."
+      },
+      "universalDonors": {
+        "title": "Người Cho Phổ Thông",
+        "content": "Máu nhóm O âm tính là nhóm hồng cầu phổ thông và có thể được truyền cho bệnh nhân thuộc bất kỳ nhóm máu nào. Máu nhóm AB là nhóm huyết tương phổ thông. Những nhóm máu này rất quan trọng trong các tình huống khẩn cấp."
+      },
+      "whyDonate": {
+        "title": "Tại Sao Nên Hiến Máu?",
+        "content": "Hiến máu là một cách đơn giản, an toàn để giúp cứu sống người khác. Lượng máu hiến của bạn có thể giúp được tới ba người cần truyền máu. Gần 16 triệu thành phần máu được truyền mỗi năm tại Mỹ."
+      },
+      "process": {
+        "title": "Quy Trình Hiến Máu",
+        "content": "Toàn bộ quá trình mất khoảng một giờ. Bao gồm đăng ký, kiểm tra sức khỏe sơ bộ, hiến máu và ăn nhẹ. Việc hiến máu thực tế chỉ mất khoảng 8-10 phút."
+      }
+    },
+    "cta": {
+      "title": "Sẵn Sàng Tạo Sự Khác Biệt?",
+      "subtitle": "Tham gia cộng đồng người hiến máu của chúng tôi và giúp cứu sống người khác trong khu vực của bạn.",
+      "register": "Đăng Ký Ngay"
+    }
+  },
+  "common": {
+    "language": "Ngôn ngữ"
+  },
+  "about": {
+    "title": "Về Chúng Tôi",
+    "missionTitle": "Sứ Mệnh Của Chúng Tôi",
+    "mission": "Chúng tôi kết nối người hiến máu với những người cần, giúp quá trình này trở nên an toàn, dễ dàng và tiếp cận cho mọi người.",
+    "howItWorksTitle": "Cách Hoạt Động",
+    "howItWorks": [
+      "Đăng ký làm người hiến máu hoặc yêu cầu máu dễ dàng qua nền tảng của chúng tôi.",
+      "Tìm kiếm người hiến máu hoặc sự kiện hiến máu gần bạn.",
+      "Đặt lịch hiến máu hoặc yêu cầu chỉ với vài cú nhấp chuột."
+    ],
+    "impactTitle": "Tác Động Của Chúng Tôi",
+    "impact": "Hàng ngàn sinh mạng đã được cứu nhờ sự hào phóng của người hiến máu và hiệu quả của hệ thống.",
+    "teamTitle": "Đội Ngũ Của Chúng Tôi",
+    "team": "Chúng tôi là nhóm các chuyên gia y tế, kỹ thuật viên và tình nguyện viên đầy nhiệt huyết, tận tâm cứu người.",
+    "contactTitle": "Liên Hệ",
+    "contact": "Có câu hỏi hoặc cần hỗ trợ? Liên hệ với chúng tôi qua support@blooddonation.org."
+  }
+} 

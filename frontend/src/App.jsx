@@ -4,6 +4,9 @@ import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { useSelector } from 'react-redux';
 
+// i18n
+import './i18n';
+
 // Layout
 import MainLayout from './layouts/MainLayout';
 
@@ -20,6 +23,7 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/admin/Dashboard';
 import StaffDashboard from './pages/staff/Dashboard';
 import UserDashboard from './pages/user/Dashboard';
+import Schedule from './pages/Schedule';
 
 // Theme
 import theme from './theme';
@@ -61,6 +65,7 @@ function App() {
                 <Route path="register" element={<Register />} />
                 <Route path="blood-request" element={<BloodRequest />} />
                 <Route path="blood-search" element={<BloodSearch />} />
+                <Route path="schedule" element={<Schedule />} />
               </Route>
 
               {/* Protected Routes */}

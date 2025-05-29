@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   AppBar,
   Box,
@@ -40,8 +41,10 @@ import {
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../store/slices/authSlice';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const MainLayout = () => {
+  const { t } = useTranslation();
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -85,10 +88,9 @@ const MainLayout = () => {
   };
 
   const menuItems = [
-    { text: 'Home', icon: <Home />, path: '/' },
-    { text: 'About', icon: <Info />, path: '/about' },
-    { text: 'Request Blood', icon: <LocalHospital />, path: '/blood-request' },
-    { text: 'Search Blood', icon: <Search />, path: '/blood-search' },
+    { text: t('nav.home'), icon: <Home />, path: '/' },
+    { text: t('nav.about'), icon: <Info />, path: '/about' },
+    { text: t('nav.bloodSchedule'), icon: <LocalHospital />, path: '/schedule' },
   ];
 
   const drawer = (
@@ -149,7 +151,8 @@ const MainLayout = () => {
               </Box>
             )}
 
-            <Box sx={{ flexGrow: 0 }}>
+            <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center', gap: 2 }}>
+              <LanguageSwitcher />
               {isAuthenticated ? (
                 <>
                   <Tooltip title="Open settings">
@@ -177,13 +180,13 @@ const MainLayout = () => {
                       <ListItemIcon>
                         <Person fontSize="small" />
                       </ListItemIcon>
-                      <Typography textAlign="center">Dashboard</Typography>
+                      <Typography textAlign="center">{t('nav.dashboard')}</Typography>
                     </MenuItem>
                     <MenuItem onClick={handleLogoutClick}>
                       <ListItemIcon>
                         <Login fontSize="small" />
                       </ListItemIcon>
-                      <Typography textAlign="center">Logout</Typography>
+                      <Typography textAlign="center">{t('nav.logout')}</Typography>
                     </MenuItem>
                   </Menu>
                 </>
@@ -194,14 +197,14 @@ const MainLayout = () => {
                     startIcon={<Login />}
                     onClick={() => navigate('/login')}
                   >
-                    Login
+                    {t('nav.login')}
                   </Button>
                   <Button
                     color="inherit"
                     startIcon={<HowToReg />}
                     onClick={() => navigate('/register')}
                   >
-                    Register
+                    {t('nav.register')}
                   </Button>
                 </Box>
               )}
@@ -256,7 +259,7 @@ const MainLayout = () => {
         aria-describedby="logout-dialog-description"
       >
         <DialogTitle id="logout-dialog-title">
-          Logout Confirmation
+          {t('nav.logout')}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="logout-dialog-description">
@@ -268,7 +271,7 @@ const MainLayout = () => {
             Cancel
           </Button>
           <Button onClick={handleLogoutConfirm} color="error" autoFocus>
-            Logout
+            {t('nav.logout')}
           </Button>
         </DialogActions>
       </Dialog>

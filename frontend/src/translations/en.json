@@ -1,0 +1,80 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "bloodSchedule": "Blood Schedule",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "dashboard": "Dashboard"
+  },
+  "schedule": {
+    "title": "Blood Donation Schedule",
+    "selectTime": "When would you like to schedule?",
+    "search": "Search",
+    "availableDates": "Available Donation Dates",
+    "noDates": "No available dates in this time range.",
+    "fromDate": "From date",
+    "toDate": "To date"
+  },
+  "home": {
+    "hero": {
+      "title": "Donate Blood, Save Lives",
+      "subtitle": "Join our blood donation network and make a difference in someone's life today.",
+      "becomeDonor": "Become a Donor"
+    },
+    "bloodTypes": {
+      "title": "Blood Types and Compatibility",
+      "universalDonor": "Universal Donor",
+      "mostCommon": "Most Common Type",
+      "rareType": "Rare Type",
+      "commonType": "Common Type",
+      "canReceive": "Can Receive From",
+      "canDonateTo": "Can Donate To"
+    },
+    "info": {
+      "title": "Learn About Blood Donation",
+      "bloodTypes": {
+        "title": "Blood Types",
+        "content": "There are four major blood groups determined by the presence or absence of two antigens, A and B, on the surface of red blood cells. In addition to the A and B antigens, there is a protein called the Rh factor, which can be either present (+) or absent (–), creating the 8 most common blood types (A+, A-, B+, B-, O+, O-, AB+, AB-)."
+      },
+      "universalDonors": {
+        "title": "Universal Donors",
+        "content": "Type O negative blood is the universal red cell donor type and can be given to patients of any blood type. Type AB blood is the universal plasma donor type. These blood types are crucial for emergency situations."
+      },
+      "whyDonate": {
+        "title": "Why Donate Blood?",
+        "content": "Blood donation is a simple, safe way to help save lives. Your donation can help up to three people in need of blood transfusions. Nearly 16 million blood components are transfused each year in the U.S."
+      },
+      "process": {
+        "title": "Donation Process",
+        "content": "The entire process takes about an hour. It includes registration, a mini-physical, donation, and refreshments. The actual donation takes only about 8-10 minutes."
+      }
+    },
+    "cta": {
+      "title": "Ready to Make a Difference?",
+      "subtitle": "Join our community of blood donors and help save lives in your area.",
+      "register": "Register Now"
+    }
+  },
+  "common": {
+    "language": "Language"
+  },
+  "about": {
+    "title": "About Us",
+    "missionTitle": "Our Mission",
+    "mission": "We strive to connect blood donors with those in need, making the process safe, easy, and accessible for everyone.",
+    "howItWorksTitle": "How It Works",
+    "howItWorks": [
+      "Register as a donor or request blood easily through our platform.",
+      "Search for available donors or donation events in your area.",
+      "Schedule your donation or request with just a few clicks."
+    ],
+    "impactTitle": "Our Impact",
+    "impact": "Thousands of lives have been saved thanks to the generosity of our donors and the efficiency of our system.",
+    "teamTitle": "Our Team",
+    "team": "We are a passionate group of healthcare professionals, technologists, and volunteers dedicated to saving lives.",
+    "contactTitle": "Contact Us",
+    "contact": "Have questions or need support? Reach out to us at support@blooddonation.org."
+  }
+} 
