@@ -39,12 +39,13 @@ import {
   Login,
   HowToReg,
 } from '@mui/icons-material';
+import BloodtypeIcon from '@mui/icons-material/Bloodtype';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../store/slices/authSlice';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const MainLayout = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -87,16 +88,16 @@ const MainLayout = () => {
     setShowLogoutAlert(false);
   };
 
-  const menuItems = [
-    { text: t('nav.home'), icon: <Home />, path: '/' },
-    { text: t('nav.about'), icon: <Info />, path: '/about' },
-    { text: t('nav.bloodSchedule'), icon: <LocalHospital />, path: '/schedule' },
+  const navItems = [
+    { text: t('nav.home'), icon: <Home sx={{ color: i18n.language === 'vi' ? '#d32f2f' : undefined }} />, path: '/' },
+    { text: t('nav.about'), icon: <Info sx={{ color: i18n.language === 'vi' ? '#d32f2f' : undefined }} />, path: '/about' },
+    { text: t('nav.bloodSchedule'), icon: <LocalHospital sx={{ color: i18n.language === 'vi' ? '#d32f2f' : undefined }} />, path: '/schedule' },
   ];
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
       <List>
-        {menuItems.map((item) => (
+        {navItems.map((item) => (
           <ListItem
             button
             key={item.text}
@@ -111,51 +112,39 @@ const MainLayout = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar position="static">
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#d32f2f' }}>
+      <AppBar position="static" elevation={0} sx={{ bgcolor: '#fff', color: 'text.primary', boxShadow: 'none', borderBottom: '1px solid #eee' }}>
         <Container maxWidth="xl" disableGutters>
-          <Toolbar disableGutters>
-            {isMobile && (
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                edge="start"
-                onClick={handleDrawerToggle}
-                sx={{ mr: 2 }}
-              >
-                <MenuIcon />
+          <Toolbar sx={{ minHeight: 80, px: 2, justifyContent: 'space-between' }}>
+            {/* Logo */}
+            <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+              <IconButton edge="start" color="inherit" sx={{ mr: 2 }} onClick={() => navigate('/') }>
+                <BloodtypeIcon sx={{ color: 'error.main', fontSize: 36 }} />
               </IconButton>
-            )}
-
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}
-            >
-              Blood Donation System
-            </Typography>
-
-            {!isMobile && (
-              <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
-                {menuItems.map((item) => (
-                  <Button
-                    key={item.text}
-                    color="inherit"
-                    startIcon={item.icon}
-                    onClick={() => navigate(item.path)}
-                  >
-                    {item.text}
-                  </Button>
-                ))}
+            </Box>
+            {/* Centered Navigation */}
+            <Box sx={{ display: 'flex', flex: 2, justifyContent: 'center', alignItems: 'center', gap: 4 }}>
+              {navItems.map((item) => (
+                <Button
+                  key={item.text}
+                  color="inherit"
+                  startIcon={item.icon}
+                  onClick={() => navigate(item.path)}
+                  sx={{ fontWeight: 600, fontSize: 18, textTransform: 'none', color: '#d32f2f' }}
+                >
+                  {item.text}
+                </Button>
+              ))}
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <LanguageSwitcher />
               </Box>
-            )}
-
-            <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center', gap: 2 }}>
-              <LanguageSwitcher />
+            </Box>
+            {/* User Info */}
+            <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'flex-end' }}>
               {isAuthenticated ? (
                 <>
-                  <Tooltip title="Open settings">
+                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: 18 }}>{user?.name}</Typography>
+                  <Tooltip title={t('nav.dashboard')}>
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                       <Avatar alt={user?.name} src={user?.avatar} />
                     </IconButton>
@@ -164,15 +153,9 @@ const MainLayout = () => {
                     sx={{ mt: '45px' }}
                     id="menu-appbar"
                     anchorEl={anchorElUser}
-                    anchorOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
-                    }}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                     keepMounted
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
-                    }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                     open={Boolean(anchorElUser)}
                     onClose={handleCloseUserMenu}
                   >
@@ -180,29 +163,29 @@ const MainLayout = () => {
                       <ListItemIcon>
                         <Person fontSize="small" />
                       </ListItemIcon>
-                      <Typography textAlign="center">{t('nav.dashboard')}</Typography>
+                      <ListItemText primary={t('nav.dashboard')} />
                     </MenuItem>
-                    <MenuItem onClick={handleLogoutClick}>
+                    <MenuItem onClick={handleLogoutClick} sx={{ color: 'error.main' }}>
                       <ListItemIcon>
                         <Login fontSize="small" />
                       </ListItemIcon>
-                      <Typography textAlign="center">{t('nav.logout')}</Typography>
+                      <ListItemText primary={t('nav.logout')} />
                     </MenuItem>
                   </Menu>
                 </>
               ) : (
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <Button
-                    color="inherit"
-                    startIcon={<Login />}
+                    startIcon={<Login sx={{ color: '#d32f2f', fontSize: 22 }} />}
                     onClick={() => navigate('/login')}
+                    sx={{ fontWeight: 600, fontSize: 18, textTransform: 'none', color: '#d32f2f', minWidth: 0, px: 2 }}
                   >
                     {t('nav.login')}
                   </Button>
                   <Button
-                    color="inherit"
-                    startIcon={<HowToReg />}
+                    startIcon={<HowToReg sx={{ color: '#d32f2f', fontSize: 22 }} />}
                     onClick={() => navigate('/register')}
+                    sx={{ fontWeight: 600, fontSize: 18, textTransform: 'none', color: '#d32f2f', minWidth: 0, px: 2 }}
                   >
                     {t('nav.register')}
                   </Button>
@@ -229,26 +212,8 @@ const MainLayout = () => {
         {drawer}
       </Drawer>
 
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Container maxWidth="xl">
-          <Outlet />
-        </Container>
-      </Box>
-
-      <Box
-        component="footer"
-        sx={{
-          py: 3,
-          px: 2,
-          mt: 'auto',
-          backgroundColor: (theme) => theme.palette.grey[200],
-        }}
-      >
-        <Container maxWidth="xl">
-          <Typography variant="body2" color="text.secondary" align="center">
-            © {new Date().getFullYear()} Blood Donation System. All rights reserved.
-          </Typography>
-        </Container>
+      <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
+        <Outlet />
       </Box>
 
       {/* Logout Confirmation Dialog */}
