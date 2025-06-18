@@ -225,15 +225,15 @@ const Home = () => {
               <Paper elevation={3} sx={{ bgcolor: '#fff', borderRadius: 4, p: { xs: 4, md: 6 }, boxShadow: cardShadow }}>
                 <Typography variant="h2" fontWeight={700} sx={{ mb: 2, textAlign: 'center', fontSize: { xs: 28, md: 40 }, color: '#d32f2f', letterSpacing: -1 }}>
                   Hệ Thống Hỗ Trợ Hiến Máu
-                </Typography>
+              </Typography>
                 <Typography variant="body1" sx={{ mb: 5, textAlign: 'center', fontSize: { xs: 16, md: 20 }, color: 'text.secondary' }}>
                   Tham gia mạng lưới hiến máu của chúng tôi và tạo sự khác biệt trong cuộc sống của ai đó ngay hôm nay
-                </Typography>
+              </Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    sx={{
+                <Button
+                  variant="contained"
+                  size="large"
+                  sx={{
                       px: 5, py: 1.5, fontWeight: 700, borderRadius: 3, fontSize: 20,
                       background: 'linear-gradient(90deg, #d32f2f 60%, #ff7961 100%)',
                       color: '#fff',
@@ -242,20 +242,20 @@ const Home = () => {
                       '&:hover': { background: 'linear-gradient(90deg, #b71c1c 60%, #ff7961 100%)', transform: 'scale(1.04)' }
                     }}
                     onClick={() => navigate('/register')}
-                  >
+                >
                     Đăng ký hiến máu ngay
-                  </Button>
-                </Box>
+                </Button>
+              </Box>
               </Paper>
             </Grid>
             <Grid item xs={12} md={6}>
               <Paper elevation={0} sx={{ bgcolor: '#fff', borderRadius: 4, p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: cardShadow }}>
-                <Box
-                  component="img"
-                  src="/images/blood-donation-hero.jpg"
-                  alt="Blood Donation"
+              <Box
+                component="img"
+                src="/images/blood-donation-hero.jpg"
+                alt="Blood Donation"
                   sx={{ width: '100%', maxWidth: 280, height: 'auto', display: 'block', borderRadius: 2 }}
-                />
+              />
               </Paper>
             </Grid>
           </Grid>
@@ -269,7 +269,7 @@ const Home = () => {
             <CheckCircleIcon sx={{ color: 'success.main', fontSize: 32, mr: 1 }} />
             <Typography variant="h4" fontWeight={700} sx={{ textDecoration: 'underline', textUnderlineOffset: 8, fontSize: { xs: 22, md: 30 }, color: '#d32f2f', letterSpacing: -0.5 }}>
               Tìm hiểu về hiến máu
-            </Typography>
+        </Typography>
           </Box>
           <Grid container spacing={4} justifyContent="center">
             {learnCards.map((card, idx) => (
@@ -278,10 +278,10 @@ const Home = () => {
                   {card.icon}
                   <Typography fontWeight={600} sx={{ mt: 1, fontSize: 18, color: '#d32f2f' }}>{card.title}</Typography>
                 </Paper>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
       </Box>
 
       {/* Section: Nhóm Máu và Tính Tương Thích */}
@@ -317,7 +317,7 @@ const Home = () => {
             <DialogContent>
               <Typography sx={{ color: 'text.secondary', fontSize: 17 }}>
                 {openCard !== null && (typeof bloodCards[openCard].details === 'string' ? bloodCards[openCard].details : bloodCards[openCard].details)}
-              </Typography>
+          </Typography>
             </DialogContent>
           </Dialog>
         </Container>

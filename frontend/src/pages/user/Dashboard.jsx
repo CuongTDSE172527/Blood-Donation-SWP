@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Container,
@@ -26,9 +27,16 @@ import {
   History,
   Notifications,
   Edit,
+  CalendarToday,
+  LocationOn,
 } from '@mui/icons-material';
 
+const sectionBg = '#fff5f5';
+const cardShadow = '0 4px 24px 0 rgba(211,47,47,0.07)';
+const cardRadius = 3;
+
 const UserDashboard = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [user] = useState({
     name: 'John Doe',
@@ -63,214 +71,276 @@ const UserDashboard = () => {
   const progress = Math.min(100, Math.max(0, ((180 - daysUntilNextDonation) / 180) * 100));
 
   return (
-    <Container maxWidth="xl">
-      <Box sx={{ mt: 4, mb: 4 }}>
-        {/* User Profile Summary */}
-        <Paper sx={{ p: 3, mb: 4 }}>
-          <Grid container spacing={3} alignItems="center">
-            <Grid item xs={12} md={3} sx={{ textAlign: 'center' }}>
-              <Avatar
-                sx={{ width: 120, height: 120, mx: 'auto', mb: 2 }}
-                src={user.avatar}
-              >
-                {user.name.charAt(0)}
-              </Avatar>
-              <Typography variant="h6">{user.name}</Typography>
-              <Chip
-                icon={<Bloodtype />}
-                label={`Blood Type: ${user.bloodType}`}
-                color="primary"
-                sx={{ mt: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12} md={9}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Next Donation Eligibility
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={progress}
-                      sx={{ flexGrow: 1, mr: 2 }}
-                    />
+    <Box sx={{ bgcolor: sectionBg, minHeight: '100vh', py: 6 }}>
+      <Container maxWidth="lg">
+        <Typography
+          variant="h3"
+          align="center"
+          fontWeight={700}
+          sx={{ mb: 5, textDecoration: 'underline', textUnderlineOffset: 8, color: '#d32f2f', letterSpacing: -1 }}
+        >
+          {t('user.dashboardTitle')}
+        </Typography>
+
+        <Grid container spacing={4}>
+          {/* Profile Summary */}
+          <Grid item xs={12} md={4}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <Avatar
+                    sx={{ width: 80, height: 80, bgcolor: '#d32f2f', mr: 2 }}
+                    alt={user.name}
+                    src={user.avatar}
+                  >
+                    {user.name.charAt(0)}
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h5" gutterBottom>
+                      {user.name}
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {Math.round(progress)}%
+                      {t('user.bloodType')}: {user.bloodType}
                     </Typography>
                   </Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {daysUntilNextDonation > 0
-                      ? `${daysUntilNextDonation} days until next donation`
-                      : 'Eligible to donate now!'}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Donation Statistics
-                  </Typography>
-                  <Typography variant="body1">
-                    Total Donations: {user.totalDonations}
-                  </Typography>
-                  <Typography variant="body1">
-                    Last Donation: {user.lastDonation}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Paper>
-
-        {/* Quick Actions */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Bloodtype sx={{ fontSize: 40, color: 'error.main', mr: 2 }} />
-                  <Typography variant="h6">Donate Blood</Typography>
                 </Box>
-                <Typography variant="body2" color="text.secondary">
-                  Schedule your next blood donation
-                </Typography>
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    {t('user.nextDonationEligibility')}
+                  </Typography>
+                  <LinearProgress
+                    variant="determinate"
+                    value={progress}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      bgcolor: 'rgba(211,47,47,0.1)',
+                      '& .MuiLinearProgress-bar': {
+                        bgcolor: '#d32f2f',
+                      },
+                    }}
+                  />
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    {t('user.daysUntilNextDonation', { days: daysUntilNextDonation })}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <History sx={{ color: 'text.secondary', mr: 1 }} />
+                  <Typography variant="body2" color="text.secondary">
+                    {t('user.totalDonations')}: {user.totalDonations}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CalendarToday sx={{ color: 'text.secondary', mr: 1 }} />
+                  <Typography variant="body2" color="text.secondary">
+                    {t('user.lastDonation')}: {user.lastDonation}
+                  </Typography>
+                </Box>
               </CardContent>
               <CardActions>
                 <Button
-                  size="small"
-                  onClick={() => navigate('/donate')}
-                  disabled={daysUntilNextDonation > 0}
+                  startIcon={<Edit />}
+                  onClick={() => navigate('/user/profile')}
+                  sx={{ color: '#d32f2f' }}
                 >
-                  Schedule Donation
+                  {t('user.editProfile')}
                 </Button>
               </CardActions>
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
+          {/* Donation History */}
+          <Grid item xs={12} md={8}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <LocalHospital sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
-                  <Typography variant="h6">Request Blood</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  Submit a blood request
+                <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f' }}>
+                  {t('user.donationHistory')}
                 </Typography>
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>{t('user.date')}</TableCell>
+                        <TableCell>{t('user.location')}</TableCell>
+                        <TableCell>{t('user.units')}</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {donationHistory.map((donation) => (
+                        <TableRow key={donation.id}>
+                          <TableCell>{donation.date}</TableCell>
+                          <TableCell>{donation.location}</TableCell>
+                          <TableCell>{donation.units}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </CardContent>
-              <CardActions>
-                <Button size="small" onClick={() => navigate('/blood-request')}>
-                  Create Request
-                </Button>
-              </CardActions>
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
+          {/* Active Requests */}
+          <Grid item xs={12}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <History sx={{ fontSize: 40, color: 'info.main', mr: 2 }} />
-                  <Typography variant="h6">Donation History</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  View your donation records
+                <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f' }}>
+                  {t('user.activeRequests')}
                 </Typography>
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>{t('user.patient')}</TableCell>
+                        <TableCell>{t('user.bloodType')}</TableCell>
+                        <TableCell>{t('user.units')}</TableCell>
+                        <TableCell>{t('user.status')}</TableCell>
+                        <TableCell>{t('user.date')}</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {activeRequests.map((request) => (
+                        <TableRow key={request.id}>
+                          <TableCell>{request.patient}</TableCell>
+                          <TableCell>{request.bloodType}</TableCell>
+                          <TableCell>{request.units}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={t(`user.status_${request.status.toLowerCase()}`)}
+                              color={request.status === 'Approved' ? 'success' : 'warning'}
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell>{request.date}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </CardContent>
-              <CardActions>
-                <Button size="small" onClick={() => navigate('/donation-history')}>
-                  View History
-                </Button>
-              </CardActions>
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Edit sx={{ fontSize: 40, color: 'success.main', mr: 2 }} />
-                  <Typography variant="h6">Update Profile</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  Manage your information
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button size="small" onClick={() => navigate('/profile')}>
-                  Edit Profile
-                </Button>
-              </CardActions>
-            </Card>
+          {/* Quick Actions */}
+          <Grid item xs={12}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <Bloodtype sx={{ color: '#d32f2f', mr: 1 }} />
+                      <Typography variant="h6">{t('user.donateBlood')}</Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" paragraph>
+                      {t('user.scheduleDonationDesc')}
+                    </Typography>
+                  </CardContent>
+                  <CardActions>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      onClick={() => navigate('/user/donate')}
+                      sx={{
+                        bgcolor: '#d32f2f',
+                        '&:hover': {
+                          bgcolor: '#b71c1c',
+                        },
+                      }}
+                    >
+                      {t('user.scheduleNow')}
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <LocalHospital sx={{ color: '#d32f2f', mr: 1 }} />
+                      <Typography variant="h6">{t('user.requestBlood')}</Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" paragraph>
+                      {t('user.requestBloodDesc')}
+                    </Typography>
+                  </CardContent>
+                  <CardActions>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      onClick={() => navigate('/blood-request')}
+                      sx={{
+                        bgcolor: '#d32f2f',
+                        '&:hover': {
+                          bgcolor: '#b71c1c',
+                        },
+                      }}
+                    >
+                      {t('user.makeRequest')}
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <History sx={{ color: '#d32f2f', mr: 1 }} />
+                      <Typography variant="h6">{t('user.history')}</Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" paragraph>
+                      {t('user.viewDonationHistoryDesc')}
+                    </Typography>
+                  </CardContent>
+                  <CardActions>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      onClick={() => navigate('/user/donation-history')}
+                      sx={{
+                        bgcolor: '#d32f2f',
+                        '&:hover': {
+                          bgcolor: '#b71c1c',
+                        },
+                      }}
+                    >
+                      {t('user.viewHistory')}
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <Notifications sx={{ color: '#d32f2f', mr: 1 }} />
+                      <Typography variant="h6">{t('user.notifications')}</Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" paragraph>
+                      {t('user.checkNotificationsDesc')}
+                    </Typography>
+                  </CardContent>
+                  <CardActions>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      onClick={() => navigate('/user/notifications')}
+                      sx={{
+                        bgcolor: '#d32f2f',
+                        '&:hover': {
+                          bgcolor: '#b71c1c',
+                        },
+                      }}
+                    >
+                      {t('user.viewAll')}
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
-
-        {/* Active Requests */}
-        <Paper sx={{ p: 2, mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            Your Active Requests
-          </Typography>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Patient</TableCell>
-                  <TableCell>Blood Type</TableCell>
-                  <TableCell>Units</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Date</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {activeRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell>{request.id}</TableCell>
-                    <TableCell>{request.patient}</TableCell>
-                    <TableCell>{request.bloodType}</TableCell>
-                    <TableCell>{request.units}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={request.status}
-                        color={request.status === 'Approved' ? 'success' : 'warning'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>{request.date}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
-
-        {/* Donation History */}
-        <Paper sx={{ p: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Recent Donations
-          </Typography>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Location</TableCell>
-                  <TableCell>Units</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {donationHistory.map((donation) => (
-                  <TableRow key={donation.id}>
-                    <TableCell>{donation.date}</TableCell>
-                    <TableCell>{donation.location}</TableCell>
-                    <TableCell>{donation.units}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 };
 

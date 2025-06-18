@@ -20,7 +20,7 @@ const About = () => {
 
   return (
     <Box sx={{ bgcolor: sectionBg, minHeight: '100vh', py: 6 }}>
-      <Container maxWidth="md">
+    <Container maxWidth="md">
         <Typography
           variant="h3"
           align="center"
@@ -71,10 +71,10 @@ const About = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
             <ContactSupportIcon sx={{ color: '#d32f2f', mr: 1 }} />
             <Typography variant="h6" fontWeight={700} sx={{ color: '#d32f2f' }}>{t('about.contactTitle')}</Typography>
-          </Box>
+      </Box>
           <Typography variant="body1" sx={{ color: 'text.secondary' }}>{t('about.contact')}</Typography>
         </Paper>
-      </Container>
+    </Container>
     </Box>
   );
 };

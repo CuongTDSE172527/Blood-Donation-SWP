@@ -159,7 +159,7 @@ const MainLayout = () => {
                     open={Boolean(anchorElUser)}
                     onClose={handleCloseUserMenu}
                   >
-                    <MenuItem onClick={() => navigate('/donor/dashboard')}>
+                    <MenuItem onClick={() => navigate(`/${user.role}/dashboard`)}>
                       <ListItemIcon>
                         <Person fontSize="small" />
                       </ListItemIcon>

@@ -10,8 +10,10 @@ import {
   Link,
   Grid,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 const Register = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -41,7 +43,7 @@ const Register = () => {
       <Box sx={{ mt: 8, mb: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
           <Typography variant="h4" component="h1" align="center" gutterBottom>
-            Register as Donor
+            {t('register.title')}
           </Typography>
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             <Grid container spacing={2}>
@@ -49,7 +51,7 @@ const Register = () => {
                 <TextField
                   required
                   fullWidth
-                  label="First Name"
+                  label={t('register.name') + ' (' + t('register.firstName') + ')'}
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
@@ -59,7 +61,7 @@ const Register = () => {
                 <TextField
                   required
                   fullWidth
-                  label="Last Name"
+                  label={t('register.name') + ' (' + t('register.lastName') + ')'}
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
@@ -69,7 +71,7 @@ const Register = () => {
                 <TextField
                   required
                   fullWidth
-                  label="Email Address"
+                  label={t('register.email')}
                   name="email"
                   type="email"
                   value={formData.email}
@@ -80,7 +82,7 @@ const Register = () => {
                 <TextField
                   required
                   fullWidth
-                  label="Password"
+                  label={t('register.password')}
                   name="password"
                   type="password"
                   value={formData.password}
@@ -91,7 +93,7 @@ const Register = () => {
                 <TextField
                   required
                   fullWidth
-                  label="Confirm Password"
+                  label={t('register.confirmPassword')}
                   name="confirmPassword"
                   type="password"
                   value={formData.confirmPassword}
@@ -103,7 +105,7 @@ const Register = () => {
                   required
                   fullWidth
                   select
-                  label="Blood Type"
+                  label={t('register.bloodType')}
                   name="bloodType"
                   value={formData.bloodType}
                   onChange={handleChange}
@@ -111,7 +113,7 @@ const Register = () => {
                     native: true,
                   }}
                 >
-                  <option value="">Select Blood Type</option>
+                  <option value="">{t('register.bloodTypeSelect')}</option>
                   <option value="A+">A+</option>
                   <option value="A-">A-</option>
                   <option value="B+">B+</option>
@@ -129,11 +131,11 @@ const Register = () => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Register
+              {t('register.registerButton')}
             </Button>
             <Box sx={{ textAlign: 'center' }}>
               <Link href="/login" variant="body2">
-                Already have an account? Sign in
+                {t('register.alreadyAccount')} {t('register.loginNow')}
               </Link>
             </Box>
           </Box>

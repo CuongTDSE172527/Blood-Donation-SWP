@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
 import TranslateIcon from '@mui/icons-material/Translate';
+import i18n from '../i18n';
 
 const LanguageSwitcher = () => {
   const { t } = useTranslation();
@@ -16,8 +17,9 @@ const LanguageSwitcher = () => {
   };
 
   const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
     window.localStorage.setItem('i18nextLng', lng);
-    window.location.reload(); // force reload to update all translations
+    handleClose();
   };
 
   return (

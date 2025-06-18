@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { loginStart, loginSuccess, loginFailure } from '../../store/slices/authSlice';
+import { useTranslation } from 'react-i18next';
 
 const Login = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -35,15 +37,44 @@ const Login = () => {
       // TODO: Replace with actual API call
       const response = await new Promise((resolve) => {
         setTimeout(() => {
+          // Giả lập API response với role khác nhau dựa vào email
+          let role = 'user';
+          if (formData.email.includes('admin')) {
+            role = 'admin';
+          } else if (formData.email.includes('staff')) {
+            role = 'staff';
+          } else if (formData.email.includes('donor')) {
+            role = 'donor';
+          }
+
           resolve({
-            user: { id: 1, name: 'Test User', email: formData.email },
+            user: { 
+              id: 1, 
+              name: 'Test User', 
+              email: formData.email,
+              role: role
+            },
             token: 'dummy-token',
           });
         }, 1000);
       });
 
       dispatch(loginSuccess(response));
-      navigate('/donor/dashboard');
+      
+      // Điều hướng dựa vào role
+      switch (response.user.role) {
+        case 'admin':
+          navigate('/admin/dashboard');
+          break;
+        case 'staff':
+          navigate('/staff/dashboard');
+          break;
+        case 'donor':
+          navigate('/donor/dashboard');
+          break;
+        default:
+          navigate('/user/dashboard');
+      }
     } catch (error) {
       dispatch(loginFailure(error.message));
     }
@@ -54,7 +85,7 @@ const Login = () => {
       <Box sx={{ mt: 8, mb: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
           <Typography variant="h4" component="h1" align="center" gutterBottom>
-            Login
+            {t('login.title')}
           </Typography>
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             <TextField
@@ -62,7 +93,7 @@ const Login = () => {
               required
               fullWidth
               id="email"
-              label="Email Address"
+              label={t('login.email')}
               name="email"
               autoComplete="email"
               autoFocus
@@ -74,7 +105,7 @@ const Login = () => {
               required
               fullWidth
               name="password"
-              label="Password"
+              label={t('login.password')}
               type="password"
               id="password"
               autoComplete="current-password"
@@ -87,11 +118,11 @@ const Login = () => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign In
+              {t('login.loginButton')}
             </Button>
             <Box sx={{ textAlign: 'center' }}>
               <Link href="/register" variant="body2">
-                {"Don't have an account? Sign Up"}
+                {t('login.noAccount')} {t('login.registerNow')}
               </Link>
             </Box>
           </Box>

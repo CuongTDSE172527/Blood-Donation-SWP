@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Container,
@@ -16,220 +17,326 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  IconButton,
   Chip,
+  LinearProgress,
+  Avatar,
 } from '@mui/material';
 import {
   People,
   LocalHospital,
   Bloodtype,
+  Settings,
   Notifications,
   Edit,
-  Delete,
-  Visibility,
+  CalendarToday,
+  LocationOn,
+  Group,
+  Assignment,
+  Inventory,
 } from '@mui/icons-material';
 
-const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const [recentRequests] = useState([
-    { id: 1, patient: 'John Doe', bloodType: 'A+', units: 2, status: 'Pending', date: '2024-03-20' },
-    { id: 2, patient: 'Jane Smith', bloodType: 'O-', units: 3, status: 'Approved', date: '2024-03-19' },
-    { id: 3, patient: 'Mike Johnson', bloodType: 'B+', units: 1, status: 'Completed', date: '2024-03-18' },
-  ]);
+const sectionBg = '#fff5f5';
+const cardShadow = '0 4px 24px 0 rgba(211,47,47,0.07)';
+const cardRadius = 3;
 
+const AdminDashboard = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const [stats] = useState({
-    totalDonors: 150,
-    activeRequests: 12,
-    bloodInventory: {
-      'A+': 25,
-      'A-': 15,
-      'B+': 30,
-      'B-': 20,
-      'AB+': 10,
-      'AB-': 5,
-      'O+': 40,
-      'O-': 20,
-    },
-    pendingApprovals: 5,
+    totalUsers: 150,
+    totalDonors: 75,
+    totalStaff: 10,
+    totalRequests: 45,
+    pendingRequests: 12,
+    totalInventory: 500,
+    lowStock: 3,
   });
 
+  const [recentUsers] = useState([
+    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'donor', joinDate: '2024-03-15' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'staff', joinDate: '2024-03-14' },
+    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', role: 'user', joinDate: '2024-03-13' },
+  ]);
+
+  const [recentRequests] = useState([
+    { id: 1, patient: 'Sarah Wilson', bloodType: 'A+', units: 2, status: 'Pending', date: '2024-03-20' },
+    { id: 2, patient: 'Tom Brown', bloodType: 'O-', units: 1, status: 'Approved', date: '2024-03-19' },
+    { id: 3, patient: 'Lisa Davis', bloodType: 'B+', units: 3, status: 'Pending', date: '2024-03-18' },
+  ]);
+
   return (
-    <Container maxWidth="xl">
-      <Box sx={{ mt: 4, mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Admin Dashboard
+    <Box sx={{ bgcolor: sectionBg, minHeight: '100vh', py: 6 }}>
+      <Container maxWidth="lg">
+        <Typography
+          variant="h3"
+          align="center"
+          fontWeight={700}
+          sx={{ mb: 5, textDecoration: 'underline', textUnderlineOffset: 8, color: '#d32f2f', letterSpacing: -1 }}
+        >
+          {t('admin.dashboardTitle')}
         </Typography>
 
-        {/* Quick Stats */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
+        {/* Stats Overview */}
+        <Grid container spacing={4} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
-            <Card>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <People sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
-                  <Typography variant="h6">Total Donors</Typography>
+                  <People sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('admin.totalUsers')}</Typography>
                 </Box>
-                <Typography variant="h4">{stats.totalDonors}</Typography>
-              </CardContent>
-              <CardActions>
-                <Button size="small" onClick={() => navigate('/admin/donors')}>
-                  View All
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <LocalHospital sx={{ fontSize: 40, color: 'error.main', mr: 2 }} />
-                  <Typography variant="h6">Active Requests</Typography>
-                </Box>
-                <Typography variant="h4">{stats.activeRequests}</Typography>
-              </CardContent>
-              <CardActions>
-                <Button size="small" onClick={() => navigate('/admin/requests')}>
-                  View All
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Bloodtype sx={{ fontSize: 40, color: 'success.main', mr: 2 }} />
-                  <Typography variant="h6">Blood Inventory</Typography>
-                </Box>
-                <Typography variant="h4">
-                  {Object.values(stats.bloodInventory).reduce((a, b) => a + b, 0)}
+                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
+                  {stats.totalUsers}
                 </Typography>
               </CardContent>
-              <CardActions>
-                <Button size="small" onClick={() => navigate('/admin/inventory')}>
-                  View Details
-                </Button>
-              </CardActions>
             </Card>
           </Grid>
-
           <Grid item xs={12} sm={6} md={3}>
-            <Card>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Notifications sx={{ fontSize: 40, color: 'warning.main', mr: 2 }} />
-                  <Typography variant="h6">Pending Approvals</Typography>
+                  <Bloodtype sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('admin.totalDonors')}</Typography>
                 </Box>
-                <Typography variant="h4">{stats.pendingApprovals}</Typography>
+                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
+                  {stats.totalDonors}
+                </Typography>
               </CardContent>
-              <CardActions>
-                <Button size="small" onClick={() => navigate('/admin/approvals')}>
-                  Review
-                </Button>
-              </CardActions>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Group sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('admin.totalStaff')}</Typography>
+                </Box>
+                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
+                  {stats.totalStaff}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <LocalHospital sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('admin.totalRequests')}</Typography>
+                </Box>
+                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
+                  {stats.totalRequests}
+                </Typography>
+              </CardContent>
             </Card>
           </Grid>
         </Grid>
-
-        {/* Recent Blood Requests */}
-        <Paper sx={{ p: 2, mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            Recent Blood Requests
-          </Typography>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Patient</TableCell>
-                  <TableCell>Blood Type</TableCell>
-                  <TableCell>Units</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {recentRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell>{request.id}</TableCell>
-                    <TableCell>{request.patient}</TableCell>
-                    <TableCell>{request.bloodType}</TableCell>
-                    <TableCell>{request.units}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={request.status}
-                        color={
-                          request.status === 'Completed'
-                            ? 'success'
-                            : request.status === 'Approved'
-                            ? 'primary'
-                            : 'warning'
-                        }
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>{request.date}</TableCell>
-                    <TableCell>
-                      <IconButton size="small" onClick={() => navigate(`/admin/requests/${request.id}`)}>
-                        <Visibility />
-                      </IconButton>
-                      <IconButton size="small" onClick={() => navigate(`/admin/requests/${request.id}/edit`)}>
-                        <Edit />
-                      </IconButton>
-                      <IconButton size="small" color="error">
-                        <Delete />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
 
         {/* Quick Actions */}
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Card>
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
               <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Staff Management
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <People sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('admin.userManagement')}</Typography>
+                </Box>
                 <Typography variant="body2" color="text.secondary" paragraph>
-                  Manage staff accounts, roles, and permissions
+                  {t('admin.userManagementDesc')}
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button size="small" onClick={() => navigate('/admin/staff')}>
-                  Manage Staff
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={() => navigate('/admin/users')}
+                  sx={{
+                    bgcolor: '#d32f2f',
+                    '&:hover': {
+                      bgcolor: '#b71c1c',
+                    },
+                  }}
+                >
+                  {t('admin.manageUsers')}
                 </Button>
               </CardActions>
             </Card>
           </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Card>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
               <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  System Settings
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Assignment sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('admin.staffManagement')}</Typography>
+                </Box>
                 <Typography variant="body2" color="text.secondary" paragraph>
-                  Configure system parameters and notifications
+                  {t('admin.staffManagementDesc')}
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button size="small" onClick={() => navigate('/admin/settings')}>
-                  Settings
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={() => navigate('/admin/staff')}
+                  sx={{
+                    bgcolor: '#d32f2f',
+                    '&:hover': {
+                      bgcolor: '#b71c1c',
+                    },
+                  }}
+                >
+                  {t('admin.manageStaff')}
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Inventory sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('admin.inventory')}</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary" paragraph>
+                  {t('admin.inventoryDesc')}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={() => navigate('/admin/inventory')}
+                  sx={{
+                    bgcolor: '#d32f2f',
+                    '&:hover': {
+                      bgcolor: '#b71c1c',
+                    },
+                  }}
+                >
+                  {t('admin.viewInventory')}
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Settings sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('admin.settings')}</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary" paragraph>
+                  {t('admin.settingsDesc')}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={() => navigate('/admin/settings')}
+                  sx={{
+                    bgcolor: '#d32f2f',
+                    '&:hover': {
+                      bgcolor: '#b71c1c',
+                    },
+                  }}
+                >
+                  {t('admin.systemSettings')}
                 </Button>
               </CardActions>
             </Card>
           </Grid>
         </Grid>
-      </Box>
-    </Container>
+
+        {/* Recent Users */}
+        <Grid item xs={12} sx={{ mb: 4 }}>
+          <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f' }}>
+                {t('admin.recentUsers')}
+              </Typography>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t('admin.name')}</TableCell>
+                      <TableCell>{t('admin.email')}</TableCell>
+                      <TableCell>{t('admin.role')}</TableCell>
+                      <TableCell>{t('admin.joinDate')}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {recentUsers.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>{user.name}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={t(`admin.role_${user.role}`)}
+                            color={
+                              user.role === 'admin'
+                                ? 'error'
+                                : user.role === 'staff'
+                                ? 'warning'
+                                : user.role === 'donor'
+                                ? 'success'
+                                : 'default'
+                            }
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>{user.joinDate}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Recent Requests */}
+        <Grid item xs={12}>
+          <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f' }}>
+                {t('admin.recentRequests')}
+              </Typography>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t('admin.patient')}</TableCell>
+                      <TableCell>{t('admin.bloodType')}</TableCell>
+                      <TableCell>{t('admin.units')}</TableCell>
+                      <TableCell>{t('admin.status')}</TableCell>
+                      <TableCell>{t('admin.date')}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {recentRequests.map((request) => (
+                      <TableRow key={request.id}>
+                        <TableCell>{request.patient}</TableCell>
+                        <TableCell>{request.bloodType}</TableCell>
+                        <TableCell>{request.units}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={t(`admin.status_${request.status.toLowerCase()}`)}
+                            color={request.status === 'Approved' ? 'success' : 'warning'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>{request.date}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 

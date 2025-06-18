@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Container,
@@ -16,259 +17,315 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  IconButton,
   Chip,
-  TextField,
-  InputAdornment,
+  LinearProgress,
+  Avatar,
 } from '@mui/material';
 import {
-  LocalHospital,
   Bloodtype,
-  Search,
+  LocalHospital,
+  History,
+  Notifications,
   Edit,
-  CheckCircle,
-  Cancel,
-  Visibility,
+  CalendarToday,
+  LocationOn,
+  Group,
+  Assignment,
+  Inventory,
 } from '@mui/icons-material';
 
+const sectionBg = '#fff5f5';
+const cardShadow = '0 4px 24px 0 rgba(211,47,47,0.07)';
+const cardRadius = 3;
+
 const StaffDashboard = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const [recentRequests] = useState([
-    { id: 1, patient: 'John Doe', bloodType: 'A+', units: 2, status: 'Pending', date: '2024-03-20' },
-    { id: 2, patient: 'Jane Smith', bloodType: 'O-', units: 3, status: 'Approved', date: '2024-03-19' },
-    { id: 3, patient: 'Mike Johnson', bloodType: 'B+', units: 1, status: 'Completed', date: '2024-03-18' },
-  ]);
-
   const [stats] = useState({
-    pendingRequests: 8,
-    approvedRequests: 4,
-    bloodInventory: {
-      'A+': 25,
-      'A-': 15,
-      'B+': 30,
-      'B-': 20,
-      'AB+': 10,
-      'AB-': 5,
-      'O+': 40,
-      'O-': 20,
-    },
+    totalDonors: 75,
+    totalRequests: 45,
+    pendingRequests: 12,
+    totalInventory: 500,
+    lowStock: 3,
   });
 
-  const handleApprove = (requestId) => {
-    // TODO: Implement approval logic
-    console.log('Approving request:', requestId);
-  };
+  const [recentDonors] = useState([
+    { id: 1, name: 'John Doe', bloodType: 'A+', lastDonation: '2024-02-15', status: 'Eligible' },
+    { id: 2, name: 'Jane Smith', bloodType: 'O-', lastDonation: '2024-01-20', status: 'Eligible' },
+    { id: 3, name: 'Mike Johnson', bloodType: 'B+', lastDonation: '2023-12-10', status: 'Not Eligible' },
+  ]);
 
-  const handleReject = (requestId) => {
-    // TODO: Implement rejection logic
-    console.log('Rejecting request:', requestId);
-  };
+  const [recentRequests] = useState([
+    { id: 1, patient: 'Sarah Wilson', bloodType: 'A+', units: 2, status: 'Pending', date: '2024-03-20' },
+    { id: 2, patient: 'Tom Brown', bloodType: 'O-', units: 1, status: 'Approved', date: '2024-03-19' },
+    { id: 3, patient: 'Lisa Davis', bloodType: 'B+', units: 3, status: 'Pending', date: '2024-03-18' },
+  ]);
 
   return (
-    <Container maxWidth="xl">
-      <Box sx={{ mt: 4, mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Staff Dashboard
+    <Box sx={{ bgcolor: sectionBg, minHeight: '100vh', py: 6 }}>
+      <Container maxWidth="lg">
+        <Typography
+          variant="h3"
+          align="center"
+          fontWeight={700}
+          sx={{ mb: 5, textDecoration: 'underline', textUnderlineOffset: 8, color: '#d32f2f', letterSpacing: -1 }}
+        >
+          {t('staff.dashboardTitle')}
         </Typography>
 
-        {/* Quick Stats */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={4}>
-            <Card>
+        {/* Stats Overview */}
+        <Grid container spacing={4} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <LocalHospital sx={{ fontSize: 40, color: 'warning.main', mr: 2 }} />
-                  <Typography variant="h6">Pending Requests</Typography>
+                  <Bloodtype sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('staff.totalDonors')}</Typography>
                 </Box>
-                <Typography variant="h4">{stats.pendingRequests}</Typography>
-              </CardContent>
-              <CardActions>
-                <Button size="small" onClick={() => navigate('/staff/requests/pending')}>
-                  View Pending
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={4}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <CheckCircle sx={{ fontSize: 40, color: 'success.main', mr: 2 }} />
-                  <Typography variant="h6">Approved Requests</Typography>
-                </Box>
-                <Typography variant="h4">{stats.approvedRequests}</Typography>
-              </CardContent>
-              <CardActions>
-                <Button size="small" onClick={() => navigate('/staff/requests/approved')}>
-                  View Approved
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={4}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Bloodtype sx={{ fontSize: 40, color: 'error.main', mr: 2 }} />
-                  <Typography variant="h6">Blood Inventory</Typography>
-                </Box>
-                <Typography variant="h4">
-                  {Object.values(stats.bloodInventory).reduce((a, b) => a + b, 0)}
+                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
+                  {stats.totalDonors}
                 </Typography>
               </CardContent>
-              <CardActions>
-                <Button size="small" onClick={() => navigate('/staff/inventory')}>
-                  View Details
-                </Button>
-              </CardActions>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <LocalHospital sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('staff.totalRequests')}</Typography>
+                </Box>
+                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
+                  {stats.totalRequests}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Notifications sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('staff.pendingRequests')}</Typography>
+                </Box>
+                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
+                  {stats.pendingRequests}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Inventory sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('staff.totalInventory')}</Typography>
+                </Box>
+                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
+                  {stats.totalInventory}
+                </Typography>
+              </CardContent>
             </Card>
           </Grid>
         </Grid>
-
-        {/* Search and Filter */}
-        <Box sx={{ mb: 4 }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Search requests by patient name, ID, or blood type..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Box>
-
-        {/* Recent Blood Requests */}
-        <Paper sx={{ p: 2, mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            Recent Blood Requests
-          </Typography>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Patient</TableCell>
-                  <TableCell>Blood Type</TableCell>
-                  <TableCell>Units</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {recentRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell>{request.id}</TableCell>
-                    <TableCell>{request.patient}</TableCell>
-                    <TableCell>{request.bloodType}</TableCell>
-                    <TableCell>{request.units}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={request.status}
-                        color={
-                          request.status === 'Completed'
-                            ? 'success'
-                            : request.status === 'Approved'
-                            ? 'primary'
-                            : 'warning'
-                        }
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>{request.date}</TableCell>
-                    <TableCell>
-                      <IconButton size="small" onClick={() => navigate(`/staff/requests/${request.id}`)}>
-                        <Visibility />
-                      </IconButton>
-                      {request.status === 'Pending' && (
-                        <>
-                          <IconButton
-                            size="small"
-                            color="success"
-                            onClick={() => handleApprove(request.id)}
-                          >
-                            <CheckCircle />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => handleReject(request.id)}
-                          >
-                            <Cancel />
-                          </IconButton>
-                        </>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
 
         {/* Quick Actions */}
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Card>
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
               <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Emergency Requests
-                </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  Create and manage emergency blood requests
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button 
-                    size="small" 
-                    color="error" 
-                    variant="contained"
-                    onClick={() => navigate('/staff/emergency')}
-                  >
-                    Create Emergency Request
-                  </Button>
-                  <Button 
-                    size="small" 
-                    color="primary" 
-                    variant="outlined"
-                    onClick={() => navigate('/staff/emergency/list')}
-                  >
-                    View All Requests
-                  </Button>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Group sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('staff.donorManagement')}</Typography>
                 </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Donor Management
-                </Typography>
                 <Typography variant="body2" color="text.secondary" paragraph>
-                  Manage donor information and donation history
+                  {t('staff.donorManagementDesc')}
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button size="small" onClick={() => navigate('/staff/donors')}>
-                  Manage Donors
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={() => navigate('/staff/donors')}
+                  sx={{
+                    bgcolor: '#d32f2f',
+                    '&:hover': {
+                      bgcolor: '#b71c1c',
+                    },
+                  }}
+                >
+                  {t('staff.manageDonors')}
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Assignment sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('staff.requestManagement')}</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary" paragraph>
+                  {t('staff.requestManagementDesc')}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={() => navigate('/staff/requests')}
+                  sx={{
+                    bgcolor: '#d32f2f',
+                    '&:hover': {
+                      bgcolor: '#b71c1c',
+                    },
+                  }}
+                >
+                  {t('staff.manageRequests')}
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Inventory sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('staff.inventory')}</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary" paragraph>
+                  {t('staff.inventoryDesc')}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={() => navigate('/staff/inventory')}
+                  sx={{
+                    bgcolor: '#d32f2f',
+                    '&:hover': {
+                      bgcolor: '#b71c1c',
+                    },
+                  }}
+                >
+                  {t('staff.viewInventory')}
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <LocalHospital sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('staff.emergency')}</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary" paragraph>
+                  {t('staff.emergencyDesc')}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={() => navigate('/staff/emergency')}
+                  sx={{
+                    bgcolor: '#d32f2f',
+                    '&:hover': {
+                      bgcolor: '#b71c1c',
+                    },
+                  }}
+                >
+                  {t('staff.emergencyRequests')}
                 </Button>
               </CardActions>
             </Card>
           </Grid>
         </Grid>
-      </Box>
-    </Container>
+
+        {/* Recent Donors */}
+        <Grid item xs={12} sx={{ mb: 4 }}>
+          <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f' }}>
+                {t('staff.recentDonors')}
+              </Typography>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t('staff.name')}</TableCell>
+                      <TableCell>{t('staff.bloodType')}</TableCell>
+                      <TableCell>{t('staff.lastDonation')}</TableCell>
+                      <TableCell>{t('staff.status')}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {recentDonors.map((donor) => (
+                      <TableRow key={donor.id}>
+                        <TableCell>{donor.name}</TableCell>
+                        <TableCell>{donor.bloodType}</TableCell>
+                        <TableCell>{donor.lastDonation}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={t(`staff.status_${donor.status.replace(/\s/g, '').toLowerCase()}`)}
+                            color={donor.status === 'Eligible' ? 'success' : 'error'}
+                            size="small"
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Recent Requests */}
+        <Grid item xs={12}>
+          <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f' }}>
+                {t('staff.recentRequests')}
+              </Typography>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t('staff.patient')}</TableCell>
+                      <TableCell>{t('staff.bloodType')}</TableCell>
+                      <TableCell>{t('staff.units')}</TableCell>
+                      <TableCell>{t('staff.status')}</TableCell>
+                      <TableCell>{t('staff.date')}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {recentRequests.map((request) => (
+                      <TableRow key={request.id}>
+                        <TableCell>{request.patient}</TableCell>
+                        <TableCell>{request.bloodType}</TableCell>
+                        <TableCell>{request.units}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={t(`staff.status_${request.status.toLowerCase()}`)}
+                            color={request.status === 'Approved' ? 'success' : 'warning'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>{request.date}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 

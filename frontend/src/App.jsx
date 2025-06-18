@@ -24,6 +24,14 @@ import AdminDashboard from './pages/admin/Dashboard';
 import StaffDashboard from './pages/staff/Dashboard';
 import UserDashboard from './pages/user/Dashboard';
 import Schedule from './pages/Schedule';
+import AdminUsers from './pages/admin/Users';
+import AdminStaff from './pages/admin/Staff';
+import AdminInventory from './pages/admin/Inventory';
+import AdminSettings from './pages/admin/Settings';
+import StaffDonors from './pages/staff/Donors';
+import StaffRequests from './pages/staff/Requests';
+import StaffInventory from './pages/staff/Inventory';
+import StaffEmergency from './pages/staff/Emergency';
 
 // Theme
 import theme from './theme';
@@ -84,6 +92,26 @@ function App() {
                     <AdminDashboard />
                   </ProtectedRoute>
                 } />
+                <Route path="users" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminUsers />
+                  </ProtectedRoute>
+                } />
+                <Route path="staff" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminStaff />
+                  </ProtectedRoute>
+                } />
+                <Route path="inventory" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminInventory />
+                  </ProtectedRoute>
+                } />
+                <Route path="settings" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminSettings />
+                  </ProtectedRoute>
+                } />
                 <Route path="donors" element={
                   <ProtectedRoute allowedRoles={['admin']}>
                     <div>Donors Management</div>
@@ -92,21 +120,6 @@ function App() {
                 <Route path="requests" element={
                   <ProtectedRoute allowedRoles={['admin']}>
                     <div>Requests Management</div>
-                  </ProtectedRoute>
-                } />
-                <Route path="inventory" element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <div>Inventory Management</div>
-                  </ProtectedRoute>
-                } />
-                <Route path="staff" element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <div>Staff Management</div>
-                  </ProtectedRoute>
-                } />
-                <Route path="settings" element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <div>System Settings</div>
                   </ProtectedRoute>
                 } />
               </Route>
@@ -118,24 +131,24 @@ function App() {
                     <StaffDashboard />
                   </ProtectedRoute>
                 } />
+                <Route path="donors" element={
+                  <ProtectedRoute allowedRoles={['staff', 'admin']}>
+                    <StaffDonors />
+                  </ProtectedRoute>
+                } />
                 <Route path="requests" element={
                   <ProtectedRoute allowedRoles={['staff', 'admin']}>
-                    <div>Requests Management</div>
+                    <StaffRequests />
                   </ProtectedRoute>
                 } />
                 <Route path="inventory" element={
                   <ProtectedRoute allowedRoles={['staff', 'admin']}>
-                    <div>Inventory Management</div>
-                  </ProtectedRoute>
-                } />
-                <Route path="donors" element={
-                  <ProtectedRoute allowedRoles={['staff', 'admin']}>
-                    <div>Donor Management</div>
+                    <StaffInventory />
                   </ProtectedRoute>
                 } />
                 <Route path="emergency" element={
                   <ProtectedRoute allowedRoles={['staff', 'admin']}>
-                    <EmergencyRequest />
+                    <StaffEmergency />
                   </ProtectedRoute>
                 } />
               </Route>
@@ -163,9 +176,6 @@ function App() {
                   </ProtectedRoute>
                 } />
               </Route>
-
-              {/* New routes */}
-              <Route path="/dashboard" element={<Dashboard />} />
             </Routes>
           </Router>
         </ThemeProvider>
