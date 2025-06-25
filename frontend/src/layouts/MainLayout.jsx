@@ -125,16 +125,16 @@ const MainLayout = () => {
             {/* Centered Navigation */}
             <Box sx={{ display: 'flex', flex: 2, justifyContent: 'center', alignItems: 'center', gap: 4 }}>
               {navItems.map((item) => (
-                <Button
-                  key={item.text}
-                  color="inherit"
-                  startIcon={item.icon}
-                  onClick={() => navigate(item.path)}
+                  <Button
+                    key={item.text}
+                    color="inherit"
+                    startIcon={item.icon}
+                    onClick={() => navigate(item.path)}
                   sx={{ fontWeight: 600, fontSize: 18, textTransform: 'none', color: '#d32f2f' }}
-                >
-                  {item.text}
-                </Button>
-              ))}
+                  >
+                    {item.text}
+                  </Button>
+                ))}
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <LanguageSwitcher />
               </Box>
@@ -213,7 +213,7 @@ const MainLayout = () => {
       </Drawer>
 
       <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
-        <Outlet />
+          <Outlet />
       </Box>
 
       {/* Logout Confirmation Dialog */}

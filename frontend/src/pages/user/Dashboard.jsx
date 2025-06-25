@@ -88,17 +88,17 @@ const UserDashboard = () => {
             <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <Avatar
+              <Avatar
                     sx={{ width: 80, height: 80, bgcolor: '#d32f2f', mr: 2 }}
                     alt={user.name}
-                    src={user.avatar}
-                  >
-                    {user.name.charAt(0)}
-                  </Avatar>
+                src={user.avatar}
+              >
+                {user.name.charAt(0)}
+              </Avatar>
                   <Box>
                     <Typography variant="h5" gutterBottom>
                       {user.name}
-                    </Typography>
+                  </Typography>
                     <Typography variant="body2" color="text.secondary">
                       {t('user.bloodType')}: {user.bloodType}
                     </Typography>
@@ -186,37 +186,37 @@ const UserDashboard = () => {
               <CardContent>
                 <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f' }}>
                   {t('user.activeRequests')}
-                </Typography>
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
+          </Typography>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
                         <TableCell>{t('user.patient')}</TableCell>
                         <TableCell>{t('user.bloodType')}</TableCell>
                         <TableCell>{t('user.units')}</TableCell>
                         <TableCell>{t('user.status')}</TableCell>
                         <TableCell>{t('user.date')}</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {activeRequests.map((request) => (
-                        <TableRow key={request.id}>
-                          <TableCell>{request.patient}</TableCell>
-                          <TableCell>{request.bloodType}</TableCell>
-                          <TableCell>{request.units}</TableCell>
-                          <TableCell>
-                            <Chip
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {activeRequests.map((request) => (
+                  <TableRow key={request.id}>
+                    <TableCell>{request.patient}</TableCell>
+                    <TableCell>{request.bloodType}</TableCell>
+                    <TableCell>{request.units}</TableCell>
+                    <TableCell>
+                      <Chip
                               label={t(`user.status_${request.status.toLowerCase()}`)}
-                              color={request.status === 'Approved' ? 'success' : 'warning'}
-                              size="small"
-                            />
-                          </TableCell>
-                          <TableCell>{request.date}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                        color={request.status === 'Approved' ? 'success' : 'warning'}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>{request.date}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
               </CardContent>
             </Card>
           </Grid>
@@ -289,7 +289,7 @@ const UserDashboard = () => {
                     </Box>
                     <Typography variant="body2" color="text.secondary" paragraph>
                       {t('user.viewDonationHistoryDesc')}
-                    </Typography>
+          </Typography>
                   </CardContent>
                   <CardActions>
                     <Button
@@ -314,7 +314,7 @@ const UserDashboard = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                       <Notifications sx={{ color: '#d32f2f', mr: 1 }} />
                       <Typography variant="h6">{t('user.notifications')}</Typography>
-                    </Box>
+      </Box>
                     <Typography variant="body2" color="text.secondary" paragraph>
                       {t('user.checkNotificationsDesc')}
                     </Typography>
@@ -339,7 +339,7 @@ const UserDashboard = () => {
             </Grid>
           </Grid>
         </Grid>
-      </Container>
+    </Container>
     </Box>
   );
 };

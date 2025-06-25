@@ -64,15 +64,6 @@ const StaffDashboard = () => {
   return (
     <Box sx={{ bgcolor: sectionBg, minHeight: '100vh', py: 6 }}>
       <Container maxWidth="lg">
-        <Typography
-          variant="h3"
-          align="center"
-          fontWeight={700}
-          sx={{ mb: 5, textDecoration: 'underline', textUnderlineOffset: 8, color: '#d32f2f', letterSpacing: -1 }}
-        >
-          {t('staff.dashboardTitle')}
-        </Typography>
-
         {/* Stats Overview */}
         <Grid container spacing={4} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
@@ -290,42 +281,42 @@ const StaffDashboard = () => {
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f' }}>
                 {t('staff.recentRequests')}
-              </Typography>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
+          </Typography>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
                       <TableCell>{t('staff.patient')}</TableCell>
                       <TableCell>{t('staff.bloodType')}</TableCell>
                       <TableCell>{t('staff.units')}</TableCell>
                       <TableCell>{t('staff.status')}</TableCell>
                       <TableCell>{t('staff.date')}</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {recentRequests.map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell>{request.patient}</TableCell>
-                        <TableCell>{request.bloodType}</TableCell>
-                        <TableCell>{request.units}</TableCell>
-                        <TableCell>
-                          <Chip
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {recentRequests.map((request) => (
+                  <TableRow key={request.id}>
+                    <TableCell>{request.patient}</TableCell>
+                    <TableCell>{request.bloodType}</TableCell>
+                    <TableCell>{request.units}</TableCell>
+                    <TableCell>
+                      <Chip
                             label={t(`staff.status_${request.status.toLowerCase()}`)}
                             color={request.status === 'Approved' ? 'success' : 'warning'}
-                            size="small"
-                          />
-                        </TableCell>
-                        <TableCell>{request.date}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>{request.date}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+              </CardContent>
+            </Card>
         </Grid>
       </Container>
-    </Box>
+      </Box>
   );
 };
 

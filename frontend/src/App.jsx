@@ -9,6 +9,8 @@ import './i18n';
 
 // Layout
 import MainLayout from './layouts/MainLayout';
+import AdminLayout from './layouts/AdminLayout';
+import StaffLayout from './layouts/StaffLayout';
 
 // Pages
 import Home from './pages/Home';
@@ -86,7 +88,7 @@ function App() {
               </Route>
 
               {/* Admin Routes */}
-              <Route path="/admin" element={<MainLayout />}>
+              <Route path="/admin" element={<AdminLayout />}>
                 <Route path="dashboard" element={
                   <ProtectedRoute allowedRoles={['admin']}>
                     <AdminDashboard />
@@ -125,7 +127,7 @@ function App() {
               </Route>
 
               {/* Staff Routes */}
-              <Route path="/staff" element={<MainLayout />}>
+              <Route path="/staff" element={<StaffLayout />}>
                 <Route path="dashboard" element={
                   <ProtectedRoute allowedRoles={['staff', 'admin']}>
                     <StaffDashboard />

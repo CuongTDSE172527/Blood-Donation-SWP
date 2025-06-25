@@ -70,7 +70,7 @@ const Login = () => {
           navigate('/staff/dashboard');
           break;
         case 'donor':
-          navigate('/donor/dashboard');
+      navigate('/donor/dashboard');
           break;
         default:
           navigate('/user/dashboard');
