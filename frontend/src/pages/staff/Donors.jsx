@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Container, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
 
@@ -9,6 +10,7 @@ const mockDonors = [
 ];
 
 export default function Donors() {
+  const { t } = useTranslation();
   const [donors, setDonors] = useState(mockDonors);
   const [open, setOpen] = useState(false);
   const [editDonor, setEditDonor] = useState(null);
@@ -34,21 +36,21 @@ export default function Donors() {
   return (
     <Box sx={{ bgcolor: '#fff5f5', minHeight: '100vh', py: 6 }}>
       <Container maxWidth="md">
-        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>Donor Management</Typography>
+        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>{t('staff.donorManagement')}</Typography>
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <Button variant="contained" startIcon={<Add />} sx={{ mb: 2, bgcolor: '#d32f2f' }} onClick={() => handleOpen()}>
-              Add Donor
+              {t('staff.addDonor')}
             </Button>
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Blood Type</TableCell>
-                    <TableCell>Last Donation</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell align="right">Actions</TableCell>
+                    <TableCell>{t('staff.name')}</TableCell>
+                    <TableCell>{t('staff.bloodType')}</TableCell>
+                    <TableCell>{t('staff.lastDonation')}</TableCell>
+                    <TableCell>{t('staff.status')}</TableCell>
+                    <TableCell align="right">{t('staff.actions')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -58,7 +60,7 @@ export default function Donors() {
                       <TableCell>{donor.bloodType}</TableCell>
                       <TableCell>{donor.lastDonation}</TableCell>
                       <TableCell>
-                        <Chip label={donor.status} color={donor.status === 'Eligible' ? 'success' : 'error'} size="small" />
+                        <Chip label={t('staff.status_' + donor.status.toLowerCase().replace(' ', ''))} color={donor.status === 'Eligible' ? 'success' : 'error'} size="small" />
                       </TableCell>
                       <TableCell align="right">
                         <IconButton onClick={() => handleOpen(donor)}><Edit /></IconButton>
@@ -72,16 +74,16 @@ export default function Donors() {
           </CardContent>
         </Card>
         <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{editDonor ? 'Edit Donor' : 'Add Donor'}</DialogTitle>
+          <DialogTitle>{editDonor ? t('staff.editDonor') : t('staff.addDonor')}</DialogTitle>
           <DialogContent>
-            <TextField margin="dense" label="Name" name="name" value={form.name} onChange={handleChange} fullWidth />
-            <TextField margin="dense" label="Blood Type" name="bloodType" value={form.bloodType} onChange={handleChange} fullWidth />
-            <TextField margin="dense" label="Last Donation" name="lastDonation" value={form.lastDonation} onChange={handleChange} fullWidth />
-            <TextField margin="dense" label="Status" name="status" value={form.status} onChange={handleChange} fullWidth />
+            <TextField margin="dense" label={t('staff.name')} name="name" value={form.name} onChange={handleChange} fullWidth />
+            <TextField margin="dense" label={t('staff.bloodType')} name="bloodType" value={form.bloodType} onChange={handleChange} fullWidth />
+            <TextField margin="dense" label={t('staff.lastDonation')} name="lastDonation" value={form.lastDonation} onChange={handleChange} fullWidth />
+            <TextField margin="dense" label={t('staff.status')} name="status" value={form.status} onChange={handleChange} fullWidth />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleSave} variant="contained" sx={{ bgcolor: '#d32f2f' }}>{editDonor ? 'Save' : 'Add'}</Button>
+            <Button onClick={handleClose}>{t('staff.cancel')}</Button>
+            <Button onClick={handleSave} variant="contained" sx={{ bgcolor: '#d32f2f' }}>{editDonor ? t('staff.save') : t('staff.add')}</Button>
           </DialogActions>
         </Dialog>
       </Container>

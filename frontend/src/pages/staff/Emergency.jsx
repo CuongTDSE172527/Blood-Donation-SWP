@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Container, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
 
@@ -8,6 +9,7 @@ const mockEmergencies = [
 ];
 
 export default function Emergency() {
+  const { t } = useTranslation();
   const [emergencies, setEmergencies] = useState(mockEmergencies);
   const [open, setOpen] = useState(false);
   const [editEmergency, setEditEmergency] = useState(null);
@@ -33,22 +35,22 @@ export default function Emergency() {
   return (
     <Box sx={{ bgcolor: '#fff5f5', minHeight: '100vh', py: 6 }}>
       <Container maxWidth="md">
-        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>Emergency Management</Typography>
+        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>{t('staff.emergencyManagement')}</Typography>
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <Button variant="contained" startIcon={<Add />} sx={{ mb: 2, bgcolor: '#d32f2f' }} onClick={() => handleOpen()}>
-              Add Emergency Request
+              {t('staff.addEmergencyRequest')}
             </Button>
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Patient</TableCell>
-                    <TableCell>Blood Type</TableCell>
-                    <TableCell>Units</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Date</TableCell>
-                    <TableCell align="right">Actions</TableCell>
+                    <TableCell>{t('staff.patient')}</TableCell>
+                    <TableCell>{t('staff.bloodType')}</TableCell>
+                    <TableCell>{t('staff.units')}</TableCell>
+                    <TableCell>{t('staff.status')}</TableCell>
+                    <TableCell>{t('staff.date')}</TableCell>
+                    <TableCell align="right">{t('staff.actions')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -58,7 +60,7 @@ export default function Emergency() {
                       <TableCell>{emergency.bloodType}</TableCell>
                       <TableCell>{emergency.units}</TableCell>
                       <TableCell>
-                        <Chip label={emergency.status} color={emergency.status === 'Urgent' ? 'error' : 'warning'} size="small" />
+                        <Chip label={t('staff.status_' + emergency.status.toLowerCase())} color={emergency.status === 'Urgent' ? 'error' : 'warning'} size="small" />
                       </TableCell>
                       <TableCell>{emergency.date}</TableCell>
                       <TableCell align="right">
@@ -73,17 +75,17 @@ export default function Emergency() {
           </CardContent>
         </Card>
         <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{editEmergency ? 'Edit Emergency' : 'Add Emergency'}</DialogTitle>
+          <DialogTitle>{editEmergency ? t('staff.editEmergency') : t('staff.addEmergency')}</DialogTitle>
           <DialogContent>
-            <TextField margin="dense" label="Patient" name="patient" value={form.patient} onChange={handleChange} fullWidth />
-            <TextField margin="dense" label="Blood Type" name="bloodType" value={form.bloodType} onChange={handleChange} fullWidth />
-            <TextField margin="dense" label="Units" name="units" value={form.units} onChange={handleChange} fullWidth type="number" />
-            <TextField margin="dense" label="Status" name="status" value={form.status} onChange={handleChange} fullWidth />
-            <TextField margin="dense" label="Date" name="date" value={form.date} onChange={handleChange} fullWidth />
+            <TextField margin="dense" label={t('staff.patient')} name="patient" value={form.patient} onChange={handleChange} fullWidth />
+            <TextField margin="dense" label={t('staff.bloodType')} name="bloodType" value={form.bloodType} onChange={handleChange} fullWidth />
+            <TextField margin="dense" label={t('staff.units')} name="units" value={form.units} onChange={handleChange} fullWidth type="number" />
+            <TextField margin="dense" label={t('staff.status')} name="status" value={form.status} onChange={handleChange} fullWidth />
+            <TextField margin="dense" label={t('staff.date')} name="date" value={form.date} onChange={handleChange} fullWidth />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleSave} variant="contained" sx={{ bgcolor: '#d32f2f' }}>{editEmergency ? 'Save' : 'Add'}</Button>
+            <Button onClick={handleClose}>{t('staff.cancel')}</Button>
+            <Button onClick={handleSave} variant="contained" sx={{ bgcolor: '#d32f2f' }}>{editEmergency ? t('staff.save') : t('staff.add')}</Button>
           </DialogActions>
         </Dialog>
       </Container>
