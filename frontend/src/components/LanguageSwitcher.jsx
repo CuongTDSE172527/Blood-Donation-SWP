@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { Button, Menu, MenuItem } from '@mui/material';
+import { Button, IconButton, Tooltip, Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
 import TranslateIcon from '@mui/icons-material/Translate';
 import i18n from '../i18n';
 
-const LanguageSwitcher = () => {
+const LanguageSwitcher = ({ open = true }) => {
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -24,14 +24,22 @@ const LanguageSwitcher = () => {
 
   return (
     <>
-      <Button
-        color="inherit"
-        startIcon={<TranslateIcon sx={{ color: '#d32f2f', fontSize: 22 }} />}
-        onClick={handleClick}
-        sx={{ fontWeight: 600, fontSize: 18, textTransform: 'none', color: '#d32f2f', minWidth: 0, px: 2 }}
-      >
-        {t('common.language')}
-      </Button>
+      {open ? (
+        <Button
+          color="inherit"
+          startIcon={<TranslateIcon sx={{ color: '#d32f2f', fontSize: 22 }} />}
+          onClick={handleClick}
+          sx={{ fontWeight: 600, fontSize: 18, textTransform: 'none', color: '#d32f2f', minWidth: 0, px: 2 }}
+        >
+          {t('common.language')}
+        </Button>
+      ) : (
+        <Tooltip title={t('common.language')} placement="right">
+          <IconButton onClick={handleClick} sx={{ color: '#d32f2f' }}>
+            <TranslateIcon sx={{ fontSize: 28 }} />
+          </IconButton>
+        </Tooltip>
+      )}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}

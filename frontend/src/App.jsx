@@ -34,6 +34,7 @@ import StaffDonors from './pages/staff/Donors';
 import StaffRequests from './pages/staff/Requests';
 import StaffInventory from './pages/staff/Inventory';
 import StaffEmergency from './pages/staff/Emergency';
+import AdminRequests from './pages/admin/Requests';
 
 // Theme
 import theme from './theme';
@@ -121,7 +122,7 @@ function App() {
                 } />
                 <Route path="requests" element={
                   <ProtectedRoute allowedRoles={['admin']}>
-                    <div>Requests Management</div>
+                    <AdminRequests />
                   </ProtectedRoute>
                 } />
               </Route>

@@ -33,12 +33,24 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const drawerWidth = 240;
 
-function ClockCalendar() {
+function ClockCalendar({ open }) {
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+  if (!open) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2, gap: 1 }}>
+        <Tooltip title={now.toLocaleDateString()} placement="right">
+          <CalendarTodayIcon fontSize="medium" sx={{ color: '#d32f2f' }} />
+        </Tooltip>
+        <Tooltip title={now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })} placement="right">
+          <AccessTimeIcon fontSize="medium" sx={{ color: '#d32f2f' }} />
+        </Tooltip>
+      </Box>
+    );
+  }
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -116,7 +128,7 @@ const StaffLayout = () => {
         </Box>
         <Divider />
         <Box sx={{ px: open ? 2 : 0, pt: 2 }}>
-          <ClockCalendar />
+          <ClockCalendar open={open} />
         </Box>
         <List>
           {navLinks.map((item) => (
@@ -141,7 +153,7 @@ const StaffLayout = () => {
         </List>
         <Box sx={{ flexGrow: 1 }} />
         <Box sx={{ px: open ? 2 : 0, pb: 2, display: 'flex', flexDirection: 'column', alignItems: open ? 'flex-start' : 'center', gap: 2 }}>
-          <LanguageSwitcher />
+          <LanguageSwitcher open={open} />
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
             <IconButton onClick={handleProfileClick} sx={{ p: 0 }}>
               <Avatar alt={user?.name} src={user?.avatar} sx={{ width: 40, height: 40, bgcolor: '#d32f2f' }} />

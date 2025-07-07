@@ -62,4 +62,39 @@ export const simulateApiDelay = (ms = 1000) => {
 // Helper function to simulate API error
 export const simulateApiError = (errorMessage = 'API Error') => {
   return Promise.reject(new Error(errorMessage));
-}; 
+};
+
+/**
+ * Shared function to complete a blood request and update inventory.
+ * @param {Object} request - The request to complete.
+ * @param {Array} requests - The current list of requests.
+ * @param {Array} inventory - The current inventory list.
+ * @param {Object} [options] - Optional settings (e.g., i18n messages).
+ * @returns {Object} { updatedRequests, updatedInventory, result: { message, severity } }
+ */
+export function completeBloodRequest(request, requests, inventory, options = {}) {
+  const invIdx = inventory.findIndex(i => i.bloodType === request.bloodType);
+  if (invIdx === -1 || inventory[invIdx].units < request.units) {
+    return {
+      updatedRequests: requests,
+      updatedInventory: inventory,
+      result: {
+        message: options.insufficientMsg || 'Không đủ máu trong kho!',
+        severity: 'error',
+      },
+    };
+  }
+  // Deduct units and update inventory
+  const newInventory = [...inventory];
+  newInventory[invIdx] = { ...newInventory[invIdx], units: newInventory[invIdx].units - request.units };
+  // Update request status
+  const newRequests = requests.map(r => r.id === request.id ? { ...r, status: 'Completed' } : r);
+  return {
+    updatedRequests: newRequests,
+    updatedInventory: newInventory,
+    result: {
+      message: options.successMsg || 'Hoàn thành yêu cầu thành công!',
+      severity: 'success',
+    },
+  };
+} 

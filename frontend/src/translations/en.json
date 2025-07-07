@@ -109,7 +109,30 @@
     "bloodType": "Blood Type",
     "units": "Units",
     "status": "Status",
-    "date": "Date"
+    "date": "Date",
+    "status_pending": "Pending",
+    "status_approved": "Approved",
+    "complete": "Complete",
+    "actions": "Actions",
+    "status_completed": "Completed",
+    "requestManagement": "Request Management",
+    "addUser": "Add User",
+    "editUser": "Edit User",
+    "all": "All",
+    "admin": "Admin",
+    "staff": "Staff",
+    "user": "User",
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add",
+    "editRequest": "Edit Request",
+    "addRequest": "Add Request",
+    "currentInventory": "Current Inventory",
+    "insufficientInventory": "Not enough blood in inventory!",
+    "completeRequestSuccess": "Request completed successfully!",
+    "inventoryManagement": "Inventory Management",
+    "addBloodType": "Add Blood Type",
+    "editBloodType": "Edit Blood Type"
   },
   "staff": {
     "dashboardTitle": "Staff Dashboard",
@@ -141,7 +164,10 @@
     "units": "Units",
     "date": "Date",
     "status_pending": "Pending",
-    "status_approved": "Approved"
+    "status_approved": "Approved",
+    "status_completed": "Completed",
+    "actions": "Actions",
+    "complete": "Complete"
   },
   "user": {
     "dashboardTitle": "User Dashboard",

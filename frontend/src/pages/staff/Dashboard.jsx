@@ -114,7 +114,7 @@ const StaffDashboard = () => {
                 </Box>
                 <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
                   {stats.totalInventory}
-                </Typography>
+        </Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -301,8 +301,8 @@ const StaffDashboard = () => {
                     <TableCell>{request.units}</TableCell>
                     <TableCell>
                       <Chip
-                            label={t(`staff.status_${request.status.toLowerCase()}`)}
-                            color={request.status === 'Approved' ? 'success' : 'warning'}
+                        label={t('staff.status_' + request.status.toLowerCase())}
+                        color={request.status === 'Approved' ? 'success' : 'warning'}
                         size="small"
                       />
                     </TableCell>

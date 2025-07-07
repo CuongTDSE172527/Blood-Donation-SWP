@@ -109,7 +109,28 @@
     "bloodType": "Nhóm máu",
     "units": "Đơn vị",
     "status": "Trạng thái",
-    "date": "Ngày"
+    "date": "Ngày",
+    "status_completed": "Đã hoàn thành",
+    "requestManagement": "Quản lý yêu cầu",
+    "actions": "Thao tác",
+    "complete": "Hoàn thành",
+    "addUser": "Thêm người dùng",
+    "editUser": "Chỉnh sửa người dùng",
+    "all": "Tất cả",
+    "admin": "Quản trị viên",
+    "staff": "Nhân viên",
+    "user": "Người dùng",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "add": "Thêm",
+    "editRequest": "Chỉnh sửa yêu cầu",
+    "addRequest": "Thêm yêu cầu",
+    "currentInventory": "Kho máu hiện tại",
+    "insufficientInventory": "Không đủ máu trong kho!",
+    "completeRequestSuccess": "Hoàn thành yêu cầu thành công!",
+    "inventoryManagement": "Quản lý kho máu",
+    "addBloodType": "Thêm nhóm máu",
+    "editBloodType": "Chỉnh sửa nhóm máu"
   },
   "staff": {
     "dashboardTitle": "Bảng điều khiển Nhân viên",
@@ -141,7 +162,10 @@
     "units": "Đơn vị",
     "date": "Ngày",
     "status_pending": "Chờ duyệt",
-    "status_approved": "Đã duyệt"
+    "status_approved": "Đã duyệt",
+    "status_completed": "Đã hoàn thành",
+    "actions": "Thao tác",
+    "complete": "Hoàn thành"
   },
   "user": {
     "dashboardTitle": "Bảng điều khiển Người dùng",

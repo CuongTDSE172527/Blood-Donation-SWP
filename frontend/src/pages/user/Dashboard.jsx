@@ -206,7 +206,7 @@ const UserDashboard = () => {
                     <TableCell>{request.units}</TableCell>
                     <TableCell>
                       <Chip
-                              label={t(`user.status_${request.status.toLowerCase()}`)}
+                        label={t('user.status_' + request.status.toLowerCase())}
                         color={request.status === 'Approved' ? 'success' : 'warning'}
                         size="small"
                       />

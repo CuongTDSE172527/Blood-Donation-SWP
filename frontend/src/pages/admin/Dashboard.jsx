@@ -20,6 +20,8 @@ import {
   Chip,
   LinearProgress,
   Avatar,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   People,
@@ -33,7 +35,9 @@ import {
   Group,
   Assignment,
   Inventory,
+  CheckCircle,
 } from '@mui/icons-material';
+import { completeBloodRequest } from '../../utils/testHelpers';
 
 const sectionBg = '#fff5f5';
 const cardShadow = '0 4px 24px 0 rgba(211,47,47,0.07)';
@@ -63,6 +67,31 @@ const AdminDashboard = () => {
     { id: 2, patient: 'Tom Brown', bloodType: 'O-', units: 1, status: 'Approved', date: '2024-03-19' },
     { id: 3, patient: 'Lisa Davis', bloodType: 'B+', units: 3, status: 'Pending', date: '2024-03-18' },
   ]);
+
+  const [inventory, setInventory] = useState([
+    { id: 1, bloodType: 'A+', units: 25 },
+    { id: 2, bloodType: 'O-', units: 15 },
+    { id: 3, bloodType: 'B+', units: 30 },
+  ]);
+
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'error' });
+
+  const handleComplete = (request) => {
+    const { updatedRequests, updatedInventory, result } = completeBloodRequest(
+      request,
+      recentRequests,
+      inventory,
+      {
+        insufficientMsg: 'Không đủ máu trong kho!',
+        successMsg: 'Hoàn thành yêu cầu thành công!',
+      }
+    );
+    setRecentRequests(updatedRequests);
+    setInventory(updatedInventory);
+    setSnackbar({ open: true, message: result.message, severity: result.severity });
+  };
+
+  const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
   return (
     <Box sx={{ bgcolor: sectionBg, minHeight: '100vh', py: 6 }}>
@@ -117,7 +146,7 @@ const AdminDashboard = () => {
                 </Box>
                 <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
                   {stats.totalRequests}
-                </Typography>
+        </Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -302,6 +331,7 @@ const AdminDashboard = () => {
                       <TableCell>{t('admin.units')}</TableCell>
                       <TableCell>{t('admin.status')}</TableCell>
                       <TableCell>{t('admin.date')}</TableCell>
+                      <TableCell align="right">{t('admin.actions')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -312,12 +342,24 @@ const AdminDashboard = () => {
                     <TableCell>{request.units}</TableCell>
                     <TableCell>
                       <Chip
-                            label={t(`admin.status_${request.status.toLowerCase()}`)}
-                            color={request.status === 'Approved' ? 'success' : 'warning'}
+                        label={t('admin.status_' + request.status.toLowerCase())}
+                        color={request.status === 'Approved' ? 'success' : 'warning'}
                         size="small"
                       />
                     </TableCell>
                     <TableCell>{request.date}</TableCell>
+                    <TableCell align="right">
+                      {(request.status === 'Approved' || request.status === 'Pending') && (
+                        <Button
+                          color="success"
+                          startIcon={<CheckCircle />}
+                          onClick={() => handleComplete(request)}
+                          sx={{ minWidth: 0, px: 1 }}
+                        >
+                          {t('admin.complete') || 'Hoàn thành'}
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -327,6 +369,11 @@ const AdminDashboard = () => {
             </Card>
         </Grid>
       </Container>
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       </Box>
   );
 };
