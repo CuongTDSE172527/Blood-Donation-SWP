@@ -235,7 +235,10 @@
     "loginButton": "Login",
     "forgotPassword": "Forgot password?",
     "noAccount": "Don't have an account?",
-    "registerNow": "Register now"
+    "registerNow": "Register now",
+    "error": "Invalid email or password",
+    "errorMessage": "Please check your email and password",
+    "successMessage": "Login successful"
   },
   "register": {
     "title": "Register",
@@ -245,6 +248,8 @@
     "confirmPassword": "Confirm Password",
     "registerButton": "Register",
     "alreadyAccount": "Already have an account?",
-    "loginNow": "Login now"
+    "loginNow": "Login now",
+    "bloodType": "Blood Type",
+    "bloodTypeSelect": "Select Blood Type"
   }
 } 

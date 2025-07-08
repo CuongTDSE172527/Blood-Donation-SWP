@@ -1,3 +1,7 @@
+import LanguageSwitcher from '../../components/LanguageSwitcher';
+import { useDispatch } from 'react-redux';
+import { loginStart, loginSuccess, loginFailure } from '../../store/slices/authSlice';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -9,9 +13,6 @@ import {
   Paper,
   Link,
 } from '@mui/material';
-import { useDispatch } from 'react-redux';
-import { loginStart, loginSuccess, loginFailure } from '../../store/slices/authSlice';
-import { useTranslation } from 'react-i18next';
 
 const Login = () => {
   const { t } = useTranslation();
@@ -19,6 +20,7 @@ const Login = () => {
     email: '',
     password: '',
   });
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -32,57 +34,50 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch(loginStart());
-    
+    setError(null);
     try {
-      // TODO: Replace with actual API call
-      const response = await new Promise((resolve) => {
-        setTimeout(() => {
-          // Giả lập API response với role khác nhau dựa vào email
-          let role = 'user';
-          if (formData.email.includes('admin')) {
-            role = 'admin';
-          } else if (formData.email.includes('staff')) {
-            role = 'staff';
-          } else if (formData.email.includes('donor')) {
-            role = 'donor';
-          }
-
-          resolve({
-            user: { 
-              id: 1, 
-              name: 'Test User', 
-              email: formData.email,
-              role: role
-            },
-            token: 'dummy-token',
-          });
-        }, 1000);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
-
-      dispatch(loginSuccess(response));
-      
-      // Điều hướng dựa vào role
-      switch (response.user.role) {
-        case 'admin':
+      if (!response.ok) {
+        const errMsg = await response.text();
+        dispatch(loginFailure(errMsg));
+        setError(errMsg);
+        return;
+      }
+      const user = await response.json();
+      dispatch(loginSuccess({ user }));
+      // Điều hướng dựa vào role (IN HOA)
+      switch ((user.role || '').toUpperCase()) {
+        case 'ADMIN':
           navigate('/admin/dashboard');
           break;
-        case 'staff':
+        case 'STAFF':
           navigate('/staff/dashboard');
           break;
-        case 'donor':
-      navigate('/donor/dashboard');
+        case 'DONOR':
+          navigate('/donor/dashboard');
           break;
         default:
           navigate('/user/dashboard');
       }
     } catch (error) {
       dispatch(loginFailure(error.message));
+      setError(error.message);
     }
   };
 
   return (
     <Container maxWidth="sm">
       <Box sx={{ mt: 8, mb: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <LanguageSwitcher />
+        </Box>
         <Paper elevation={3} sx={{ p: 4 }}>
           <Typography variant="h4" component="h1" align="center" gutterBottom>
             {t('login.title')}
@@ -112,6 +107,9 @@ const Login = () => {
               value={formData.password}
               onChange={handleChange}
             />
+            {error && (
+              <Typography color="error" sx={{ mt: 1, mb: 1, textAlign: 'center' }}>{error}</Typography>
+            )}
             <Button
               type="submit"
               fullWidth

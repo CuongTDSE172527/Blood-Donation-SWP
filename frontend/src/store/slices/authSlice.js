@@ -1,9 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  user: null,
-  token: localStorage.getItem('token'),
-  isAuthenticated: false,
+  user: JSON.parse(localStorage.getItem('user')) || null,
+  isAuthenticated: !!localStorage.getItem('user'),
   loading: false,
   error: null,
 };
@@ -21,16 +20,14 @@ const authSlice = createSlice({
       state.loading = false;
       state.isAuthenticated = true;
       state.user = action.payload.user;
-      state.token = action.payload.token;
-      localStorage.setItem('token', action.payload.token);
+      localStorage.setItem('user', JSON.stringify(action.payload.user));
     },
     loginFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
       state.isAuthenticated = false;
       state.user = null;
-      state.token = null;
-      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     },
 
     // Register actions
@@ -42,26 +39,23 @@ const authSlice = createSlice({
       state.loading = false;
       state.isAuthenticated = true;
       state.user = action.payload.user;
-      state.token = action.payload.token;
-      localStorage.setItem('token', action.payload.token);
+      localStorage.setItem('user', JSON.stringify(action.payload.user));
     },
     registerFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
       state.isAuthenticated = false;
       state.user = null;
-      state.token = null;
-      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     },
 
     // Logout action
     logout: (state) => {
       state.user = null;
-      state.token = null;
       state.isAuthenticated = false;
       state.loading = false;
       state.error = null;
-      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     },
 
     // Update user profile
@@ -72,6 +66,7 @@ const authSlice = createSlice({
     updateProfileSuccess: (state, action) => {
       state.loading = false;
       state.user = action.payload;
+      localStorage.setItem('user', JSON.stringify(action.payload));
     },
     updateProfileFailure: (state, action) => {
       state.loading = false;
@@ -81,23 +76,6 @@ const authSlice = createSlice({
     // Clear error
     clearError: (state) => {
       state.error = null;
-    },
-
-    // Check token validity
-    checkTokenStart: (state) => {
-      state.loading = true;
-    },
-    checkTokenSuccess: (state, action) => {
-      state.loading = false;
-      state.isAuthenticated = true;
-      state.user = action.payload.user;
-    },
-    checkTokenFailure: (state) => {
-      state.loading = false;
-      state.isAuthenticated = false;
-      state.user = null;
-      state.token = null;
-      localStorage.removeItem('token');
     },
   },
 });
@@ -114,9 +92,6 @@ export const {
   updateProfileSuccess,
   updateProfileFailure,
   clearError,
-  checkTokenStart,
-  checkTokenSuccess,
-  checkTokenFailure,
 } = authSlice.actions;
 
 export default authSlice.reducer; 

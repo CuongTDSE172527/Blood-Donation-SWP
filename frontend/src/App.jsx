@@ -82,7 +82,7 @@ function App() {
               {/* Protected Routes */}
               <Route path="/donor" element={<MainLayout />}>
                 <Route path="dashboard" element={
-                  <ProtectedRoute allowedRoles={['donor']}>
+                  <ProtectedRoute allowedRoles={['DONOR']}>
                     <DonorDashboard />
                   </ProtectedRoute>
                 } />
@@ -91,37 +91,37 @@ function App() {
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminLayout />}>
                 <Route path="dashboard" element={
-                  <ProtectedRoute allowedRoles={['admin']}>
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
                     <AdminDashboard />
                   </ProtectedRoute>
                 } />
                 <Route path="users" element={
-                  <ProtectedRoute allowedRoles={['admin']}>
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
                     <AdminUsers />
                   </ProtectedRoute>
                 } />
                 <Route path="staff" element={
-                  <ProtectedRoute allowedRoles={['admin']}>
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
                     <AdminStaff />
                   </ProtectedRoute>
                 } />
                 <Route path="inventory" element={
-                  <ProtectedRoute allowedRoles={['admin']}>
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
                     <AdminInventory />
                   </ProtectedRoute>
                 } />
                 <Route path="settings" element={
-                  <ProtectedRoute allowedRoles={['admin']}>
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
                     <AdminSettings />
                   </ProtectedRoute>
                 } />
                 <Route path="donors" element={
-                  <ProtectedRoute allowedRoles={['admin']}>
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
                     <div>Donors Management</div>
                   </ProtectedRoute>
                 } />
                 <Route path="requests" element={
-                  <ProtectedRoute allowedRoles={['admin']}>
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
                     <AdminRequests />
                   </ProtectedRoute>
                 } />
@@ -130,27 +130,27 @@ function App() {
               {/* Staff Routes */}
               <Route path="/staff" element={<StaffLayout />}>
                 <Route path="dashboard" element={
-                  <ProtectedRoute allowedRoles={['staff', 'admin']}>
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
                     <StaffDashboard />
                   </ProtectedRoute>
                 } />
                 <Route path="donors" element={
-                  <ProtectedRoute allowedRoles={['staff', 'admin']}>
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
                     <StaffDonors />
                   </ProtectedRoute>
                 } />
                 <Route path="requests" element={
-                  <ProtectedRoute allowedRoles={['staff', 'admin']}>
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
                     <StaffRequests />
                   </ProtectedRoute>
                 } />
                 <Route path="inventory" element={
-                  <ProtectedRoute allowedRoles={['staff', 'admin']}>
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
                     <StaffInventory />
                   </ProtectedRoute>
                 } />
                 <Route path="emergency" element={
-                  <ProtectedRoute allowedRoles={['staff', 'admin']}>
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
                     <StaffEmergency />
                   </ProtectedRoute>
                 } />
@@ -159,22 +159,22 @@ function App() {
               {/* User Routes */}
               <Route path="/user" element={<MainLayout />}>
                 <Route path="dashboard" element={
-                  <ProtectedRoute allowedRoles={['user', 'donor', 'staff', 'admin']}>
+                  <ProtectedRoute allowedRoles={['DONOR']}>
                     <UserDashboard />
                   </ProtectedRoute>
                 } />
                 <Route path="profile" element={
-                  <ProtectedRoute allowedRoles={['user', 'donor', 'staff', 'admin']}>
+                  <ProtectedRoute allowedRoles={['DONOR']}>
                     <div>User Profile</div>
                   </ProtectedRoute>
                 } />
                 <Route path="donation-history" element={
-                  <ProtectedRoute allowedRoles={['user', 'donor', 'staff', 'admin']}>
+                  <ProtectedRoute allowedRoles={['DONOR']}>
                     <div>Donation History</div>
                   </ProtectedRoute>
                 } />
                 <Route path="donate" element={
-                  <ProtectedRoute allowedRoles={['user', 'donor', 'staff', 'admin']}>
+                  <ProtectedRoute allowedRoles={['DONOR']}>
                     <div>Schedule Donation</div>
                   </ProtectedRoute>
                 } />
