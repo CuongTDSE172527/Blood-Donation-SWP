@@ -44,4 +44,6 @@ public class DonationRegistration {
             inverseJoinColumns = @JoinColumn(name = "disease_id")
     )
     private Set<ProhibitedDisease> diseases;
+
+
 }
