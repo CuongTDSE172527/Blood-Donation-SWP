@@ -4,7 +4,9 @@ import com.example.demo1.entity.DonationLocation;
 import com.example.demo1.entity.DonationRegistration;
 import com.example.demo1.entity.ProhibitedDisease;
 import com.example.demo1.entity.User;
+import com.example.demo1.entity.enums.RegistrationStatus;
 import com.example.demo1.repo.DonationLocationRepository;
+import com.example.demo1.repo.DonationRegistrationRepository;
 import com.example.demo1.repo.ProhibitedDiseaseRepository;
 import com.example.demo1.repo.UserRepository;
 import com.example.demo1.service.DonationRegistrationService;
@@ -27,11 +29,17 @@ public class DonorController {
     private UserRepository userRepository;
 
     @Autowired
+    private DonationLocationRepository locationRepo;
+
+    @Autowired
     private ProhibitedDiseaseRepository diseaseRepo;
 
     @Autowired
-    private DonationLocationRepository locationRepo;
+    private DonationRegistrationRepository registrationRepo;
 
+    /**
+     * Donor đăng ký hiến máu
+     */
     @PostMapping("/register")
     public ResponseEntity<?> registerDonation(@RequestParam Long userId,
                                               @RequestBody Map<String, Object> body) {
@@ -69,12 +77,25 @@ public class DonorController {
         return ResponseEntity.ok(registrationService.register(reg, userOpt.get()));
     }
 
+    /**
+     * Donor xem lịch sử hiến máu (có thể lọc theo trạng thái)
+     */
     @GetMapping("/history")
-    public ResponseEntity<?> getDonationHistory(@RequestParam Long userId) {
+    public ResponseEntity<?> getDonationHistory(@RequestParam Long userId,
+                                                @RequestParam(required = false) RegistrationStatus status) {
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("User not found");
         }
-        return ResponseEntity.ok(registrationService.getRegistrationsByUser(userOpt.get()));
+
+        if (status != null) {
+            return ResponseEntity.ok(
+                    registrationRepo.findByUserIdAndStatus(userId, status)
+            );
+        } else {
+            return ResponseEntity.ok(
+                    registrationRepo.findByUserId(userId)
+            );
+        }
     }
 }
