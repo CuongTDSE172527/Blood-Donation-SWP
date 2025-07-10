@@ -5,10 +5,9 @@ import com.example.demo1.entity.DonationLocation;
 import com.example.demo1.entity.DonationRegistration;
 import com.example.demo1.entity.DonationSchedule;
 import com.example.demo1.entity.enums.RegistrationStatus;
-import com.example.demo1.repo.BloodInventoryRepository;
-import com.example.demo1.repo.DonationLocationRepository;
-import com.example.demo1.repo.DonationRegistrationRepository;
-import com.example.demo1.repo.DonationScheduleRepository;
+import com.example.demo1.entity.enums.Role;
+import com.example.demo1.repo.*;
+import com.example.demo1.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +29,12 @@ public class StaffController {
 
     @Autowired
     private BloodInventoryRepository bloodInventoryRepo;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     // --- Tạo địa điểm ---
     @PostMapping("/locations")
@@ -79,9 +84,7 @@ public class StaffController {
     @PostMapping("/registrations/{id}/confirm")
     public ResponseEntity<?> confirmRegistration(@PathVariable Long id) {
         Optional<DonationRegistration> opt = registrationRepo.findById(id);
-        if (opt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Registration not found");
-        }
+        if (opt.isEmpty()) return ResponseEntity.badRequest().body("Registration not found");
 
         DonationRegistration reg = opt.get();
         reg.setStatus(RegistrationStatus.CONFIRMED);
@@ -101,27 +104,79 @@ public class StaffController {
                 }
         );
 
-        return ResponseEntity.ok("Registration confirmed and inventory updated");
+        // Gửi thông báo
+        String email = reg.getUser().getEmail();
+        notificationService.sendNotification(email, "Đơn đăng ký hiến máu của bạn đã được xác nhận thành công.");
+
+        return ResponseEntity.ok("Confirmed and inventory updated");
     }
 
     // --- Hủy đơn đăng ký ---
     @PostMapping("/registrations/{id}/cancel")
     public ResponseEntity<?> cancelRegistration(@PathVariable Long id) {
         Optional<DonationRegistration> opt = registrationRepo.findById(id);
-        if (opt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Registration not found");
-        }
+        if (opt.isEmpty()) return ResponseEntity.badRequest().body("Registration not found");
 
         DonationRegistration reg = opt.get();
         reg.setStatus(RegistrationStatus.CANCELLED);
         registrationRepo.save(reg);
 
-        return ResponseEntity.ok("Registration cancelled and donor notified");
+        // Gửi thông báo
+        String email = reg.getUser().getEmail();
+        notificationService.sendNotification(email, "Đơn đăng ký hiến máu của bạn đã bị hủy.");
+
+        return ResponseEntity.ok("Registration cancelled");
     }
 
     // --- Xem kho máu ---
     @GetMapping("/inventory")
     public ResponseEntity<?> getBloodInventory() {
         return ResponseEntity.ok(bloodInventoryRepo.findAll());
+    }
+
+    // === Xem danh sách Donor ===
+    @GetMapping("/users/donors")
+    public ResponseEntity<?> getAllDonors() {
+        return ResponseEntity.ok(userRepository.findByRole(Role.DONOR));
+    }
+
+    // === Xem danh sách MedicalCenter ===
+    @GetMapping("/users/medicalcenters")
+    public ResponseEntity<?> getAllMedicalCenters() {
+        return ResponseEntity.ok(userRepository.findByRole(Role.MEDICALCENTER));
+    }
+
+    // === Xem chi tiết Donor theo id ===
+    @GetMapping("/users/donors/{id}")
+    public ResponseEntity<?> getDonorById(@PathVariable Long id) {
+        return userRepository.findById(id)
+                .filter(u -> u.getRole() == Role.DONOR)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElse(ResponseEntity.badRequest().body("Donor not found"));
+    }
+
+    // === Xem chi tiết MedicalCenter theo id ===
+    @GetMapping("/users/medicalcenters/{id}")
+    public ResponseEntity<?> getMedicalCenterById(@PathVariable Long id) {
+        return userRepository.findById(id)
+                .filter(u -> u.getRole() == Role.MEDICALCENTER)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElse(ResponseEntity.badRequest().body("Medical center not found"));
+    }
+
+    // Xem tất cả các lịch
+    @GetMapping("/schedules")
+    public ResponseEntity<?> getAllSchedules() {
+        return ResponseEntity.ok(scheduleRepo.findAll());
+    }
+
+    // Xóa lịch theo ID
+    @DeleteMapping("/schedules/{id}")
+    public ResponseEntity<?> deleteSchedule(@PathVariable Long id) {
+        if (!scheduleRepo.existsById(id)) {
+            return ResponseEntity.badRequest().body("Schedule not found");
+        }
+        scheduleRepo.deleteById(id);
+        return ResponseEntity.ok("Schedule deleted successfully");
     }
 }
