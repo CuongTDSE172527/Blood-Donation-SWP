@@ -34,6 +34,18 @@ public class StaffController {
     public ResponseEntity<?> createLocation(@RequestBody DonationLocation location) {
         return ResponseEntity.ok(locationRepo.save(location));
     }
+    @GetMapping("/locations/{id}")
+    public ResponseEntity<?> getLocationById(@PathVariable Long id) {
+        return locationRepo.findById(id)
+                .filter(loc -> loc.getId() == id)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElse(ResponseEntity.badRequest().body("location not found"));
+    }
+    @GetMapping("/locations")
+    public ResponseEntity<?> getLocation() {
+        return ResponseEntity.ok(locationRepo.findAll());
+    }
+
 
     // --- Chỉnh sửa địa điểm ---
     @PutMapping("/locations/{id}")
@@ -47,6 +59,7 @@ public class StaffController {
         loc.setAddress(update.getAddress());
         return ResponseEntity.ok(locationRepo.save(loc));
     }
+
 
     // --- Tạo lịch hiến máu ---
     @PostMapping("/schedules")
@@ -140,14 +153,8 @@ public class StaffController {
                 .orElse(ResponseEntity.badRequest().body("donor not found"));
     }
 
-    @GetMapping("/inventory/{id}")
-    public ResponseEntity<?> getBloodTypeById(@PathVariable Long id) {
-        return bloodInventoryRepo.findById(id)
-                .filter(bloodInventory -> bloodInventory.getId() == id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().body("Blood not found"));
-    }
-@PutMapping("/inventory/{id}/add")
+
+@PutMapping("/inventory/{bloodtype}/add")
     public Optional<BloodInventory> addBlood(String bloodType, int quantity) {
         Optional<BloodInventory> existing = bloodInventoryRepo.findByBloodType(bloodType);
 
@@ -158,7 +165,7 @@ public class StaffController {
 
         return Optional.empty();
     }
-    @PutMapping("/inventory/{id}/remove")
+    @PutMapping("/inventory/{bloodtype}/remove")
     public Optional<BloodInventory> removeBlood(String bloodType, int quantity) {
         Optional<BloodInventory> existing = bloodInventoryRepo.findByBloodType(bloodType);
 
@@ -169,6 +176,19 @@ public class StaffController {
 
         return Optional.empty();
     }
-
+//    @GetMapping("/inventory/{bloodtype}")
+//    public ResponseEntity<?> getBloodTypeById(@PathVariable String bloodtype) {
+//        return bloodInventoryRepo.findByBloodType(bloodtype)
+//                .filter(bloodInventory -> bloodInventory.getBloodType().equalsIgnoreCase(bloodtype))
+//                .<ResponseEntity<?>>map(ResponseEntity::ok)
+//                .orElse(ResponseEntity.badRequest().body("Blood not found"));
+//    }
+    @GetMapping("/inventory/{id}")
+    public ResponseEntity<?> getBloodTypeById(@PathVariable Long id) {
+        return bloodInventoryRepo.findById(id)
+                .filter(bloodInventory -> bloodInventory.getId() == id)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElse(ResponseEntity.badRequest().body("Blood not found"));
+    }
 }
 
