@@ -1,9 +1,6 @@
 package com.example.demo1.controller.staff;
 
-import com.example.demo1.entity.BloodInventory;
-import com.example.demo1.entity.DonationLocation;
-import com.example.demo1.entity.DonationRegistration;
-import com.example.demo1.entity.DonationSchedule;
+import com.example.demo1.entity.*;
 import com.example.demo1.entity.enums.RegistrationStatus;
 import com.example.demo1.entity.enums.Role;
 import com.example.demo1.repo.*;
@@ -12,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -179,4 +177,35 @@ public class StaffController {
         scheduleRepo.deleteById(id);
         return ResponseEntity.ok("Schedule deleted successfully");
     }
+
+    //Tien----------------------------------------------------------------------------------------------
+
+
+    @GetMapping("/users/donors")
+    public ResponseEntity<List<User>> getDonors() {
+        return ResponseEntity.ok(userRepository.findByRole(Role.DONOR));
+    }
+
+
+    @GetMapping("/inventory/{id}")
+    public ResponseEntity<?> getBloodTypeById(@PathVariable Long id) {
+        return bloodInventoryRepo.findById(id)
+                .filter(bloodInventory -> bloodInventory.getId() == id)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElse(ResponseEntity.badRequest().body("Blood not found"));
+    }
+
+    public Optional<BloodInventory> addBlood(String bloodType, int quantity) {
+        Optional<BloodInventory> existing = bloodInventoryRepo.findByBloodType(bloodType);
+
+        if (existing.isPresent()) {
+            existing.get().setQuantity(existing.get().getQuantity() + quantity);
+            return Optional.of(bloodInventoryRepo.save(existing.get()));
+        }
+
+        return Optional.empty();
+    }
+    //-------------------------------------------------------------------------------------/
+
+
 }
