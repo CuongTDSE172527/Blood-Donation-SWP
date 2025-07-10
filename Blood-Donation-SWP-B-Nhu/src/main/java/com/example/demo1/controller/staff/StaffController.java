@@ -147,17 +147,28 @@ public class StaffController {
                 .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElse(ResponseEntity.badRequest().body("Blood not found"));
     }
-
-    public BloodInventory addBlood(String bloodType, int quantity) {
+@PutMapping("/inventory/{id}/add")
+    public Optional<BloodInventory> addBlood(String bloodType, int quantity) {
         Optional<BloodInventory> existing = bloodInventoryRepo.findByBloodType(bloodType);
 
         if (existing.isPresent()) {
-
-            existing.setQuantity(existing.getQuantity() + quantity);
-            return Optional.ofNullable(bloodInventoryRepo.save(existing));
+            existing.get().setQuantity(existing.get().getQuantity() + quantity);
+            return Optional.of(bloodInventoryRepo.save(existing.get()));
         }
 
-
+        return Optional.empty();
     }
+    @PutMapping("/inventory/{id}/remove")
+    public Optional<BloodInventory> removeBlood(String bloodType, int quantity) {
+        Optional<BloodInventory> existing = bloodInventoryRepo.findByBloodType(bloodType);
+
+        if (existing.isPresent()) {
+            existing.get().setQuantity(existing.get().getQuantity() - quantity);
+            return Optional.of(bloodInventoryRepo.save(existing.get()));
+        }
+
+        return Optional.empty();
+    }
+
 }
 
