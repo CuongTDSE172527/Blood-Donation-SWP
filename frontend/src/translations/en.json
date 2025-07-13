@@ -90,7 +90,8 @@
     }
   },
   "common": {
-    "language": "Language"
+    "language": "Language",
+    "saving": "Saving..."
   },
   "about": {
     "title": "About Us",
@@ -136,6 +137,7 @@
     "role_donor": "Donor",
     "role_staff": "Staff",
     "role_user": "User",
+    "donor": "Donor",
     "recentRequests": "Recent Blood Requests",
     "patient": "Patient",
     "bloodType": "Blood Type",
@@ -218,7 +220,20 @@
     "editRequest": "Edit Request",
     "addRequest": "Add Request",
     "insufficientInventory": "Not enough blood in inventory!",
-    "completeRequestSuccess": "Request completed successfully!"
+    "completeRequestSuccess": "Request completed successfully!",
+    "medicalCenterManagement": "Medical Center Management",
+    "addMedicalCenter": "Add Medical Center",
+    "editMedicalCenter": "Edit Medical Center",
+    "centerName": "Center Name",
+    "address": "Address",
+    "contact": "Contact",
+    "capacity": "Capacity",
+    "staff": "Staff",
+    "phone": "Phone",
+    "email": "Email",
+    "status_active": "Active",
+    "status_maintenance": "Maintenance",
+    "status_inactive": "Inactive"
   },
   "user": {
     "dashboardTitle": "User Dashboard",
@@ -259,7 +274,10 @@
     "donationHistory": "Donation History",
     "date": "Date",
     "location": "Location",
-    "units": "Units"
+    "units": "Units",
+    "registerDonation": "Register to Blood Donation",
+    "registerDonationDesc": "Register for your next blood donation with height, weight, and health information",
+    "registerNow": "Register Now"
   },
   "login": {
     "title": "Login",
@@ -286,5 +304,17 @@
     "registering": "Registering...",
     "alreadyAccount": "Already have an account?",
     "loginNow": "Login now"
+  },
+  "profile": {
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "passwordMismatch": "New passwords do not match",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "passwordUpdateSuccess": "Password updated successfully!",
+    "passwordUpdateError": "Password update failed",
+    "updateSuccess": "Profile updated successfully!",
+    "updateError": "Profile update failed"
   }
 } 

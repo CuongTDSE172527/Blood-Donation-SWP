@@ -17,8 +17,9 @@ import {
   TableRow,
   Chip,
   Avatar,
+  Grid,
 } from '@mui/material';
-import { Edit, CalendarToday, History } from '@mui/icons-material';
+import { Edit, CalendarToday, History, Favorite } from '@mui/icons-material';
 
 const sectionBg = '#fff5f5';
 const cardShadow = '0 4px 24px 0 rgba(211,47,47,0.07)';
@@ -51,6 +52,39 @@ const DonorDashboard = () => {
         >
           {t('donor.dashboardTitle')}
         </Typography>
+        
+        {/* Quick Actions */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={4}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Favorite sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('donor.registerDonation')}</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary" paragraph>
+                  {t('donor.registerDonationDesc')}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={() => navigate('/donation-registration')}
+                  sx={{
+                    bgcolor: '#d32f2f',
+                    '&:hover': {
+                      bgcolor: '#b71c1c',
+                    },
+                  }}
+                >
+                  {t('donor.registerNow')}
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+        </Grid>
+
         <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow, mb: 4 }}>
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>

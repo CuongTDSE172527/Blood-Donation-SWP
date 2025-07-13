@@ -21,6 +21,7 @@ import DonorDashboard from './pages/donor/Dashboard';
 import BloodRequest from './pages/blood/Request';
 import BloodSearch from './pages/blood/Search';
 import EmergencyRequest from './pages/blood/EmergencyRequest';
+import DonationRegistration from './pages/DonationRegistration';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/admin/Dashboard';
 import StaffDashboard from './pages/staff/Dashboard';
@@ -36,7 +37,8 @@ import StaffInventory from './pages/staff/Inventory';
 import StaffEmergency from './pages/staff/Emergency';
 import AdminRequests from './pages/admin/Requests';
 import AdminProfile from './pages/admin/Profile';
-import MedicalCenter from './pages/admin/MedicalCenter';
+import AdminMedicalCenter from './pages/admin/MedicalCenter';
+import StaffMedicalCenter from './pages/staff/MedicalCenter';
 import DonorProfile from './pages/donor/Profile';
 
 // Theme
@@ -80,6 +82,7 @@ function App() {
                 <Route path="blood-request" element={<BloodRequest />} />
                 <Route path="blood-search" element={<BloodSearch />} />
                 <Route path="schedule" element={<Schedule />} />
+                <Route path="donation-registration" element={<DonationRegistration />} />
               </Route>
 
               {/* Protected Routes */}
@@ -140,7 +143,7 @@ function App() {
                 } />
                 <Route path="medical-center" element={
                   <ProtectedRoute allowedRoles={['ADMIN']}>
-                    <MedicalCenter />
+                    <AdminMedicalCenter />
                   </ProtectedRoute>
                 } />
               </Route>
@@ -170,6 +173,11 @@ function App() {
                 <Route path="emergency" element={
                   <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
                     <StaffEmergency />
+                  </ProtectedRoute>
+                } />
+                <Route path="medical-center" element={
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
+                    <StaffMedicalCenter />
                   </ProtectedRoute>
                 } />
               </Route>

@@ -1,6 +1,30 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Container, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  Card, 
+  CardContent, 
+  Button, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper, 
+  IconButton, 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
+} from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
 
 const mockInventory = [
@@ -8,6 +32,8 @@ const mockInventory = [
   { id: 2, bloodType: 'O-', units: 15 },
   { id: 3, bloodType: 'B+', units: 30 },
 ];
+
+const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export default function Inventory() {
   const { t } = useTranslation();
@@ -70,7 +96,21 @@ export default function Inventory() {
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>{editItem ? t('admin.editBloodType') : t('admin.addBloodType')}</DialogTitle>
           <DialogContent>
-            <TextField margin="dense" label={t('admin.bloodType')} name="bloodType" value={form.bloodType} onChange={handleChange} fullWidth />
+            <FormControl fullWidth margin="dense">
+              <InputLabel>{t('admin.bloodType')}</InputLabel>
+              <Select
+                label={t('admin.bloodType')}
+                name="bloodType"
+                value={form.bloodType}
+                onChange={handleChange}
+              >
+                {bloodTypes.map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField margin="dense" label={t('admin.units')} name="units" value={form.units} onChange={handleChange} fullWidth type="number" />
           </DialogContent>
           <DialogActions>

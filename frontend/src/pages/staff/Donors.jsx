@@ -1,6 +1,31 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Container, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  Card, 
+  CardContent, 
+  Button, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper, 
+  Chip, 
+  IconButton, 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
+} from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
 
 const mockDonors = [
@@ -8,6 +33,8 @@ const mockDonors = [
   { id: 2, name: 'Jane Smith', bloodType: 'O-', lastDonation: '2024-01-20', status: 'Eligible' },
   { id: 3, name: 'Mike Johnson', bloodType: 'B+', lastDonation: '2023-12-10', status: 'Not Eligible' },
 ];
+
+const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export default function Donors() {
   const { t } = useTranslation();
@@ -77,9 +104,45 @@ export default function Donors() {
           <DialogTitle>{editDonor ? t('staff.editDonor') : t('staff.addDonor')}</DialogTitle>
           <DialogContent>
             <TextField margin="dense" label={t('staff.name')} name="name" value={form.name} onChange={handleChange} fullWidth />
-            <TextField margin="dense" label={t('staff.bloodType')} name="bloodType" value={form.bloodType} onChange={handleChange} fullWidth />
-            <TextField margin="dense" label={t('staff.lastDonation')} name="lastDonation" value={form.lastDonation} onChange={handleChange} fullWidth />
-            <TextField margin="dense" label={t('staff.status')} name="status" value={form.status} onChange={handleChange} fullWidth />
+            <FormControl fullWidth margin="dense">
+              <InputLabel>{t('staff.bloodType')}</InputLabel>
+              <Select
+                label={t('staff.bloodType')}
+                name="bloodType"
+                value={form.bloodType}
+                onChange={handleChange}
+              >
+                {bloodTypes.map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField 
+              margin="dense" 
+              label={t('staff.lastDonation')} 
+              name="lastDonation" 
+              type="date"
+              value={form.lastDonation} 
+              onChange={handleChange} 
+              fullWidth 
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <FormControl fullWidth margin="dense">
+              <InputLabel>{t('staff.status')}</InputLabel>
+              <Select
+                label={t('staff.status')}
+                name="status"
+                value={form.status}
+                onChange={handleChange}
+              >
+                <MenuItem value="Eligible">{t('staff.status_eligible')}</MenuItem>
+                <MenuItem value="Not Eligible">{t('staff.status_noteligible')}</MenuItem>
+              </Select>
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>{t('staff.cancel')}</Button>

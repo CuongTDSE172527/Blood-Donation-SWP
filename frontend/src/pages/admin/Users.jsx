@@ -1,12 +1,38 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Container, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Menu, MenuItem, FormControl, InputLabel, Select } from '@mui/material';
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  Card, 
+  CardContent, 
+  Button, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper, 
+  Chip, 
+  IconButton, 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
+  TextField, 
+  Menu, 
+  MenuItem, 
+  FormControl, 
+  InputLabel, 
+  Select 
+} from '@mui/material';
 import { Add, Edit, Delete, ArrowDropDown } from '@mui/icons-material';
 
 const mockUsers = [
   { id: 1, name: 'Admin User', email: 'admin@test.com', role: 'admin' },
   { id: 2, name: 'Staff User', email: 'staff@test.com', role: 'staff' },
-  { id: 3, name: 'Regular User', email: 'user@test.com', role: 'user' },
+  { id: 3, name: 'Donor User', email: 'donor@test.com', role: 'donor' },
 ];
 
 export default function Users() {
@@ -14,13 +40,13 @@ export default function Users() {
   const [users, setUsers] = useState(mockUsers);
   const [open, setOpen] = useState(false);
   const [editUser, setEditUser] = useState(null);
-  const [form, setForm] = useState({ name: '', email: '', role: 'user', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', role: 'donor', password: '' });
   const [roleFilter, setRoleFilter] = useState('all');
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleOpen = (user = null) => {
     setEditUser(user);
-    setForm(user ? { ...user, password: '' } : { name: '', email: '', role: 'user', password: '' });
+    setForm(user ? { ...user, password: '' } : { name: '', email: '', role: 'donor', password: '' });
     setOpen(true);
   };
   const handleClose = () => setOpen(false);
@@ -71,7 +97,7 @@ export default function Users() {
                         <MenuItem selected={roleFilter === 'all'} onClick={() => handleRoleFilter('all')}>{t('admin.all')}</MenuItem>
                         <MenuItem selected={roleFilter === 'admin'} onClick={() => handleRoleFilter('admin')}>{t('admin.admin')}</MenuItem>
                         <MenuItem selected={roleFilter === 'staff'} onClick={() => handleRoleFilter('staff')}>{t('admin.staff')}</MenuItem>
-                        <MenuItem selected={roleFilter === 'user'} onClick={() => handleRoleFilter('user')}>{t('admin.user')}</MenuItem>
+                        <MenuItem selected={roleFilter === 'donor'} onClick={() => handleRoleFilter('donor')}>{t('admin.donor')}</MenuItem>
                       </Menu>
                     </TableCell>
                     <TableCell align="right">{t('admin.actions')}</TableCell>
@@ -83,7 +109,7 @@ export default function Users() {
                       <TableCell>{user.name}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
-                        <Chip label={t('admin.' + user.role)} color={user.role === 'admin' ? 'error' : user.role === 'staff' ? 'warning' : 'default'} size="small" />
+                        <Chip label={t('admin.role_' + user.role)} color={user.role === 'admin' ? 'error' : user.role === 'staff' ? 'warning' : 'default'} size="small" />
                       </TableCell>
                       <TableCell align="right">
                         <IconButton onClick={() => handleOpen(user)}><Edit /></IconButton>
@@ -111,11 +137,20 @@ export default function Users() {
               >
                 <MenuItem value="admin">{t('admin.admin')}</MenuItem>
                 <MenuItem value="staff">{t('admin.staff')}</MenuItem>
-                <MenuItem value="user">{t('admin.user')}</MenuItem>
+                <MenuItem value="donor">{t('admin.donor')}</MenuItem>
               </Select>
             </FormControl>
-            {form.role === 'staff' && (
-              <TextField margin="dense" label={t('admin.password') || 'Password'} name="password" type="password" value={form.password} onChange={handleChange} fullWidth />
+            {!editUser && (
+              <TextField 
+                margin="dense" 
+                label={t('admin.password') || 'Password'} 
+                name="password" 
+                type="password" 
+                value={form.password} 
+                onChange={handleChange} 
+                fullWidth 
+                required
+              />
             )}
           </DialogContent>
           <DialogActions>

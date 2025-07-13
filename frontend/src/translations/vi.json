@@ -136,6 +136,7 @@
     "role_donor": "Người hiến máu",
     "role_staff": "Nhân viên",
     "role_user": "Người dùng",
+    "donor": "Người hiến máu",
     "recentRequests": "Yêu cầu máu gần đây",
     "patient": "Bệnh nhân",
     "bloodType": "Nhóm máu",
@@ -216,7 +217,20 @@
     "editRequest": "Chỉnh sửa yêu cầu",
     "addRequest": "Thêm yêu cầu",
     "insufficientInventory": "Không đủ máu trong kho!",
-    "completeRequestSuccess": "Hoàn thành yêu cầu thành công!"
+    "completeRequestSuccess": "Hoàn thành yêu cầu thành công!",
+    "medicalCenterManagement": "Quản lý Trung tâm Y tế",
+    "addMedicalCenter": "Thêm Trung tâm Y tế",
+    "editMedicalCenter": "Chỉnh sửa Trung tâm Y tế",
+    "centerName": "Tên Trung tâm",
+    "address": "Địa chỉ",
+    "contact": "Liên hệ",
+    "capacity": "Sức chứa",
+    "staff": "Nhân viên",
+    "phone": "Điện thoại",
+    "email": "Email",
+    "status_active": "Hoạt động",
+    "status_maintenance": "Bảo trì",
+    "status_inactive": "Không hoạt động"
   },
   "user": {
     "dashboardTitle": "Bảng điều khiển Người dùng",
@@ -257,7 +271,10 @@
     "donationHistory": "Lịch sử hiến máu",
     "date": "Ngày",
     "location": "Địa điểm",
-    "units": "Đơn vị"
+    "units": "Đơn vị",
+    "registerDonation": "Đăng ký hiến máu",
+    "registerDonationDesc": "Đăng ký hiến máu với thông tin chiều cao, cân nặng và sức khỏe",
+    "registerNow": "Đăng ký ngay"
   },
   "login": {
     "title": "Đăng nhập",
@@ -290,5 +307,17 @@
     "city": "Thành phố",
     "state": "Tỉnh",
     "zip": "Mã bưu điện"
+  },
+  "profile": {
+    "changePassword": "Đổi mật khẩu",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu mới",
+    "passwordMismatch": "Mật khẩu mới không khớp",
+    "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
+    "passwordUpdateSuccess": "Cập nhật mật khẩu thành công!",
+    "passwordUpdateError": "Cập nhật mật khẩu thất bại",
+    "updateSuccess": "Cập nhật hồ sơ thành công!",
+    "updateError": "Cập nhật hồ sơ thất bại"
   }
 }
