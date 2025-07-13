@@ -11,6 +11,7 @@ import {
   Paper,
   Link,
   Grid,
+  CircularProgress,
 } from '@mui/material';
 
 const Register = () => {
@@ -23,6 +24,7 @@ const Register = () => {
     bloodType: '',
   });
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -35,11 +37,54 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    if (formData.password !== formData.confirmPassword) {
-      setError('Mật khẩu không khớp');
+    setIsLoading(true);
+    
+    // Basic validation
+    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword || !formData.bloodType) {
+      setError('Vui lòng điền đầy đủ thông tin');
+      setIsLoading(false);
       return;
     }
+    
+    // Name validation
+    if (formData.fullName.trim().length < 2) {
+      setError('Họ tên phải có ít nhất 2 ký tự');
+      setIsLoading(false);
+      return;
+    }
+    
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Email không đúng định dạng. Vui lòng nhập email hợp lệ');
+      setIsLoading(false);
+      return;
+    }
+    
+    // Password validation
+    if (formData.password.length < 6) {
+      setError('Mật khẩu phải có ít nhất 6 ký tự');
+      setIsLoading(false);
+      return;
+    }
+    
+    // Password strength validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
+    if (!passwordRegex.test(formData.password)) {
+      setError('Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số');
+      setIsLoading(false);
+      return;
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      setError('Mật khẩu không khớp');
+      setIsLoading(false);
+      return;
+    }
+    
     try {
+      console.log('Attempting to connect to:', `${import.meta.env.VITE_API_URL}/auth/register`);
+      
       const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -50,15 +95,34 @@ const Register = () => {
           bloodType: formData.bloodType
         })
       });
+      
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
         const errMsg = await response.text();
+        console.log('Server error:', errMsg);
         setError(errMsg);
         return;
       }
+      
+      console.log('Registration successful');
       // Đăng ký thành công
       navigate('/login');
     } catch (err) {
-      setError('Lỗi kết nối server');
+      console.log('Caught error:', err);
+      console.log('Error name:', err.name);
+      console.log('Error message:', err.message);
+      
+      // Handle network errors when backend is not running
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.');
+      } else if (err.name === 'TypeError') {
+        setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.');
+      } else {
+        setError(`Lỗi kết nối server: ${err.message}`);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -82,6 +146,7 @@ const Register = () => {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
+                  disabled={isLoading}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -93,6 +158,7 @@ const Register = () => {
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
+                  disabled={isLoading}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -104,6 +170,7 @@ const Register = () => {
                   type="password"
                   value={formData.password}
                   onChange={handleChange}
+                  disabled={isLoading}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -115,6 +182,7 @@ const Register = () => {
                   type="password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
+                  disabled={isLoading}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -126,6 +194,7 @@ const Register = () => {
                   name="bloodType"
                   value={formData.bloodType}
                   onChange={handleChange}
+                  disabled={isLoading}
                   SelectProps={{
                     native: true,
                   }}
@@ -150,8 +219,16 @@ const Register = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={isLoading}
             >
-              {t('register.registerButton')}
+              {isLoading ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CircularProgress size={20} color="inherit" />
+                  {t('register.registering') || 'Đang đăng ký...'}
+                </Box>
+              ) : (
+                t('register.registerButton')
+              )}
             </Button>
             <Box sx={{ textAlign: 'center' }}>
               <Link href="/login" variant="body2">

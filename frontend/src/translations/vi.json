@@ -20,42 +20,73 @@
   },
   "home": {
     "hero": {
-      "title": "Hiến Máu, Cứu Người",
-      "subtitle": "Tham gia mạng lưới hiến máu của chúng tôi và tạo sự khác biệt trong cuộc sống của ai đó ngay hôm nay.",
-      "becomeDonor": "Trở Thành Người Hiến Máu"
+      "title": "Hệ Thống Hỗ Trợ Hiến Máu",
+      "subtitle": "Tham gia mạng lưới hiến máu của chúng tôi và tạo sự khác biệt trong cuộc sống của ai đó ngay hôm nay",
+      "registerButton": "Đăng ký hiến máu ngay"
     },
-    "bloodTypes": {
+    "learnSection": {
+      "title": "Tìm hiểu về hiến máu",
+      "universalDonor": "Người cho phổ thông",
+      "bloodInfo": "Thông tin về máu",
+      "donationProcess": "Quy trình hiến máu",
+      "advice": "Lời khuyên"
+    },
+    "bloodSection": {
       "title": "Nhóm Máu và Tính Tương Thích",
-      "universalDonor": "Người Cho Phổ Thông",
-      "mostCommon": "Nhóm Máu Phổ Biến Nhất",
-      "rareType": "Nhóm Máu Hiếm",
-      "commonType": "Nhóm Máu Thường Gặp",
-      "canReceive": "Có Thể Nhận Từ",
-      "canDonateTo": "Có Thể Cho"
-    },
-    "info": {
-      "title": "Tìm Hiểu Về Hiến Máu",
-      "bloodTypes": {
-        "title": "Nhóm Máu",
-        "content": "Có bốn nhóm máu chính được xác định bởi sự có mặt hoặc vắng mặt của hai kháng nguyên A và B trên bề mặt hồng cầu. Ngoài kháng nguyên A và B, còn có một protein gọi là yếu tố Rh, có thể có (+) hoặc không có (–), tạo ra 8 nhóm máu phổ biến nhất (A+, A-, B+, B-, O+, O-, AB+, AB-)."
+      "bloodInfo": {
+        "title": "Thông tin về máu",
+        "content": "Có bốn nhóm máu chính được xác định bởi sự có mặt hoặc vắng mặt của hai kháng nguyên A và B trên bề mặt hồng cầu...",
+        "mainTypes": "Các nhóm máu chính",
+        "mainTypesDesc": "- Có 4 nhóm máu chính: A, B, AB và O.\n- Nhóm máu được xác định bởi sự có mặt hoặc vắng mặt của kháng nguyên A và B trên bề mặt hồng cầu.\n- Ngoài ra còn có yếu tố Rh (dương tính '+' hoặc âm tính '–'), tạo thành 8 nhóm máu phổ biến (A+, A-, B+, B-, AB+, AB-, O+, O-).",
+        "characteristics": "Đặc điểm từng nhóm máu",
+        "characteristicsDesc": "Nhóm máu O: Không có kháng nguyên A/B, là 'người cho phổ thông' (O- cho được tất cả các nhóm máu).\nNhóm máu A: Có kháng nguyên A, nhận từ A, O.\nNhóm máu B: Có kháng nguyên B, nhận từ B, O.\nNhóm máu AB: Có cả kháng nguyên A và B, là 'người nhận phổ thông' (nhận được từ tất cả các nhóm máu).",
+        "distribution": "Tỷ lệ phân bố nhóm máu",
+        "distributionDesc": "- O: ~42%\n- A: ~32%\n- B: ~18%\n- AB: ~8%\n(Tỷ lệ này có thể thay đổi theo từng quốc gia, khu vực)",
+        "clinicalSignificance": "Ý nghĩa lâm sàng",
+        "clinicalSignificanceDesc": "- Biết nhóm máu giúp truyền máu an toàn, tránh phản ứng nguy hiểm.\n- Truyền sai nhóm máu có thể gây nguy hiểm tính mạng.\n- Một số nhóm máu hiếm (như O-) rất quan trọng trong cấp cứu."
       },
-      "universalDonors": {
-        "title": "Người Cho Phổ Thông",
-        "content": "Máu nhóm O âm tính là nhóm hồng cầu phổ thông và có thể được truyền cho bệnh nhân thuộc bất kỳ nhóm máu nào. Máu nhóm AB là nhóm huyết tương phổ thông. Những nhóm máu này rất quan trọng trong các tình huống khẩn cấp."
+      "testingPhase": {
+        "title": "Giai đoạn xét nghiệm",
+        "content": "Các xét nghiệm sẽ được tiến hành để xác định nhóm máu và kiểm tra các bệnh truyền nhiễm...",
+        "steps": "Các bước xét nghiệm máu:",
+        "stepsDesc": "1. Xác định nhóm máu (ABO, Rh).\n2. Sàng lọc các bệnh truyền nhiễm (HIV, viêm gan B/C, giang mai...).\n3. Kiểm tra các chỉ số an toàn khác.\n4. Đảm bảo máu hiến đạt tiêu chuẩn trước khi sử dụng.",
+        "notes": "Lưu ý:",
+        "notesDesc": "- Quy trình xét nghiệm được thực hiện bởi nhân viên y tế chuyên nghiệp.\n- Kết quả xét nghiệm sẽ được thông báo sau khi hoàn tất."
       },
-      "whyDonate": {
-        "title": "Tại Sao Nên Hiến Máu?",
-        "content": "Hiến máu là một cách đơn giản, an toàn để giúp cứu sống người khác. Lượng máu hiến của bạn có thể giúp được tới ba người cần truyền máu. Gần 16 triệu thành phần máu được truyền mỗi năm tại Mỹ."
+      "advice": {
+        "title": "Lời khuyên",
+        "content": "Sau khi hiến máu, bạn nên nghỉ ngơi, uống nước và ăn nhẹ...",
+        "notes": "Lưu ý:",
+        "notesDesc": "• Uống sữa, rượu bia trước khi hiến máu.\n• Lái xe đi xa, khuân vác, làm việc nặng hoặc luyện tập thể thao gắng sức trong ngày lấy máu.",
+        "should": "Nên:",
+        "shouldDesc": "• Ăn nhẹ và uống nhiều nước (300-500ml) trước khi hiến máu.\n• Đè chặt miếng bông gòn cầm máu nơi kim chích 10 phút, giữ băng keo cá nhân trong 4-6 giờ.\n• Nằm và ngồi nghỉ tại chỗ 10 phút sau khi hiến máu.\n• Nằm nghi đầu thấp, kê chân cao nếu thấy chóng mặt, mệt, buồn nôn.\n• Chườm lạnh (túi chườm chuyên dụng hoặc cho đá vào khăn) chườm vết chích nếu bị sưng, bầm tím.",
+        "shouldNot": "Không nên:",
+        "shouldNotDesc": "• Nếu phát hiện chảy máu tại chỗ chích: Giơ tay cao.\n• Lấy tay kia ấn nhẹ vào miếng bông hoặc băng dính.\n• Liên hệ nhân viên y tế để được hỗ trợ khi cần thiết.",
+        "doctorInfo": "Bác sĩ Ngô Văn Tân\nTrưởng khoa Khoa Tiếp nhận hiến máu, Bệnh viện Truyền máu Huyết học"
       },
-      "process": {
-        "title": "Quy Trình Hiến Máu",
-        "content": "Toàn bộ quá trình mất khoảng một giờ. Bao gồm đăng ký, kiểm tra sức khỏe sơ bộ, hiến máu và ăn nhẹ. Việc hiến máu thực tế chỉ mất khoảng 8-10 phút."
+      "donationProcess": {
+        "title": "Quy trình hiến máu",
+        "content": "Toàn bộ quá trình hiến máu thường mất từ 45-60 phút, trong đó việc lấy máu chỉ mất khoảng 8-10 phút.",
+        "steps": "Các bước trong quy trình hiến máu:",
+        "stepsDesc": "1. Đăng ký và điền thông tin cá nhân.\n2. Khám sức khỏe và kiểm tra huyết áp, mạch, cân nặng.\n3. Lấy máu xét nghiệm.\n4. Hiến máu (8-10 phút).\n5. Nghỉ ngơi, nhận quà và giấy chứng nhận.",
+        "notes": "Lưu ý:",
+        "notesDesc": "- Toàn bộ quy trình được thực hiện bởi nhân viên y tế chuyên nghiệp, đảm bảo an toàn tuyệt đối cho người hiến máu.\n- Nếu có bất kỳ dấu hiệu bất thường nào, hãy thông báo ngay cho nhân viên y tế."
       }
     },
     "cta": {
-      "title": "Sẵn Sàng Tạo Sự Khác Biệt?",
-      "subtitle": "Tham gia cộng đồng người hiến máu của chúng tôi và giúp cứu sống người khác trong khu vực của bạn.",
-      "register": "Đăng Ký Ngay"
+      "text": "Tham gia cộng đồng người hiến máu của chúng tôi và giúp cứu sống người khác trong khu vực của bạn.",
+      "button": "Đăng ký hiến máu ngay"
+    },
+    "footer": {
+      "title": "Blood Donation Supported System",
+      "medicalFacility": "Cơ sở y tế điều trị",
+      "bloodCenter": "Trung tâm hiến máu",
+      "address": "Địa chỉ",
+      "addressValue": "abcxyz",
+      "officeHours": "Liên hệ giờ hành chính",
+      "support": "Hỗ trợ",
+      "terms": "Điều khoản sử dụng",
+      "copyright": "© 2025 Blood Donation System. All rights reserved."
     }
   },
   "common": {
@@ -233,6 +264,7 @@
     "email": "Email",
     "password": "Mật khẩu",
     "loginButton": "Đăng nhập",
+    "loggingIn": "Đang đăng nhập...",
     "forgotPassword": "Quên mật khẩu?",
     "noAccount": "Chưa có tài khoản?",
     "registerNow": "Đăng ký ngay"
@@ -243,19 +275,20 @@
     "email": "Email",
     "password": "Mật khẩu",
     "confirmPassword": "Xác nhận mật khẩu",
+    "bloodType": "Nhóm máu",
+    "bloodTypeSelect": "Chọn nhóm máu",
     "registerButton": "Đăng ký",
+    "registering": "Đang đăng ký...",
     "alreadyAccount": "Đã có tài khoản?",
     "loginNow": "Đăng nhập ngay",
     "firstName": "Họ",
     "lastName": "Tên",
-    "bloodType": "Nhóm máu",
     "dateOfBirth": "Ngày sinh",
     "gender": "Giới tính",
     "phone": "Số điện thoại",
     "address": "Địa chỉ",
     "city": "Thành phố",
     "state": "Tỉnh",
-    "zip": "Mã bưu điện",
-    "bloodTypeSelect": "Chọn nhóm máu"
+    "zip": "Mã bưu điện"
   }
 }

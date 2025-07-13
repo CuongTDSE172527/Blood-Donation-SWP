@@ -20,42 +20,73 @@
   },
   "home": {
     "hero": {
-      "title": "Donate Blood, Save Lives",
-      "subtitle": "Join our blood donation network and make a difference in someone's life today.",
-      "becomeDonor": "Become a Donor"
+      "title": "Blood Donation Support System",
+      "subtitle": "Join our blood donation network and make a difference in someone's life today",
+      "registerButton": "Register to Donate Blood Now"
     },
-    "bloodTypes": {
-      "title": "Blood Types and Compatibility",
-      "universalDonor": "Universal Donor",
-      "mostCommon": "Most Common Type",
-      "rareType": "Rare Type",
-      "commonType": "Common Type",
-      "canReceive": "Can Receive From",
-      "canDonateTo": "Can Donate To"
-    },
-    "info": {
+    "learnSection": {
       "title": "Learn About Blood Donation",
-      "bloodTypes": {
-        "title": "Blood Types",
-        "content": "There are four major blood groups determined by the presence or absence of two antigens, A and B, on the surface of red blood cells. In addition to the A and B antigens, there is a protein called the Rh factor, which can be either present (+) or absent (–), creating the 8 most common blood types (A+, A-, B+, B-, O+, O-, AB+, AB-)."
+      "universalDonor": "Universal Donor",
+      "bloodInfo": "Blood Information",
+      "donationProcess": "Donation Process",
+      "advice": "Advice"
+    },
+    "bloodSection": {
+      "title": "Blood Types and Compatibility",
+      "bloodInfo": {
+        "title": "Blood Information",
+        "content": "There are four main blood types determined by the presence or absence of two antigens A and B on the surface of red blood cells...",
+        "mainTypes": "Main Blood Types",
+        "mainTypesDesc": "- There are 4 main blood types: A, B, AB and O.\n- Blood types are determined by the presence or absence of antigens A and B on the surface of red blood cells.\n- There is also the Rh factor (positive '+' or negative '–'), forming 8 common blood types (A+, A-, B+, B-, AB+, AB-, O+, O-).",
+        "characteristics": "Characteristics of Each Blood Type",
+        "characteristicsDesc": "Blood Type O: No A/B antigens, is a 'universal donor' (O- can donate to all blood types).\nBlood Type A: Has antigen A, receives from A, O.\nBlood Type B: Has antigen B, receives from B, O.\nBlood Type AB: Has both antigens A and B, is a 'universal recipient' (can receive from all blood types).",
+        "distribution": "Blood Type Distribution",
+        "distributionDesc": "- O: ~42%\n- A: ~32%\n- B: ~18%\n- AB: ~8%\n(This ratio may vary by country and region)",
+        "clinicalSignificance": "Clinical Significance",
+        "clinicalSignificanceDesc": "- Knowing blood type helps with safe blood transfusion, avoiding dangerous reactions.\n- Transfusing wrong blood type can be life-threatening.\n- Some rare blood types (like O-) are very important in emergencies."
       },
-      "universalDonors": {
-        "title": "Universal Donors",
-        "content": "Type O negative blood is the universal red cell donor type and can be given to patients of any blood type. Type AB blood is the universal plasma donor type. These blood types are crucial for emergency situations."
+      "testingPhase": {
+        "title": "Testing Phase",
+        "content": "Tests will be conducted to determine blood type and check for infectious diseases...",
+        "steps": "Blood Testing Steps:",
+        "stepsDesc": "1. Determine blood type (ABO, Rh).\n2. Screen for infectious diseases (HIV, hepatitis B/C, syphilis...).\n3. Check other safety indicators.\n4. Ensure donated blood meets standards before use.",
+        "notes": "Notes:",
+        "notesDesc": "- Testing procedures are performed by professional medical staff.\n- Test results will be notified after completion."
       },
-      "whyDonate": {
-        "title": "Why Donate Blood?",
-        "content": "Blood donation is a simple, safe way to help save lives. Your donation can help up to three people in need of blood transfusions. Nearly 16 million blood components are transfused each year in the U.S."
+      "advice": {
+        "title": "Advice",
+        "content": "After donating blood, you should rest, drink water and eat lightly...",
+        "notes": "Notes:",
+        "notesDesc": "• Drink milk, alcohol before donating blood.\n• Drive long distances, carry heavy loads, do heavy work or strenuous sports on the day of blood collection.",
+        "should": "Should:",
+        "shouldDesc": "• Eat lightly and drink plenty of water (300-500ml) before donating blood.\n• Press firmly on the cotton ball to stop bleeding at the injection site for 10 minutes, keep the bandage for 4-6 hours.\n• Lie down and sit to rest in place for 10 minutes after donating blood.\n• Lie with head low, raise legs if feeling dizzy, tired, nauseous.\n• Apply cold compress (specialized ice pack or put ice in a towel) to the injection site if swollen, bruised.",
+        "shouldNot": "Should Not:",
+        "shouldNotDesc": "• If bleeding is detected at the injection site: Raise your hand high.\n• Use the other hand to press gently on the cotton or bandage.\n• Contact medical staff for support when needed.",
+        "doctorInfo": "Dr. Ngo Van Tan\nHead of Blood Donation Department, Blood Transfusion Hematology Hospital"
       },
-      "process": {
-        "title": "Donation Process",
-        "content": "The entire process takes about an hour. It includes registration, a mini-physical, donation, and refreshments. The actual donation takes only about 8-10 minutes."
+      "donationProcess": {
+        "title": "Blood Donation Process",
+        "content": "The entire blood donation process usually takes 45-60 minutes, of which blood collection only takes about 8-10 minutes.",
+        "steps": "Steps in the blood donation process:",
+        "stepsDesc": "1. Register and fill in personal information.\n2. Health examination and blood pressure, pulse, weight check.\n3. Blood sampling for testing.\n4. Blood donation (8-10 minutes).\n5. Rest, receive gifts and certificate.",
+        "notes": "Notes:",
+        "notesDesc": "- The entire process is performed by professional medical staff, ensuring absolute safety for blood donors.\n- If there are any unusual signs, notify medical staff immediately."
       }
     },
     "cta": {
-      "title": "Ready to Make a Difference?",
-      "subtitle": "Join our community of blood donors and help save lives in your area.",
-      "register": "Register Now"
+      "text": "Join our blood donor community and help save lives in your area.",
+      "button": "Register to Donate Blood Now"
+    },
+    "footer": {
+      "title": "Blood Donation Supported System",
+      "medicalFacility": "Medical treatment facility",
+      "bloodCenter": "Blood donation center",
+      "address": "Address",
+      "addressValue": "abcxyz",
+      "officeHours": "Office hours contact",
+      "support": "Support",
+      "terms": "Terms of use",
+      "copyright": "© 2025 Blood Donation System. All rights reserved."
     }
   },
   "common": {
@@ -235,6 +266,7 @@
     "email": "Email",
     "password": "Password",
     "loginButton": "Login",
+    "loggingIn": "Logging in...",
     "forgotPassword": "Forgot password?",
     "noAccount": "Don't have an account?",
     "registerNow": "Register now",
@@ -248,10 +280,11 @@
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm Password",
-    "registerButton": "Register",
-    "alreadyAccount": "Already have an account?",
-    "loginNow": "Login now",
     "bloodType": "Blood Type",
-    "bloodTypeSelect": "Select Blood Type"
+    "bloodTypeSelect": "Select blood type",
+    "registerButton": "Register",
+    "registering": "Registering...",
+    "alreadyAccount": "Already have an account?",
+    "loginNow": "Login now"
   }
 } 

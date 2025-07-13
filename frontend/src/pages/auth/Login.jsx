@@ -12,6 +12,7 @@ import {
   Button,
   Paper,
   Link,
+  CircularProgress,
 } from '@mui/material';
 
 const Login = () => {
@@ -21,6 +22,7 @@ const Login = () => {
     password: '',
   });
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -33,9 +35,33 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Basic validation
+    if (!formData.email || !formData.password) {
+      setError('Vui lòng nhập đầy đủ email và mật khẩu');
+      return;
+    }
+    
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Email không đúng định dạng. Vui lòng nhập email hợp lệ');
+      return;
+    }
+    
+    // Password length validation
+    if (formData.password.length < 6) {
+      setError('Mật khẩu phải có ít nhất 6 ký tự');
+      return;
+    }
+    
     dispatch(loginStart());
     setError(null);
+    setIsLoading(true);
+    
     try {
+      console.log('Attempting to connect to:', `${import.meta.env.VITE_API_URL}/auth/login`);
+      
       const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -44,14 +70,21 @@ const Login = () => {
           password: formData.password,
         }),
       });
+      
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
         const errMsg = await response.text();
+        console.log('Server error:', errMsg);
         dispatch(loginFailure(errMsg));
         setError(errMsg);
         return;
       }
+      
       const user = await response.json();
+      console.log('Login successful:', user);
       dispatch(loginSuccess({ user }));
+      
       // Điều hướng dựa vào role (IN HOA)
       switch ((user.role || '').toUpperCase()) {
         case 'ADMIN':
@@ -67,8 +100,21 @@ const Login = () => {
           navigate('/user/dashboard');
       }
     } catch (error) {
+      console.log('Caught error:', error);
+      console.log('Error name:', error.name);
+      console.log('Error message:', error.message);
+      
+      // Handle network errors when backend is not running
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.');
+      } else if (error.name === 'TypeError') {
+        setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.');
+      } else {
+        setError(`Lỗi kết nối server: ${error.message}`);
+      }
       dispatch(loginFailure(error.message));
-      setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -94,6 +140,7 @@ const Login = () => {
               autoFocus
               value={formData.email}
               onChange={handleChange}
+              disabled={isLoading}
             />
             <TextField
               margin="normal"
@@ -106,6 +153,7 @@ const Login = () => {
               autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
+              disabled={isLoading}
             />
             {error && (
               <Typography color="error" sx={{ mt: 1, mb: 1, textAlign: 'center' }}>{error}</Typography>
@@ -115,8 +163,16 @@ const Login = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={isLoading}
             >
-              {t('login.loginButton')}
+              {isLoading ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CircularProgress size={20} color="inherit" />
+                  {t('login.loggingIn') || 'Đang đăng nhập...'}
+                </Box>
+              ) : (
+                t('login.loginButton')
+              )}
             </Button>
             <Box sx={{ textAlign: 'center' }}>
               <Link href="/register" variant="body2">
