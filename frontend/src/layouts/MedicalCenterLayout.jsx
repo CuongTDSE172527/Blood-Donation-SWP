@@ -33,6 +33,7 @@ import {
 } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { logout } from '../store/slices/authSlice';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const drawerWidth = 240;
 
@@ -160,6 +161,7 @@ const MedicalCenterLayout = () => {
             {t('medicalCenter.title') || 'Medical Center Management'}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <LanguageSwitcher open={true} />
             <IconButton color="inherit">
               <NotificationsIcon />
             </IconButton>
