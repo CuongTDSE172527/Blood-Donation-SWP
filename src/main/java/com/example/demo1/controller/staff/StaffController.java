@@ -1,6 +1,7 @@
 package com.example.demo1.controller.staff;
 
 import com.example.demo1.entity.*;
+import com.example.demo1.entity.enums.BloodRequestStatus;
 import com.example.demo1.entity.enums.RegistrationStatus;
 import com.example.demo1.entity.enums.Role;
 import com.example.demo1.repo.*;
@@ -34,51 +35,56 @@ public class StaffController {
     @Autowired
     private NotificationService notificationService;
 
-    // --- Tạo địa điểm ---
+    @Autowired
+    private BloodRequestRepository bloodRequestRepo;
+
+    // === Địa điểm hiến máu ===
+
     @PostMapping("/locations")
     public ResponseEntity<?> createLocation(@RequestBody DonationLocation location) {
         return ResponseEntity.ok(locationRepo.save(location));
     }
 
-    // --- Chỉnh sửa địa điểm ---
-    @PutMapping("/locations/{id}")
-    public ResponseEntity<?> updateLocation(@PathVariable Long id, @RequestBody DonationLocation update) {
-        Optional<DonationLocation> optionalLocation = locationRepo.findById(id);
-        if (optionalLocation.isEmpty()) {
-            return ResponseEntity.badRequest().body("Location not found");
-        }
-        DonationLocation loc = optionalLocation.get();
-        loc.setName(update.getName());
-        loc.setAddress(update.getAddress());
-        return ResponseEntity.ok(locationRepo.save(loc));
-    }
+    // === Lịch hiến máu ===
 
-    // --- Tạo lịch hiến máu ---
     @PostMapping("/schedules")
     public ResponseEntity<?> createSchedule(@RequestBody DonationSchedule schedule) {
         return ResponseEntity.ok(scheduleRepo.save(schedule));
     }
 
-    // --- Chỉnh sửa lịch hiến máu ---
     @PutMapping("/schedules/{id}")
     public ResponseEntity<?> updateSchedule(@PathVariable Long id, @RequestBody DonationSchedule update) {
-        Optional<DonationSchedule> optionalSchedule = scheduleRepo.findById(id);
-        if (optionalSchedule.isEmpty()) {
+        Optional<DonationSchedule> optional = scheduleRepo.findById(id);
+        if (optional.isEmpty()) {
             return ResponseEntity.badRequest().body("Schedule not found");
         }
-        DonationSchedule schedule = optionalSchedule.get();
+        DonationSchedule schedule = optional.get();
         schedule.setDate(update.getDate());
         schedule.setTime(update.getTime());
         return ResponseEntity.ok(scheduleRepo.save(schedule));
     }
 
-    // --- Danh sách đơn đăng ký chờ xác nhận ---
+    @DeleteMapping("/schedules/{id}")
+    public ResponseEntity<?> deleteSchedule(@PathVariable Long id) {
+        if (!scheduleRepo.existsById(id)) {
+            return ResponseEntity.badRequest().body("Schedule not found");
+        }
+        scheduleRepo.deleteById(id);
+        return ResponseEntity.ok("Schedule deleted successfully");
+    }
+
+    @GetMapping("/schedules")
+    public ResponseEntity<?> getAllSchedules() {
+        return ResponseEntity.ok(scheduleRepo.findAll());
+    }
+
+    // === Đăng ký hiến máu ===
+
     @GetMapping("/registrations/pending")
     public ResponseEntity<?> getPendingRegistrations() {
         return ResponseEntity.ok(registrationRepo.findByStatus(RegistrationStatus.PENDING));
     }
 
-    // --- Xác nhận đơn đăng ký ---
     @PostMapping("/registrations/{id}/confirm")
     public ResponseEntity<?> confirmRegistration(@PathVariable Long id) {
         Optional<DonationRegistration> opt = registrationRepo.findById(id);
@@ -88,7 +94,6 @@ public class StaffController {
         reg.setStatus(RegistrationStatus.CONFIRMED);
         registrationRepo.save(reg);
 
-        // Cập nhật kho máu
         bloodInventoryRepo.findByBloodType(reg.getBloodType()).ifPresentOrElse(
                 inv -> {
                     inv.setQuantity(inv.getQuantity() + reg.getAmount());
@@ -102,49 +107,39 @@ public class StaffController {
                 }
         );
 
-        // Gửi thông báo
-        String email = reg.getUser().getEmail();
-        notificationService.sendNotification(email, "Đơn đăng ký hiến máu của bạn đã được xác nhận thành công.");
-
+        notificationService.sendNotification(reg.getUser().getEmail(), "Đơn đăng ký hiến máu đã được xác nhận.");
         return ResponseEntity.ok("Confirmed and inventory updated");
     }
 
-    // --- Hủy đơn đăng ký ---
     @PostMapping("/registrations/{id}/cancel")
     public ResponseEntity<?> cancelRegistration(@PathVariable Long id) {
-        Optional<DonationRegistration> opt = registrationRepo.findById(id);
-        if (opt.isEmpty()) return ResponseEntity.badRequest().body("Registration not found");
-
-        DonationRegistration reg = opt.get();
-        reg.setStatus(RegistrationStatus.CANCELLED);
-        registrationRepo.save(reg);
-
-        // Gửi thông báo
-        String email = reg.getUser().getEmail();
-        notificationService.sendNotification(email, "Đơn đăng ký hiến máu của bạn đã bị hủy.");
-
-        return ResponseEntity.ok("Registration cancelled");
+        return registrationRepo.findById(id).map(reg -> {
+            reg.setStatus(RegistrationStatus.CANCELLED);
+            registrationRepo.save(reg);
+            notificationService.sendNotification(reg.getUser().getEmail(), "Đơn đăng ký hiến máu đã bị hủy.");
+            return ResponseEntity.ok("Registration cancelled");
+        }).orElse(ResponseEntity.badRequest().body("Registration not found"));
     }
 
-    // --- Xem kho máu ---
+    // === Kho máu ===
+
     @GetMapping("/inventory")
     public ResponseEntity<?> getBloodInventory() {
         return ResponseEntity.ok(bloodInventoryRepo.findAll());
     }
 
-    // === Xem danh sách Donor ===
+    // === Người dùng ===
+
     @GetMapping("/users/donors")
     public ResponseEntity<?> getAllDonors() {
         return ResponseEntity.ok(userRepository.findByRole(Role.DONOR));
     }
 
-    // === Xem danh sách MedicalCenter ===
     @GetMapping("/users/medicalcenters")
     public ResponseEntity<?> getAllMedicalCenters() {
         return ResponseEntity.ok(userRepository.findByRole(Role.MEDICALCENTER));
     }
 
-    // === Xem chi tiết Donor theo id ===
     @GetMapping("/users/donors/{id}")
     public ResponseEntity<?> getDonorById(@PathVariable Long id) {
         return userRepository.findById(id)
@@ -153,7 +148,6 @@ public class StaffController {
                 .orElse(ResponseEntity.badRequest().body("Donor not found"));
     }
 
-    // === Xem chi tiết MedicalCenter theo id ===
     @GetMapping("/users/medicalcenters/{id}")
     public ResponseEntity<?> getMedicalCenterById(@PathVariable Long id) {
         return userRepository.findById(id)
@@ -162,50 +156,52 @@ public class StaffController {
                 .orElse(ResponseEntity.badRequest().body("Medical center not found"));
     }
 
-    // Xem tất cả các lịch
-    @GetMapping("/schedules")
-    public ResponseEntity<?> getAllSchedules() {
-        return ResponseEntity.ok(scheduleRepo.findAll());
+    // === Yêu cầu nhận máu từ medical center ===
+
+    @GetMapping("/blood-requests")
+    public ResponseEntity<?> getAllBloodRequests() {
+        return ResponseEntity.ok(bloodRequestRepo.findAll());
     }
 
-    // Xóa lịch theo ID
-    @DeleteMapping("/schedules/{id}")
-    public ResponseEntity<?> deleteSchedule(@PathVariable Long id) {
-        if (!scheduleRepo.existsById(id)) {
-            return ResponseEntity.badRequest().body("Schedule not found");
-        }
-        scheduleRepo.deleteById(id);
-        return ResponseEntity.ok("Schedule deleted successfully");
+    @PostMapping("/blood-requests/{id}/confirm")
+    public ResponseEntity<?> confirmBloodRequest(@PathVariable Long id) {
+        Optional<BloodRequest> opt = bloodRequestRepo.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.badRequest().body("Request not found");
+
+        BloodRequest req = opt.get();
+        Optional<BloodInventory> inventoryOpt = bloodInventoryRepo.findByBloodType(req.getRecipientBloodType());
+
+        if (inventoryOpt.isEmpty()) return ResponseEntity.badRequest().body("Không tìm thấy kho máu phù hợp");
+        BloodInventory inventory = inventoryOpt.get();
+
+        if (inventory.getQuantity() < req.getRequestedAmount()) return ResponseEntity.badRequest().body("Không đủ lượng máu trong kho");
+
+        inventory.setQuantity(inventory.getQuantity() - req.getRequestedAmount());
+        bloodInventoryRepo.save(inventory);
+
+        req.setStatus(BloodRequestStatus.WAITING);
+        bloodRequestRepo.save(req);
+
+        notificationService.sendNotification(req.getMedicalCenter().getEmail(), "Yêu cầu nhận máu đã được xác nhận.");
+        return ResponseEntity.ok("Request confirmed and blood updated");
     }
 
-    //Tien----------------------------------------------------------------------------------------------
-
-
-    @GetMapping("/users/donors")
-    public ResponseEntity<List<User>> getDonors() {
-        return ResponseEntity.ok(userRepository.findByRole(Role.DONOR));
+    @PostMapping("/blood-requests/{id}/mark-priority")
+    public ResponseEntity<?> markPriority(@PathVariable Long id) {
+        return updateRequestStatus(id, BloodRequestStatus.PRIORITY, "Yêu cầu của bạn đã được đánh dấu là ưu tiên.");
     }
 
-
-    @GetMapping("/inventory/{id}")
-    public ResponseEntity<?> getBloodTypeById(@PathVariable Long id) {
-        return bloodInventoryRepo.findById(id)
-                .filter(bloodInventory -> bloodInventory.getId() == id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().body("Blood not found"));
+    @PostMapping("/blood-requests/{id}/mark-out-of-stock")
+    public ResponseEntity<?> markOutOfStock(@PathVariable Long id) {
+        return updateRequestStatus(id, BloodRequestStatus.OUT_OF_STOCK, "Rất tiếc, hiện không đủ máu đáp ứng yêu cầu của bạn.");
     }
 
-    public Optional<BloodInventory> addBlood(String bloodType, int quantity) {
-        Optional<BloodInventory> existing = bloodInventoryRepo.findByBloodType(bloodType);
-
-        if (existing.isPresent()) {
-            existing.get().setQuantity(existing.get().getQuantity() + quantity);
-            return Optional.of(bloodInventoryRepo.save(existing.get()));
-        }
-
-        return Optional.empty();
+    private ResponseEntity<?> updateRequestStatus(Long id, BloodRequestStatus status, String message) {
+        return bloodRequestRepo.findById(id).map(req -> {
+            req.setStatus(status);
+            bloodRequestRepo.save(req);
+            notificationService.sendNotification(req.getMedicalCenter().getEmail(), message);
+            return ResponseEntity.ok("Status updated");
+        }).orElse(ResponseEntity.badRequest().body("Request not found"));
     }
-    //-------------------------------------------------------------------------------------/
-
-
 }
