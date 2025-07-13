@@ -159,12 +159,28 @@ const MainLayout = () => {
                     open={Boolean(anchorElUser)}
                     onClose={handleCloseUserMenu}
                   >
-                    <MenuItem onClick={() => navigate(`/${user.role}/dashboard`)}>
+                    <MenuItem onClick={() => {
+                      if (user.role === 'ADMIN') {
+                        navigate('/admin/dashboard');
+                      } else if (user.role === 'STAFF') {
+                        navigate('/staff/dashboard');
+                      } else {
+                        navigate(`/${user.role.toLowerCase()}/dashboard`);
+                      }
+                    }}>
                       <ListItemIcon>
                         <Person fontSize="small" />
                       </ListItemIcon>
                       <ListItemText primary={t('nav.dashboard')} />
                     </MenuItem>
+                    {(user.role === 'STAFF' || user.role === 'ADMIN') && (
+                      <MenuItem onClick={() => navigate('/medical-center/dashboard')}>
+                        <ListItemIcon>
+                          <LocalHospital fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText primary={t('nav.medicalCenter') || 'Medical Center'} />
+                      </MenuItem>
+                    )}
                     <MenuItem onClick={handleLogoutClick} sx={{ color: 'error.main' }}>
                       <ListItemIcon>
                         <Login fontSize="small" />

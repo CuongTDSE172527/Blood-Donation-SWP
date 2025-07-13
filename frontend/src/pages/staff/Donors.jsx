@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { 
   Box, 
   Container, 
@@ -38,6 +39,8 @@ const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export default function Donors() {
   const { t } = useTranslation();
+  const { user } = useSelector((state) => state.auth);
+  const isAdmin = user?.role === 'ADMIN';
   const [donors, setDonors] = useState(mockDonors);
   const [open, setOpen] = useState(false);
   const [editDonor, setEditDonor] = useState(null);
@@ -66,9 +69,11 @@ export default function Donors() {
         <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>{t('staff.donorManagement')}</Typography>
         <Card sx={{ mb: 3 }}>
           <CardContent>
-            <Button variant="contained" startIcon={<Add />} sx={{ mb: 2, bgcolor: '#d32f2f' }} onClick={() => handleOpen()}>
-              {t('staff.addDonor')}
-            </Button>
+            {isAdmin && (
+              <Button variant="contained" startIcon={<Add />} sx={{ mb: 2, bgcolor: '#d32f2f' }} onClick={() => handleOpen()}>
+                {t('staff.addDonor')}
+              </Button>
+            )}
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
@@ -77,7 +82,7 @@ export default function Donors() {
                     <TableCell>{t('staff.bloodType')}</TableCell>
                     <TableCell>{t('staff.lastDonation')}</TableCell>
                     <TableCell>{t('staff.status')}</TableCell>
-                    <TableCell align="right">{t('staff.actions')}</TableCell>
+                    {isAdmin && <TableCell align="right">{t('staff.actions')}</TableCell>}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -89,10 +94,12 @@ export default function Donors() {
                       <TableCell>
                         <Chip label={t('staff.status_' + donor.status.toLowerCase().replace(' ', ''))} color={donor.status === 'Eligible' ? 'success' : 'error'} size="small" />
                       </TableCell>
-                      <TableCell align="right">
-                        <IconButton onClick={() => handleOpen(donor)}><Edit /></IconButton>
-                        <IconButton color="error" onClick={() => handleDelete(donor.id)}><Delete /></IconButton>
-                      </TableCell>
+                      {isAdmin && (
+                        <TableCell align="right">
+                          <IconButton onClick={() => handleOpen(donor)}><Edit /></IconButton>
+                          <IconButton color="error" onClick={() => handleDelete(donor.id)}><Delete /></IconButton>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -100,8 +107,9 @@ export default function Donors() {
             </TableContainer>
           </CardContent>
         </Card>
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{editDonor ? t('staff.editDonor') : t('staff.addDonor')}</DialogTitle>
+        {isAdmin && (
+          <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>{editDonor ? t('staff.editDonor') : t('staff.addDonor')}</DialogTitle>
           <DialogContent>
             <TextField margin="dense" label={t('staff.name')} name="name" value={form.name} onChange={handleChange} fullWidth />
             <FormControl fullWidth margin="dense">
@@ -149,6 +157,7 @@ export default function Donors() {
             <Button onClick={handleSave} variant="contained" sx={{ bgcolor: '#d32f2f' }}>{editDonor ? t('staff.save') : t('staff.add')}</Button>
           </DialogActions>
         </Dialog>
+        )}
       </Container>
     </Box>
   );

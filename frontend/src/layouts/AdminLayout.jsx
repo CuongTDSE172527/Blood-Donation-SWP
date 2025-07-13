@@ -84,7 +84,7 @@ const AdminLayout = () => {
     { text: t('admin.userManagement'), icon: <PeopleIcon />, path: '/admin/users' },
     { text: t('admin.requestManagement') || 'Requests', icon: <InventoryIcon />, path: '/admin/requests' },
     { text: t('admin.inventory'), icon: <InventoryIcon />, path: '/admin/inventory' },
-    { text: 'Medical Centers', icon: <LocalHospitalIcon />, path: '/admin/medical-center' },
+    { text: t('admin.medicalCenters') || 'Medical Centers', icon: <LocalHospitalIcon />, path: '/admin/medical-center' },
   ];
 
   const handleProfileClick = (event) => {
@@ -165,6 +165,12 @@ const AdminLayout = () => {
               </Typography>
             )}
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleProfileClose}>
+              <MenuItem onClick={() => { navigate('/'); handleProfileClose(); }}>
+                {t('nav.home') || 'Home'}
+              </MenuItem>
+              <MenuItem onClick={() => { navigate('/medical-center'); handleProfileClose(); }}>
+                {t('nav.medicalCenter') || 'Medical Center'}
+              </MenuItem>
               <MenuItem onClick={() => { navigate('/admin/profile'); handleProfileClose(); }}>
                 {t('admin.editProfile') || 'Edit Profile'}
               </MenuItem>

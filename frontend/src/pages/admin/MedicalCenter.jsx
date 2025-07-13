@@ -118,7 +118,7 @@ const MedicalCenter = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>
-        Medical Center Management
+        {t('admin.medicalCenterManagement')}
       </Typography>
       
       <Card sx={{ mb: 3 }}>
@@ -129,20 +129,20 @@ const MedicalCenter = () => {
             sx={{ mb: 2, bgcolor: '#d32f2f' }} 
             onClick={() => handleOpen()}
           >
-            Add Medical Center
+            {t('admin.addMedicalCenter')}
           </Button>
           
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
                 <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                  <TableCell><strong>Name</strong></TableCell>
-                  <TableCell><strong>Address</strong></TableCell>
-                  <TableCell><strong>Contact</strong></TableCell>
-                  <TableCell><strong>Capacity</strong></TableCell>
-                  <TableCell><strong>Staff</strong></TableCell>
-                  <TableCell><strong>Status</strong></TableCell>
-                  <TableCell><strong>Actions</strong></TableCell>
+                  <TableCell><strong>{t('admin.name')}</strong></TableCell>
+                  <TableCell><strong>{t('admin.address')}</strong></TableCell>
+                  <TableCell><strong>{t('admin.contact')}</strong></TableCell>
+                  <TableCell><strong>{t('admin.capacity')}</strong></TableCell>
+                  <TableCell><strong>{t('admin.staff')}</strong></TableCell>
+                  <TableCell><strong>{t('admin.status')}</strong></TableCell>
+                  <TableCell><strong>{t('admin.actions')}</strong></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -171,8 +171,8 @@ const MedicalCenter = () => {
                         </Box>
                       </Box>
                     </TableCell>
-                    <TableCell>{center.capacity} units</TableCell>
-                    <TableCell>{center.staffCount} staff</TableCell>
+                    <TableCell>{center.capacity} {t('admin.units')}</TableCell>
+                    <TableCell>{center.staffCount} {t('admin.staff')}</TableCell>
                     <TableCell>
                       <Chip 
                         label={center.status} 
@@ -206,12 +206,12 @@ const MedicalCenter = () => {
 
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {editCenter ? 'Edit Medical Center' : 'Add Medical Center'}
+          {editCenter ? t('admin.editMedicalCenter') : t('admin.addMedicalCenter')}
         </DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
-            label="Center Name"
+            label={t('admin.centerName')}
             name="name"
             value={form.name}
             onChange={handleChange}
@@ -220,7 +220,7 @@ const MedicalCenter = () => {
           />
           <TextField
             margin="dense"
-            label="Address"
+            label={t('admin.address')}
             name="address"
             value={form.address}
             onChange={handleChange}
@@ -231,7 +231,7 @@ const MedicalCenter = () => {
           />
           <TextField
             margin="dense"
-            label="Phone"
+            label={t('admin.phone')}
             name="phone"
             value={form.phone}
             onChange={handleChange}
@@ -240,7 +240,7 @@ const MedicalCenter = () => {
           />
           <TextField
             margin="dense"
-            label="Email"
+            label={t('admin.email')}
             name="email"
             type="email"
             value={form.email}
@@ -250,7 +250,7 @@ const MedicalCenter = () => {
           />
           <TextField
             margin="dense"
-            label="Capacity (units)"
+            label={t('admin.capacityUnits')}
             name="capacity"
             type="number"
             value={form.capacity}
@@ -260,22 +260,22 @@ const MedicalCenter = () => {
           />
           <TextField
             margin="dense"
-            label="Status"
+            label={t('admin.status')}
             name="status"
             value={form.status}
             onChange={handleChange}
             fullWidth
             select
           >
-            <option value="Active">Active</option>
-            <option value="Maintenance">Maintenance</option>
-            <option value="Inactive">Inactive</option>
+            <option value="Active">{t('admin.status_active')}</option>
+            <option value="Maintenance">{t('admin.status_maintenance')}</option>
+            <option value="Inactive">{t('admin.status_inactive')}</option>
           </TextField>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleClose}>{t('admin.cancel')}</Button>
           <Button onClick={handleSubmit} variant="contained" sx={{ bgcolor: '#d32f2f' }}>
-            {editCenter ? 'Update' : 'Add'}
+            {editCenter ? t('admin.update') : t('admin.add')}
           </Button>
         </DialogActions>
       </Dialog>

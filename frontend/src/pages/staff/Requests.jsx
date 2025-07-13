@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { 
   Box, 
   Container, 
@@ -47,6 +48,8 @@ const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export default function Requests() {
   const { t } = useTranslation();
+  const { user } = useSelector((state) => state.auth);
+  const isAdmin = user?.role === 'ADMIN';
   const [requests, setRequests] = useState(mockRequests);
   const [inventory, setInventory] = useState(mockInventory);
   const [open, setOpen] = useState(false);
@@ -104,7 +107,7 @@ export default function Requests() {
                     <TableCell>{t('staff.units')}</TableCell>
                     <TableCell>{t('staff.status')}</TableCell>
                     <TableCell>{t('staff.date')}</TableCell>
-                    <TableCell align="right">{t('staff.actions')}</TableCell>
+                    {isAdmin && <TableCell align="right">{t('staff.actions')}</TableCell>}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -117,15 +120,17 @@ export default function Requests() {
                         <Chip label={t('staff.status_' + request.status.toLowerCase())} color={request.status === 'Approved' ? 'success' : request.status === 'Completed' ? 'default' : 'warning'} size="small" />
                       </TableCell>
                       <TableCell>{request.date}</TableCell>
-                      <TableCell align="right">
-                        <IconButton onClick={() => handleOpen(request)}><Edit /></IconButton>
-                        <IconButton color="error" onClick={() => handleDelete(request.id)}><Delete /></IconButton>
-                        {(request.status === 'Approved' || request.status === 'Pending') && (
-                          <IconButton color="success" onClick={() => handleComplete(request)} title={t('staff.complete')}>
-                            <CheckCircle />
-                          </IconButton>
-                        )}
-                      </TableCell>
+                      {isAdmin && (
+                        <TableCell align="right">
+                          <IconButton onClick={() => handleOpen(request)}><Edit /></IconButton>
+                          <IconButton color="error" onClick={() => handleDelete(request.id)}><Delete /></IconButton>
+                          {(request.status === 'Approved' || request.status === 'Pending') && (
+                            <IconButton color="success" onClick={() => handleComplete(request)} title={t('staff.complete')}>
+                              <CheckCircle />
+                            </IconButton>
+                          )}
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -133,8 +138,9 @@ export default function Requests() {
             </TableContainer>
           </CardContent>
         </Card>
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{editRequest ? t('staff.editRequest') : t('staff.addRequest')}</DialogTitle>
+        {isAdmin && (
+          <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>{editRequest ? t('staff.editRequest') : t('staff.addRequest')}</DialogTitle>
           <DialogContent>
             {editRequest ? (
               // For editing, only show status field
@@ -193,6 +199,7 @@ export default function Requests() {
             <Button onClick={handleSave} variant="contained" sx={{ bgcolor: '#d32f2f' }}>{editRequest ? t('staff.save') : t('staff.add')}</Button>
           </DialogActions>
         </Dialog>
+        )}
         <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
           <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
             {snackbar.message}

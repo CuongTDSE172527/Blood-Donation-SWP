@@ -39,4 +39,22 @@ export const authService = {
       throw error.response?.data || error.message;
     }
   },
+
+  // Update user profile
+  updateProfile: async (profileData) => {
+    try {
+      const response = await api.put('/auth/profile', {
+        name: profileData.name,
+        email: profileData.email,
+        phone: profileData.phone,
+        address: profileData.address,
+        position: profileData.position,
+        department: profileData.department,
+        password: profileData.password || undefined,
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 }; 

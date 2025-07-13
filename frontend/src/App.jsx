@@ -25,6 +25,7 @@ import DonationRegistration from './pages/DonationRegistration';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/admin/Dashboard';
 import StaffDashboard from './pages/staff/Dashboard';
+import StaffProfile from './pages/staff/Profile';
 import UserDashboard from './pages/user/Dashboard';
 import Schedule from './pages/Schedule';
 import AdminUsers from './pages/admin/Users';
@@ -38,7 +39,9 @@ import StaffEmergency from './pages/staff/Emergency';
 import AdminRequests from './pages/admin/Requests';
 import AdminProfile from './pages/admin/Profile';
 import AdminMedicalCenter from './pages/admin/MedicalCenter';
-import StaffMedicalCenter from './pages/staff/MedicalCenter';
+import MedicalCenterLayout from './layouts/MedicalCenterLayout';
+import MedicalCenterDashboard from './pages/medicalCenter/Dashboard';
+import MedicalCenterDonors from './pages/medicalCenter/Donors';
 import DonorProfile from './pages/donor/Profile';
 
 // Theme
@@ -175,9 +178,48 @@ function App() {
                     <StaffEmergency />
                   </ProtectedRoute>
                 } />
-                <Route path="medical-center" element={
+                <Route path="profile" element={
                   <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
-                    <StaffMedicalCenter />
+                    <StaffProfile />
+                  </ProtectedRoute>
+                } />
+              </Route>
+
+              {/* Medical Center Routes */}
+              <Route path="/medical-center" element={<MedicalCenterLayout />}>
+                <Route path="dashboard" element={
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
+                    <MedicalCenterDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="donors" element={
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
+                    <MedicalCenterDonors />
+                  </ProtectedRoute>
+                } />
+                <Route path="requests" element={
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
+                    <StaffRequests />
+                  </ProtectedRoute>
+                } />
+                <Route path="inventory" element={
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
+                    <StaffInventory />
+                  </ProtectedRoute>
+                } />
+                <Route path="emergency" element={
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
+                    <StaffEmergency />
+                  </ProtectedRoute>
+                } />
+                <Route path="settings" element={
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
+                    <div>Medical Center Settings</div>
+                  </ProtectedRoute>
+                } />
+                <Route path="profile" element={
+                  <ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}>
+                    <div>Medical Center Profile</div>
                   </ProtectedRoute>
                 } />
               </Route>

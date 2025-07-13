@@ -164,6 +164,15 @@ const StaffLayout = () => {
               </Typography>
             )}
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleProfileClose}>
+              <MenuItem onClick={() => { navigate('/'); handleProfileClose(); }}>
+                {t('nav.home') || 'Home'}
+              </MenuItem>
+              <MenuItem onClick={() => { navigate('/medical-center'); handleProfileClose(); }}>
+                {t('nav.medicalCenter') || 'Medical Center'}
+              </MenuItem>
+              <MenuItem onClick={() => { navigate('/staff/profile'); handleProfileClose(); }}>
+                {t('staff.editProfile') || 'Edit Profile'}
+              </MenuItem>
               <MenuItem onClick={handleLogout}>{t('nav.logout')}</MenuItem>
             </Menu>
           </Box>

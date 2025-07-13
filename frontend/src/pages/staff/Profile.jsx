@@ -29,7 +29,7 @@ import {
   Cancel as CancelIcon
 } from '@mui/icons-material';
 
-const AdminProfile = () => {
+const StaffProfile = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
@@ -68,12 +68,12 @@ const AdminProfile = () => {
     
     // Validation
     if (form.password && form.password !== form.confirmPassword) {
-      setError(t('admin.passwordMismatch') || 'Passwords do not match');
+      setError(t('staff.passwordMismatch') || 'Passwords do not match');
       return;
     }
 
     if (form.password && form.password.length < 6) {
-      setError(t('admin.passwordTooShort') || 'Password must be at least 6 characters');
+      setError(t('staff.passwordTooShort') || 'Password must be at least 6 characters');
       return;
     }
 
@@ -91,7 +91,7 @@ const AdminProfile = () => {
         confirmPassword: ''
       }));
     } catch (err) {
-      setError(err.message || t('admin.updateError') || 'Failed to update profile');
+      setError(err.message || t('staff.updateError') || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -128,10 +128,10 @@ const AdminProfile = () => {
           />
           <Box>
             <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700, mb: 1 }}>
-              {t('admin.editProfile') || 'Edit Profile'}
+              {t('staff.editProfile') || 'Edit Profile'}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              {t('admin.profileDesc') || 'Update your personal information and account settings'}
+              {t('staff.profileDesc') || 'Update your personal information and account settings'}
             </Typography>
           </Box>
         </Box>
@@ -143,13 +143,13 @@ const AdminProfile = () => {
             {/* Personal Information */}
             <Grid item xs={12}>
               <Typography variant="h6" sx={{ mb: 2, color: '#d32f2f' }}>
-                {t('admin.personalInfo') || 'Personal Information'}
+                {t('staff.personalInfo') || 'Personal Information'}
               </Typography>
             </Grid>
             
             <Grid item xs={12} md={6}>
               <TextField
-                label={t('admin.name') || 'Full Name'}
+                label={t('staff.name') || 'Full Name'}
                 name="name"
                 value={form.name}
                 onChange={handleChange}
@@ -161,7 +161,7 @@ const AdminProfile = () => {
             
             <Grid item xs={12} md={6}>
               <TextField
-                label={t('admin.email') || 'Email'}
+                label={t('staff.email') || 'Email'}
                 name="email"
                 value={form.email}
                 onChange={handleChange}
@@ -174,7 +174,7 @@ const AdminProfile = () => {
             
             <Grid item xs={12} md={6}>
               <TextField
-                label={t('admin.phone') || 'Phone Number'}
+                label={t('staff.phone') || 'Phone Number'}
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
@@ -185,7 +185,7 @@ const AdminProfile = () => {
             
             <Grid item xs={12} md={6}>
               <TextField
-                label={t('admin.address') || 'Address'}
+                label={t('staff.address') || 'Address'}
                 name="address"
                 value={form.address}
                 onChange={handleChange}
@@ -197,13 +197,13 @@ const AdminProfile = () => {
             {/* Professional Information */}
             <Grid item xs={12}>
               <Typography variant="h6" sx={{ mb: 2, mt: 2, color: '#d32f2f' }}>
-                {t('admin.professionalInfo') || 'Professional Information'}
+                {t('staff.professionalInfo') || 'Professional Information'}
               </Typography>
             </Grid>
             
             <Grid item xs={12} md={6}>
               <TextField
-                label={t('admin.position') || 'Position'}
+                label={t('staff.position') || 'Position'}
                 name="position"
                 value={form.position}
                 onChange={handleChange}
@@ -214,7 +214,7 @@ const AdminProfile = () => {
             
             <Grid item xs={12} md={6}>
               <TextField
-                label={t('admin.department') || 'Department'}
+                label={t('staff.department') || 'Department'}
                 name="department"
                 value={form.department}
                 onChange={handleChange}
@@ -226,16 +226,16 @@ const AdminProfile = () => {
             {/* Password Change */}
             <Grid item xs={12}>
               <Typography variant="h6" sx={{ mb: 2, mt: 2, color: '#d32f2f' }}>
-                {t('admin.changePassword') || 'Change Password'}
+                {t('staff.changePassword') || 'Change Password'}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                {t('admin.passwordOptional') || 'Leave blank if you don\'t want to change your password'}
+                {t('staff.passwordOptional') || 'Leave blank if you don\'t want to change your password'}
               </Typography>
             </Grid>
             
             <Grid item xs={12} md={6}>
               <TextField
-                label={t('admin.newPassword') || 'New Password'}
+                label={t('staff.newPassword') || 'New Password'}
                 name="password"
                 value={form.password}
                 onChange={handleChange}
@@ -259,7 +259,7 @@ const AdminProfile = () => {
             
             <Grid item xs={12} md={6}>
               <TextField
-                label={t('admin.confirmPassword') || 'Confirm Password'}
+                label={t('staff.confirmPassword') || 'Confirm Password'}
                 name="confirmPassword"
                 value={form.confirmPassword}
                 onChange={handleChange}
@@ -294,7 +294,7 @@ const AdminProfile = () => {
                     '&:hover': { bgcolor: '#b71c1c' }
                   }}
                 >
-                  {loading ? (t('admin.saving') || 'Saving...') : (t('admin.save') || 'Save Changes')}
+                  {loading ? (t('staff.saving') || 'Saving...') : (t('staff.save') || 'Save Changes')}
                 </Button>
                 <Button
                   variant="outlined"
@@ -310,7 +310,7 @@ const AdminProfile = () => {
                     }
                   }}
                 >
-                  {t('admin.cancel') || 'Cancel'}
+                  {t('staff.cancel') || 'Cancel'}
                 </Button>
               </Box>
             </Grid>
@@ -325,7 +325,7 @@ const AdminProfile = () => {
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         >
           <Alert severity="success" onClose={() => setSuccess(false)}>
-            {t('admin.updateSuccess') || 'Profile updated successfully!'}
+            {t('staff.updateSuccess') || 'Profile updated successfully!'}
           </Alert>
         </Snackbar>
         
@@ -344,4 +344,4 @@ const AdminProfile = () => {
   );
 };
 
-export default AdminProfile; 
+export default StaffProfile; 
