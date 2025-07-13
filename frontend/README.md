@@ -1,269 +1,244 @@
-# Blood Donation Web App – User Guide
+# Blood Donation Management System - Frontend
 
-## Overview
+## 📁 Project Structure
 
-Welcome to the Blood Donation Web App! This platform is designed to make blood donation, requests, and management easy and accessible for everyone—donors, recipients, staff, and administrators. The app features a clean, modern red/white design, bilingual support (English/Vietnamese), and a user-friendly interface built with React and Material-UI.
+```
+frontend/src/
+├── components/           # Reusable UI components
+│   ├── ErrorBoundary.jsx
+│   ├── LanguageSwitcher.jsx
+│   ├── LoadingSpinner.jsx
+│   └── ProtectedRoute.jsx
+├── constants/           # Application constants
+│   └── index.js
+├── hooks/              # Custom React hooks
+│   └── useAuth.js
+├── layouts/            # Layout components
+│   ├── AdminLayout.jsx
+│   ├── MainLayout.jsx
+│   ├── MedicalCenterLayout.jsx
+│   └── StaffLayout.jsx
+├── pages/              # Page components
+│   ├── admin/          # Admin pages
+│   ├── auth/           # Authentication pages
+│   ├── blood/          # Blood-related pages
+│   ├── donor/          # Donor pages
+│   ├── medicalCenter/  # Medical center pages
+│   ├── staff/          # Staff pages
+│   └── user/           # User pages
+├── routes/             # Routing configuration
+│   └── index.js
+├── services/           # API services
+│   ├── api.js
+│   ├── authService.js
+│   └── donorService.js
+├── store/              # Redux store
+│   ├── slices/         # Redux slices
+│   ├── thunks/         # Redux thunks
+│   └── index.js
+├── translations/       # i18n translations
+│   ├── en.json
+│   └── vi.json
+├── utils/              # Utility functions
+│   └── validation.js
+├── App.jsx             # Main application component
+├── i18n.js             # i18n configuration
+├── main.jsx            # Application entry point
+└── theme.js            # Material-UI theme
+```
 
----
+## 🚀 Getting Started
 
-## Table of Contents
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
 
-1. [Getting Started](#getting-started)
-2. [Navigation & Layout](#navigation--layout)
-3. [Language Support](#language-support)
-4. [User Roles & Dashboards](#user-roles--dashboards)
-    - [General User](#general-user)
-    - [Donor](#donor)
-    - [Staff](#staff)
-    - [Admin](#admin)
-5. [Key Features](#key-features)
-    - [Home Page](#home-page)
-    - [About Page](#about-page)
-    - [Blood Schedule](#blood-schedule)
-    - [Blood Requests & Emergency](#blood-requests--emergency)
-    - [Blood Search](#blood-search)
-6. [Account Management](#account-management)
-7. [Accessibility & Design](#accessibility--design)
-8. [FAQ](#faq)
-9. [Contact & Support](#contact--support)
+### Installation
+```bash
+cd frontend
+npm install
+```
 
----
+### Development
+```bash
+npm run dev
+```
 
-## Getting Started
+### Build
+```bash
+npm run build
+```
 
-### Accessing the App
-- Open your web browser and navigate to the app's URL (provided by your organization or project admin).
-- The app is fully responsive and works on desktop, tablet, and mobile devices.
+## 🏗️ Architecture Overview
 
-### Registration
-- Click the **Register** button in the top right corner.
-- Fill in your details:
-  - Name
-  - Email
-  - Password
-  - Role (User, Donor, Staff)
-  - Blood type (if registering as a donor)
-- Submit the form. You will be redirected to your dashboard.
+### 1. **Component Structure**
+- **Layouts**: Wrapper components for different user roles
+- **Pages**: Main page components organized by feature
+- **Components**: Reusable UI components
+- **Hooks**: Custom React hooks for business logic
 
-### Login
-- Click the **Login** button in the top right corner.
-- Enter your email and password.
-- If you forget your password, use the "Forgot Password?" link to reset it.
+### 2. **State Management**
+- **Redux Toolkit**: For global state management
+- **Slices**: Feature-based state slices
+- **Thunks**: Async actions and API calls
 
-### Language Selection
-- Use the language switcher (🇬🇧/🇻🇳) in the header to toggle between English and Vietnamese.
-- The app will reload to apply your language choice.
+### 3. **Routing**
+- **React Router**: Client-side routing
+- **Protected Routes**: Role-based access control
+- **Route Groups**: Organized by user roles
 
----
+### 4. **Internationalization**
+- **react-i18next**: Multi-language support
+- **Translation Files**: JSON-based translations
+- **Language Switcher**: Dynamic language switching
 
-## Navigation & Layout
+## 🎨 Design System
 
-### Header Bar
-- **Logo**: Click to return to the Home page.
-- **Navigation Links**: Home, About, Schedule, etc.
-- **Language Switcher**: Top right, for English/Vietnamese.
-- **Login/Register**: Top right, for authentication.
+### Colors
+```javascript
+const COLORS = {
+  PRIMARY: '#d32f2f',      // Main brand color
+  PRIMARY_DARK: '#b71c1c', // Darker shade
+  SUCCESS: '#4caf50',      // Success states
+  WARNING: '#ff9800',      // Warning states
+  ERROR: '#f44336',        // Error states
+  BACKGROUND: '#fff5f5',   // Page background
+};
+```
 
-### Footer
-- Contains contact information, quick links, and copyright.
+### Components
+- **Material-UI**: Base component library
+- **Custom Components**: Extended for specific needs
+- **Consistent Styling**: Theme-based styling
+
+## 🔐 Authentication & Authorization
+
+### User Roles
+- **ADMIN**: Full system access
+- **STAFF**: Medical center operations
+- **DONOR**: Blood donation features
+- **USER**: Basic user features
+
+### Protected Routes
+```javascript
+<ProtectedRoute allowedRoles={['ADMIN', 'STAFF']}>
+  <AdminDashboard />
+</ProtectedRoute>
+```
+
+## 🌐 API Integration
+
+### Services Structure
+```javascript
+// Example service
+export const authService = {
+  login: async (credentials) => { /* ... */ },
+  register: async (userData) => { /* ... */ },
+  updateProfile: async (profileData) => { /* ... */ },
+};
+```
+
+### Error Handling
+- **Error Boundaries**: Catch and display errors gracefully
+- **Loading States**: Show loading indicators during API calls
+- **Toast Notifications**: User feedback for actions
+
+## 📱 Responsive Design
+
+### Breakpoints
+- **Mobile**: < 600px
+- **Tablet**: 600px - 960px
+- **Desktop**: > 960px
 
 ### Layouts
-- The app uses different layouts for general users, staff, and admins, ensuring each role sees relevant navigation and features.
+- **Mobile**: Collapsible sidebar
+- **Desktop**: Fixed sidebar with full navigation
 
----
+## 🧪 Testing
 
-## Language Support
+### Test Structure
+```
+tests/
+├── components/     # Component tests
+├── pages/         # Page tests
+├── utils/         # Utility tests
+└── integration/   # Integration tests
+```
 
-- All content is available in both English and Vietnamese.
-- To change language, click the language switcher in the header. The app will reload and display all text in your chosen language.
-- If you see translation keys (e.g., `home.title`) instead of text, try reloading the page or contact support.
+### Running Tests
+```bash
+npm test
+npm run test:coverage
+```
 
----
+## 📦 Build & Deployment
 
-## User Roles & Dashboards
+### Environment Variables
+```bash
+VITE_API_URL=http://localhost:3000/api
+VITE_APP_NAME=Blood Donation System
+```
 
-### General User
+### Build Process
+1. **Development**: Hot reload with Vite
+2. **Production**: Optimized build with code splitting
+3. **Deployment**: Static files ready for CDN
 
-#### Dashboard Overview
-- **Profile Card**: Shows your name, blood type, and donation stats.
-- **Donation History**: Table of your past donations (date, location, units).
-- **Active Requests**: Track your blood requests and their statuses.
-- **Quick Actions**:
-  - **Schedule Donation**: Book a future donation slot.
-  - **Request Blood**: Submit a blood request for yourself or someone else.
-  - **View History**: See your donation and request history.
-  - **Notifications**: Check updates and alerts.
+## 🔧 Development Guidelines
 
-#### Example
-![User Dashboard Example](./screenshots/user-dashboard.png)
+### Code Style
+- **ESLint**: Code linting
+- **Prettier**: Code formatting
+- **TypeScript**: Type safety (future)
 
-### Donor
+### Best Practices
+1. **Component Composition**: Favor composition over inheritance
+2. **State Management**: Use Redux for global state, local state for UI
+3. **Performance**: Lazy loading, memoization, code splitting
+4. **Accessibility**: ARIA labels, keyboard navigation
+5. **Security**: Input validation, XSS prevention
 
-#### Dashboard Overview
-- **Profile**: View and edit your personal info and blood type.
-- **Donation Stats**: See your total donations and last donation date.
-- **Donation History**: Table of all your donations.
-- **Edit Profile**: Update your details at any time.
+### File Naming
+- **Components**: PascalCase (e.g., `UserProfile.jsx`)
+- **Hooks**: camelCase with `use` prefix (e.g., `useAuth.js`)
+- **Utilities**: camelCase (e.g., `validation.js`)
+- **Constants**: UPPER_SNAKE_CASE (e.g., `USER_ROLES`)
 
-#### Example
-![Donor Dashboard Example](./screenshots/donor-dashboard.png)
+## 🚀 Performance Optimization
 
-### Staff
+### Techniques Used
+- **Code Splitting**: Route-based splitting
+- **Lazy Loading**: Component lazy loading
+- **Memoization**: React.memo, useMemo, useCallback
+- **Bundle Analysis**: Webpack bundle analyzer
 
-#### Dashboard Overview
-- **Stats**: See total donors, requests, inventory, and pending actions.
-- **Donor Management**: Add, edit, or remove donor records.
-- **Request Management**: Approve, reject, or update blood requests.
-- **Inventory Management**: Track and update blood stock by type.
-- **Emergency Management**: Handle urgent blood requests with special workflows.
-- **Recent Donors/Requests**: Tables showing latest activity.
+### Monitoring
+- **Performance Metrics**: Core Web Vitals
+- **Error Tracking**: Error boundaries and logging
+- **Analytics**: User behavior tracking
 
-#### Example
-![Staff Dashboard Example](./screenshots/staff-dashboard.png)
+## 🔄 Version Control
 
-### Admin
+### Git Workflow
+1. **Feature Branches**: `feature/feature-name`
+2. **Bug Fixes**: `fix/bug-description`
+3. **Hotfixes**: `hotfix/urgent-fix`
+4. **Releases**: `release/version-number`
 
-#### Dashboard Overview
-- **System Stats**: Total users, donors, staff, requests, and inventory.
-- **User Management**: Add, edit, or remove users.
-- **Staff Management**: Manage staff accounts and permissions.
-- **Inventory Management**: Oversee all blood stock.
-- **System Settings**: Configure notifications, maintenance mode, and system name.
-- **Recent Users/Requests**: Tables for latest activity.
+### Commit Messages
+```
+feat: add user profile page
+fix: resolve authentication issue
+docs: update README
+style: improve button styling
+refactor: extract validation logic
+test: add unit tests for auth
+```
 
-#### Example
-![Admin Dashboard Example](./screenshots/admin-dashboard.png)
+## 📚 Additional Resources
 
----
-
-## Key Features
-
-### Home Page
-
-- **Hero Section**: Large Vietnamese title, subtitle, blue call-to-action button, and blood bag image.
-- **Blood Group Compatibility**: Interactive cards for each blood group. Click a card to open a modal with detailed compatibility info and advice.
-- **Modern Design**: Red/white color scheme, soft shadows, and harmonious layout.
-
-#### Example
-![Home Page Example](./screenshots/home-hero.png)
-
-### About Page
-
-- **Mission Statement**: Learn about the app's purpose and values.
-- **How It Works**: Step-by-step guide for donors and recipients.
-- **Impact & Team**: Information about the team and the app's impact.
-- **Contact**: Ways to reach out for support.
-
-#### Example
-![About Page Example](./screenshots/about.png)
-
-### Blood Schedule
-
-- **Schedule Page**: View upcoming donation events and available slots.
-- **Date Range Picker**: Filter events by date.
-- **Modern Card Design**: Consistent with the app's theme.
-- **Book a Slot**: Click on an event to reserve your spot (if enabled).
-
-#### Example
-![Schedule Page Example](./screenshots/schedule.png)
-
-### Blood Requests & Emergency
-
-- **Request Blood**: Fill out a detailed form to request blood, including:
-  - Blood type (with rare type option)
-  - Units needed
-  - Hospital/Clinic
-  - Doctor's name and phone
-  - Reason and urgency
-  - Contact info
-  - Required date
-- **Emergency Request**: Special form for urgent needs, with phone and hospital verification steps. Immediate processing after verification.
-- **Status Tracking**: See the status of your requests in your dashboard.
-- **Tips**:
-  - You must be logged in to submit a request.
-  - For emergencies, fill in all required details accurately.
-
-#### Example
-![Blood Request Example](./screenshots/blood-request.png) 
-
-### Blood Search
-
-- **Search for Blood**: Find available blood by type and location.
-- **Search Form**: Enter blood type, location, and distance.
-- **Results**: View hospitals/centers with available units, distance, and last updated date.
-- **Tip**: Use the search to find the nearest available blood quickly in emergencies.
-
-#### Example
-![Blood Search Example](./screenshots/blood-search.png)
-
----
-
-## Account Management
-
-### Registering
-- Go to the Register page and fill in your details.
-- Choose your role (User, Donor, Staff).
-- If you're a donor, select your blood type.
-- Submit the form and check your email for confirmation (if enabled).
-
-### Logging In
-- Go to the Login page and enter your credentials.
-- If you forget your password, use the reset link.
-
-### Profile Management
-- Access your profile from the dashboard.
-- Update your name, contact info, and (if donor) blood type.
-- Save changes to update your account.
-
----
-
-## Accessibility & Design
-
-- **Responsive**: The app works on all devices—desktop, tablet, and mobile.
-- **Accessible**: Uses clear typography, high color contrast, and ARIA labels for screen readers.
-- **Modern UI**: Red/white theme, rounded corners, and soft shadows for a harmonious look.
-- **Keyboard Navigation**: All interactive elements are accessible via keyboard.
-
----
-
-## FAQ
-
-### How do I change the language?
-- Use the language switcher (🇬🇧/🇻🇳) in the header.
-- The app will reload in your chosen language.
-
-### How do I request blood?
-- Go to the "Request Blood" page from your dashboard or the main navigation.
-- Fill out the form and submit.
-- Track your request status in your dashboard.
-
-### How do I become a donor?
-- Register as a donor or update your profile to include your blood type.
-- Book a donation slot from your dashboard.
-
-### Who can access the admin/staff features?
-- Only users with the appropriate role can access these dashboards.
-- If you need access, contact your system administrator.
-
-### I see translation keys instead of text!
-- Try reloading the page.
-- If the issue persists, contact support.
-
-### I can't log in or register
-- Double-check your email and password.
-- Use the "Forgot Password?" link if needed.
-- If you still have trouble, contact support.
-
----
-
-## Contact & Support
-
-- **Contact Page**: Use the contact form for support or inquiries.
-- **Footer**: Find email and phone contact information.
-- **Troubleshooting**: For technical issues, try clearing your browser cache or using a different browser.
-- **Feedback**: We welcome your suggestions to improve the app!
-
----
-
-**Note:**  
-This guide is a detailed draft and may be updated as new features are added or the UI evolves. For the latest information, always check the app or contact support.
+- [React Documentation](https://reactjs.org/)
+- [Material-UI Documentation](https://mui.com/)
+- [Redux Toolkit Documentation](https://redux-toolkit.js.org/)
+- [React Router Documentation](https://reactrouter.com/)
+- [Vite Documentation](https://vitejs.dev/)
