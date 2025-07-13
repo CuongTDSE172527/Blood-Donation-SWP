@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Container, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Menu, MenuItem } from '@mui/material';
+import { Box, Container, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Menu, MenuItem, FormControl, InputLabel, Select } from '@mui/material';
 import { Add, Edit, Delete, ArrowDropDown } from '@mui/icons-material';
 
 const mockUsers = [
@@ -14,13 +14,13 @@ export default function Users() {
   const [users, setUsers] = useState(mockUsers);
   const [open, setOpen] = useState(false);
   const [editUser, setEditUser] = useState(null);
-  const [form, setForm] = useState({ name: '', email: '', role: 'user' });
+  const [form, setForm] = useState({ name: '', email: '', role: 'user', password: '' });
   const [roleFilter, setRoleFilter] = useState('all');
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleOpen = (user = null) => {
     setEditUser(user);
-    setForm(user ? { ...user } : { name: '', email: '', role: 'user' });
+    setForm(user ? { ...user, password: '' } : { name: '', email: '', role: 'user', password: '' });
     setOpen(true);
   };
   const handleClose = () => setOpen(false);
@@ -101,7 +101,22 @@ export default function Users() {
           <DialogContent>
             <TextField margin="dense" label={t('admin.name')} name="name" value={form.name} onChange={handleChange} fullWidth />
             <TextField margin="dense" label={t('admin.email')} name="email" value={form.email} onChange={handleChange} fullWidth />
-            <TextField margin="dense" label={t('admin.role')} name="role" value={form.role} onChange={handleChange} fullWidth />
+            <FormControl fullWidth margin="dense">
+              <InputLabel>{t('admin.role')}</InputLabel>
+              <Select
+                label={t('admin.role')}
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+              >
+                <MenuItem value="admin">{t('admin.admin')}</MenuItem>
+                <MenuItem value="staff">{t('admin.staff')}</MenuItem>
+                <MenuItem value="user">{t('admin.user')}</MenuItem>
+              </Select>
+            </FormControl>
+            {form.role === 'staff' && (
+              <TextField margin="dense" label={t('admin.password') || 'Password'} name="password" type="password" value={form.password} onChange={handleChange} fullWidth />
+            )}
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>{t('admin.cancel')}</Button>

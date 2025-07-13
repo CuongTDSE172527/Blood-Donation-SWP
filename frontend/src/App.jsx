@@ -35,6 +35,9 @@ import StaffRequests from './pages/staff/Requests';
 import StaffInventory from './pages/staff/Inventory';
 import StaffEmergency from './pages/staff/Emergency';
 import AdminRequests from './pages/admin/Requests';
+import AdminProfile from './pages/admin/Profile';
+import MedicalCenter from './pages/admin/MedicalCenter';
+import DonorProfile from './pages/donor/Profile';
 
 // Theme
 import theme from './theme';
@@ -86,6 +89,11 @@ function App() {
                     <DonorDashboard />
                   </ProtectedRoute>
                 } />
+                <Route path="profile" element={
+                  <ProtectedRoute allowedRoles={['DONOR']}>
+                    <DonorProfile />
+                  </ProtectedRoute>
+                } />
               </Route>
 
               {/* Admin Routes */}
@@ -123,6 +131,16 @@ function App() {
                 <Route path="requests" element={
                   <ProtectedRoute allowedRoles={['ADMIN']}>
                     <AdminRequests />
+                  </ProtectedRoute>
+                } />
+                <Route path="profile" element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <AdminProfile />
+                  </ProtectedRoute>
+                } />
+                <Route path="medical-center" element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <MedicalCenter />
                   </ProtectedRoute>
                 } />
               </Route>

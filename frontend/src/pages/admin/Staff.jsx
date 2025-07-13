@@ -33,11 +33,11 @@ export default function Staff() {
   return (
     <Box sx={{ bgcolor: '#fff5f5', minHeight: '100vh', py: 6 }}>
       <Container maxWidth="md">
-        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>Staff Management</Typography>
+        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>Medical Center Management</Typography>
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <Button variant="contained" startIcon={<Add />} sx={{ mb: 2, bgcolor: '#d32f2f' }} onClick={() => handleOpen()}>
-              Add Staff
+              Add Medical Center
             </Button>
             <TableContainer component={Paper}>
               <Table>
@@ -69,7 +69,7 @@ export default function Staff() {
           </CardContent>
         </Card>
         <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{editStaff ? 'Edit Staff' : 'Add Staff'}</DialogTitle>
+          <DialogTitle>{editStaff ? 'Edit Medical Center' : 'Add Medical Center'}</DialogTitle>
           <DialogContent>
             <TextField margin="dense" label="Name" name="name" value={form.name} onChange={handleChange} fullWidth />
             <TextField margin="dense" label="Email" name="email" value={form.email} onChange={handleChange} fullWidth />

@@ -25,6 +25,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
   AccessTime as AccessTimeIcon,
   CalendarToday as CalendarTodayIcon,
+  LocalHospital as LocalHospitalIcon,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -83,6 +84,7 @@ const AdminLayout = () => {
     { text: t('admin.userManagement'), icon: <PeopleIcon />, path: '/admin/users' },
     { text: t('admin.requestManagement') || 'Requests', icon: <InventoryIcon />, path: '/admin/requests' },
     { text: t('admin.inventory'), icon: <InventoryIcon />, path: '/admin/inventory' },
+    { text: 'Medical Centers', icon: <LocalHospitalIcon />, path: '/admin/medical-center' },
   ];
 
   const handleProfileClick = (event) => {
@@ -163,6 +165,9 @@ const AdminLayout = () => {
               </Typography>
             )}
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleProfileClose}>
+              <MenuItem onClick={() => { navigate('/admin/profile'); handleProfileClose(); }}>
+                {t('admin.editProfile') || 'Edit Profile'}
+              </MenuItem>
               <MenuItem onClick={handleLogout}>{t('nav.logout')}</MenuItem>
             </Menu>
           </Box>

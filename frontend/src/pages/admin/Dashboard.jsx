@@ -50,6 +50,7 @@ const AdminDashboard = () => {
     totalUsers: 150,
     totalDonors: 75,
     totalStaff: 10,
+    totalMedicalCenters: 5,
     totalRequests: 45,
     pendingRequests: 12,
     totalInventory: 500,
@@ -142,6 +143,19 @@ const AdminDashboard = () => {
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                   <LocalHospital sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="h6">{t('admin.totalMedicalCenters') || 'Total Medical Centers'}</Typography>
+                </Box>
+                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
+                  {stats.totalMedicalCenters}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Assignment sx={{ color: '#d32f2f', mr: 1 }} />
                   <Typography variant="h6">{t('admin.totalRequests')}</Typography>
                 </Box>
                 <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
@@ -187,10 +201,10 @@ const AdminDashboard = () => {
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                   <Assignment sx={{ color: '#d32f2f', mr: 1 }} />
-                  <Typography variant="h6">{t('admin.staffManagement')}</Typography>
+                  <Typography variant="h6">{t('admin.medicalCenterManagement') || 'Medical Center Management'}</Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary" paragraph>
-                  {t('admin.staffManagementDesc')}
+                  {t('admin.medicalCenterManagementDesc') || 'Manage medical centers and their staff'}
                 </Typography>
               </CardContent>
               <CardActions>
@@ -205,7 +219,7 @@ const AdminDashboard = () => {
                     },
                   }}
                 >
-                  {t('admin.manageStaff')}
+                  {t('admin.manageMedicalCenters') || 'Manage Medical Centers'}
                 </Button>
               </CardActions>
             </Card>

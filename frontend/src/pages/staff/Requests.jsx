@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Container, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
+import { Box, Container, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { Add, Edit, Delete, CheckCircle } from '@mui/icons-material';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
@@ -111,7 +111,19 @@ export default function Requests() {
             <TextField margin="dense" label={t('staff.patient')} name="patient" value={form.patient} onChange={handleChange} fullWidth />
             <TextField margin="dense" label={t('staff.bloodType')} name="bloodType" value={form.bloodType} onChange={handleChange} fullWidth />
             <TextField margin="dense" label={t('staff.units')} name="units" value={form.units} onChange={handleChange} fullWidth type="number" />
-            <TextField margin="dense" label={t('staff.status')} name="status" value={form.status} onChange={handleChange} fullWidth />
+            <FormControl fullWidth margin="dense">
+              <InputLabel>{t('staff.status')}</InputLabel>
+              <Select
+                label={t('staff.status')}
+                name="status"
+                value={form.status}
+                onChange={handleChange}
+              >
+                <MenuItem value="Pending">{t('staff.status_pending')}</MenuItem>
+                <MenuItem value="Approved">{t('staff.status_approved')}</MenuItem>
+                <MenuItem value="Completed">{t('staff.status_completed')}</MenuItem>
+              </Select>
+            </FormControl>
             <TextField margin="dense" label={t('staff.date')} name="date" value={form.date} onChange={handleChange} fullWidth />
           </DialogContent>
           <DialogActions>

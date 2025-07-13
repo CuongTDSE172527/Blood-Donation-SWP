@@ -1,0 +1,10 @@
+- Sửa phần status trong request management thành kiểu danh sách chọn
+-Sửa lại phần đăng kí hiến máu khi đăng nhập bằng user, nút này nên dẫn đến blood schedule
+-Phần edit profile của donor bị trống
+-Phần edit User của admin cần có thêm chỉnh sửa mk của staff
+-Phần role tạo user mới của admin bị lỗi
+-Phần role là enum nên chuyển thành danh sách chọn
+-Phần staff management chuyển thành medical center management 
+- Ở phần Admin, thêm vào total Medical Center
+-Ở trang admin nên có phần edit profile cho bản thân
+-Chưa có trang cho Medical Center
