@@ -32,6 +32,47 @@ import { logout } from '../store/slices/authSlice';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const drawerWidth = 240;
+const sidebarActive = {
+  background: 'linear-gradient(90deg, #d32f2f 60%, #ff7961 100%)',
+  color: '#fff',
+  boxShadow: '0 4px 16px 0 rgba(211,47,47,0.10)',
+  borderRadius: 2,
+  transform: 'scale(1.04)',
+};
+const sidebarHover = {
+  background: 'linear-gradient(90deg, #ffebee 60%, #fff 100%)',
+  color: '#d32f2f',
+  borderRadius: 2,
+  transition: 'all 0.2s',
+};
+const avatarBorder = {
+  border: '3px solid #d32f2f',
+  boxShadow: '0 2px 8px 0 rgba(211,47,47,0.10)',
+};
+const glassSidebar = (open) => ({
+  width: open ? drawerWidth : 64,
+  boxSizing: 'border-box',
+  background: 'rgba(255,255,255,0.55)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  borderRight: '1.5px solid rgba(211,47,47,0.10)',
+  boxShadow: '0 8px 32px 0 rgba(211,47,47,0.12)',
+  borderRadius: open ? '18px' : '6px',
+  margin: open ? '12px 0 12px 12px' : '0',
+  height: '100vh',
+  transition: 'all 0.25s cubic-bezier(.4,2,.6,1)',
+  overflowX: 'hidden',
+});
+const glassMenuPaper = {
+  borderRadius: 8,
+  boxShadow: '0 8px 32px 0 rgba(211,47,47,0.18)',
+  background: 'rgba(255,255,255,0.85)',
+  backdropFilter: 'blur(18px)',
+  WebkitBackdropFilter: 'blur(18px)',
+  minWidth: 200,
+  p: 1,
+  animation: 'fadeInMenu 0.3s',
+};
 
 function ClockCalendar({ open }) {
   const [now, setNow] = useState(new Date());
@@ -100,25 +141,21 @@ const StaffLayout = () => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#fff5f5' }}>
+      <style>{`
+        @keyframes fadeInMenu { from { opacity: 0; transform: translateY(16px);} to { opacity: 1; transform: none; } }
+      `}</style>
       <Drawer
         variant="permanent"
         open={open}
         sx={{
           width: open ? drawerWidth : 64,
           flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: open ? drawerWidth : 64,
-            boxSizing: 'border-box',
-            bgcolor: '#fff',
-            borderRight: '1px solid #eee',
-            transition: 'width 0.2s',
-            overflowX: 'hidden',
-          },
+          '& .MuiDrawer-paper': glassSidebar(open),
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: open ? 'space-between' : 'center', px: 2, py: 2 }}>
           {open && (
-            <Typography variant="h6" sx={{ color: '#d32f2f', fontWeight: 700 }}>
+            <Typography variant="h6" sx={{ color: '#d32f2f', fontWeight: 700, letterSpacing: 1 }}>
               Staff
             </Typography>
           )}
@@ -140,10 +177,16 @@ const StaffLayout = () => {
                   minHeight: 48,
                   justifyContent: open ? 'initial' : 'center',
                   px: 2.5,
-                  color: location.pathname === item.path ? '#d32f2f' : 'inherit',
+                  color: location.pathname === item.path ? '#fff' : '#d32f2f',
+                  fontWeight: location.pathname === item.path ? 700 : 500,
+                  fontSize: 17,
+                  mb: 1,
+                  ...(location.pathname === item.path ? sidebarActive : {}),
+                  '&:hover': sidebarHover,
+                  transition: 'all 0.2s',
                 }}
               >
-                <ListItemIcon sx={{ color: location.pathname === item.path ? '#d32f2f' : '#888', minWidth: 0, mr: open ? 2 : 'auto', justifyContent: 'center' }}>
+                <ListItemIcon sx={{ color: location.pathname === item.path ? '#fff' : '#d32f2f', minWidth: 0, mr: open ? 2 : 'auto', justifyContent: 'center', fontSize: 24 }}>
                   {item.icon}
                 </ListItemIcon>
                 {open && <ListItemText primary={item.text} />}
@@ -156,24 +199,29 @@ const StaffLayout = () => {
           <LanguageSwitcher open={open} />
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
             <IconButton onClick={handleProfileClick} sx={{ p: 0 }}>
-              <Avatar alt={user?.name} src={user?.avatar} sx={{ width: 40, height: 40, bgcolor: '#d32f2f' }} />
+              <Avatar alt={user?.name} src={user?.avatar} sx={{ width: 44, height: 44, bgcolor: '#fff', color: '#d32f2f', ...avatarBorder }} />
             </IconButton>
             {open && (
-              <Typography variant="body1" sx={{ fontWeight: 600, color: '#d32f2f', cursor: 'pointer' }} onClick={handleProfileClick}>
+              <Typography variant="body1" sx={{ fontWeight: 700, color: '#d32f2f', cursor: 'pointer', ml: 1 }} onClick={handleProfileClick}>
                 {user?.name}
               </Typography>
             )}
-            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleProfileClose}>
-              <MenuItem onClick={() => { navigate('/'); handleProfileClose(); }}>
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleProfileClose}
+              PaperProps={{ sx: glassMenuPaper }}
+              MenuListProps={{ sx: { p: 0 } }}
+            >
+              <MenuItem onClick={() => { navigate('/'); handleProfileClose(); }} sx={{ fontWeight: 600, fontSize: 17, py: 1.5, px: 2, borderRadius: 2, '&:hover': { bgcolor: '#fff5f5', color: '#d32f2f' } }}>
                 {t('nav.home') || 'Home'}
               </MenuItem>
-              <MenuItem onClick={() => { navigate('/medical-center'); handleProfileClose(); }}>
+              <MenuItem onClick={() => { navigate('/medical-center'); handleProfileClose(); }} sx={{ fontWeight: 600, fontSize: 17, py: 1.5, px: 2, borderRadius: 2, '&:hover': { bgcolor: '#fff5f5', color: '#d32f2f' } }}>
                 {t('nav.medicalCenter') || 'Medical Center'}
               </MenuItem>
-              <MenuItem onClick={() => { navigate('/staff/profile'); handleProfileClose(); }}>
+              <MenuItem onClick={() => { navigate('/staff/profile'); handleProfileClose(); }} sx={{ fontWeight: 600, fontSize: 17, py: 1.5, px: 2, borderRadius: 2, '&:hover': { bgcolor: '#fff5f5', color: '#d32f2f' } }}>
                 {t('staff.editProfile') || 'Edit Profile'}
               </MenuItem>
-              <MenuItem onClick={handleLogout}>{t('nav.logout')}</MenuItem>
+              <MenuItem onClick={handleLogout} sx={{ fontWeight: 700, fontSize: 17, py: 1.5, px: 2, borderRadius: 2, color: '#d32f2f', '&:hover': { bgcolor: '#ffebee', color: '#b71c1c' } }}>
+                {t('nav.logout')}
+              </MenuItem>
             </Menu>
           </Box>
         </Box>

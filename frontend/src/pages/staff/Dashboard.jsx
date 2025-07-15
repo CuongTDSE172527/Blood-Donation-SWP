@@ -34,9 +34,16 @@ import {
   Inventory,
 } from '@mui/icons-material';
 
-const sectionBg = '#fff5f5';
+const sectionBg = 'linear-gradient(135deg, #fff5f5 0%, #fff 100%)';
 const cardShadow = '0 4px 24px 0 rgba(211,47,47,0.07)';
 const cardRadius = 3;
+const cardGradient = 'linear-gradient(90deg, #d32f2f 60%, #ff7961 100%)';
+const cardHover = {
+  boxShadow: '0 8px 32px 0 rgba(211,47,47,0.18)',
+  transform: 'scale(1.035)',
+  background: 'linear-gradient(90deg, #b71c1c 60%, #ff7961 100%)',
+  transition: 'all 0.25s cubic-bezier(.4,2,.6,1)',
+};
 
 const StaffDashboard = () => {
   const { t } = useTranslation();
@@ -62,178 +69,109 @@ const StaffDashboard = () => {
   ]);
 
   return (
-    <Box sx={{ bgcolor: sectionBg, minHeight: '100vh', py: 6 }}>
+    <Box sx={{ bgcolor: sectionBg, minHeight: '100vh', py: 6, animation: 'fadeInDash 0.7s' }}>
+      <style>{`
+        @keyframes fadeInDash { from { opacity: 0; transform: translateY(32px);} to { opacity: 1; transform: none; } }
+      `}</style>
       <Container maxWidth="lg">
+        <Typography
+          variant="h3"
+          align="center"
+          fontWeight={700}
+          sx={{ mb: 5, background: cardGradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: -1, textShadow: '0 2px 8px rgba(211,47,47,0.08)' }}
+        >
+          {t('staff.dashboardTitle') || 'Staff Dashboard'}
+        </Typography>
         {/* Stats Overview */}
         <Grid container spacing={4} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Bloodtype sx={{ color: '#d32f2f', mr: 1 }} />
-                  <Typography variant="h6">{t('staff.totalDonors')}</Typography>
-                </Box>
-                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
-                  {stats.totalDonors}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <LocalHospital sx={{ color: '#d32f2f', mr: 1 }} />
-                  <Typography variant="h6">{t('staff.totalRequests')}</Typography>
-                </Box>
-                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
-                  {stats.totalRequests}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Notifications sx={{ color: '#d32f2f', mr: 1 }} />
-                  <Typography variant="h6">{t('staff.pendingRequests')}</Typography>
-                </Box>
-                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
-                  {stats.pendingRequests}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Inventory sx={{ color: '#d32f2f', mr: 1 }} />
-                  <Typography variant="h6">{t('staff.totalInventory')}</Typography>
-                </Box>
-                <Typography variant="h4" sx={{ color: '#d32f2f', fontWeight: 700 }}>
-                  {stats.totalInventory}
-        </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+          {/* Lặp qua các stats, dùng card gradient và hover */}
+          {[
+            { icon: <Bloodtype sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, label: t('staff.totalDonors'), value: stats.totalDonors },
+            { icon: <LocalHospital sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, label: t('staff.totalRequests'), value: stats.totalRequests },
+            { icon: <Notifications sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, label: t('staff.pendingRequests'), value: stats.pendingRequests },
+            { icon: <Inventory sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, label: t('staff.totalInventory'), value: stats.totalInventory },
+          ].map((stat, idx) => (
+            <Grid item xs={12} sm={6} md={3} key={idx}>
+              <Card
+                sx={{
+                  borderRadius: cardRadius,
+                  boxShadow: cardShadow,
+                  background: cardGradient,
+                  color: '#fff',
+                  cursor: 'pointer',
+                  transition: 'all 0.25s cubic-bezier(.4,2,.6,1)',
+                  '&:hover': cardHover,
+                }}
+              >
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    {stat.icon}
+                    <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>{stat.label}</Typography>
+                  </Box>
+                  <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
+                    {stat.value}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
         </Grid>
-
         {/* Quick Actions */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Group sx={{ color: '#d32f2f', mr: 1 }} />
-                  <Typography variant="h6">{t('staff.donorManagement')}</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  {t('staff.donorManagementDesc')}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={() => navigate('/staff/donors')}
-                  sx={{
-                    bgcolor: '#d32f2f',
-                    '&:hover': {
-                      bgcolor: '#b71c1c',
-                    },
-                  }}
-                >
-                  {t('staff.manageDonors')}
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Assignment sx={{ color: '#d32f2f', mr: 1 }} />
-                  <Typography variant="h6">{t('staff.requestManagement')}</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  {t('staff.requestManagementDesc')}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={() => navigate('/staff/requests')}
-                  sx={{
-                    bgcolor: '#d32f2f',
-                    '&:hover': {
-                      bgcolor: '#b71c1c',
-                    },
-                  }}
-                >
-                  {t('staff.manageRequests')}
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Inventory sx={{ color: '#d32f2f', mr: 1 }} />
-                  <Typography variant="h6">{t('staff.inventory')}</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  {t('staff.inventoryDesc')}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={() => navigate('/staff/inventory')}
-                  sx={{
-                    bgcolor: '#d32f2f',
-                    '&:hover': {
-                      bgcolor: '#b71c1c',
-                    },
-                  }}
-                >
-                  {t('staff.viewInventory')}
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <LocalHospital sx={{ color: '#d32f2f', mr: 1 }} />
-                  <Typography variant="h6">{t('staff.emergency')}</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  {t('staff.emergencyDesc')}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={() => navigate('/staff/emergency')}
-                  sx={{
-                    bgcolor: '#d32f2f',
-                    '&:hover': {
-                      bgcolor: '#b71c1c',
-                    },
-                  }}
-                >
-                  {t('staff.emergencyRequests')}
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
+          {/* Lặp qua các quick actions, dùng card gradient và hover */}
+          {[
+            {
+              icon: <Group sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, title: t('staff.donorManagement'), desc: t('staff.donorManagementDesc'), btn: t('staff.manageDonors'), onClick: () => navigate('/staff/donors')
+            },
+            {
+              icon: <Assignment sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, title: t('staff.requestManagement'), desc: t('staff.requestManagementDesc'), btn: t('staff.manageRequests'), onClick: () => navigate('/staff/requests')
+            },
+            {
+              icon: <Inventory sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, title: t('staff.inventory'), desc: t('staff.inventoryDesc'), btn: t('staff.manageInventory'), onClick: () => navigate('/staff/inventory')
+            },
+          ].map((action, idx) => (
+            <Grid item xs={12} sm={6} md={3} key={idx}>
+              <Card
+                sx={{
+                  borderRadius: cardRadius,
+                  boxShadow: cardShadow,
+                  background: cardGradient,
+                  color: '#fff',
+                  cursor: 'pointer',
+                  transition: 'all 0.25s cubic-bezier(.4,2,.6,1)',
+                  '&:hover': cardHover,
+                }}
+              >
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, justifyContent: 'center' }}>
+                    {action.icon}
+                  </Box>
+                  <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600, textAlign: 'center' }}>{action.title}</Typography>
+                  <Typography variant="body2" color="#fff" paragraph sx={{ textAlign: 'center', opacity: 0.9 }}>
+                    {action.desc}
+                  </Typography>
+                </CardContent>
+                <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
+                  <Button
+                    variant="contained"
+                    onClick={action.onClick}
+                    sx={{
+                      bgcolor: '#fff',
+                      color: '#d32f2f',
+                      fontWeight: 700,
+                      borderRadius: 2,
+                      px: 3,
+                      boxShadow: '0 2px 8px 0 rgba(211,47,47,0.10)',
+                      transition: 'all 0.2s',
+                      '&:hover': { bgcolor: '#ff7961', color: '#fff' },
+                    }}
+                  >
+                    {action.btn}
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
         </Grid>
 
         {/* Recent Donors */}

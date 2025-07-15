@@ -111,6 +111,8 @@
     "contact": "Có câu hỏi hoặc cần hỗ trợ? Liên hệ với chúng tôi qua support@blooddonation.org."
   },
   "admin": {
+    "phone": "Điện thoại",
+    "managerName": "Tên quản lý",
     "dashboardTitle": "Bảng điều khiển Quản trị",
     "totalUsers": "Tổng số người dùng",
     "totalDonors": "Tổng số người hiến máu",
@@ -277,7 +279,17 @@
     "updateError": "Cập nhật hồ sơ thất bại",
     "saving": "Đang lưu...",
     "save": "Lưu thay đổi",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "manageInventory": "Quản lý kho máu",
+    "dob": "Ngày sinh",
+    "allBloodRequests": "Tất cả yêu cầu máu",
+    "recipientName": "Tên người nhận",
+    "requestedAmount": "Số lượng yêu cầu",
+    "urgencyLevel": "Mức độ khẩn cấp",
+    "requestDate": "Ngày yêu cầu",
+    "criticalEmergencyRequests": "Yêu cầu khẩn cấp nghiêm trọng",
+    "allBloodTypes": "Tất cả nhóm máu",
+    "quantity": "Số lượng"
   },
   "medicalCenter": {
     "title": "Trung tâm Y tế",

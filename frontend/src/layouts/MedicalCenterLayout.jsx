@@ -130,6 +130,31 @@ const MedicalCenterLayout = () => {
     </Box>
   );
 
+  const glassSidebar = (open) => ({
+    width: open ? drawerWidth : 64,
+    boxSizing: 'border-box',
+    background: 'rgba(255,255,255,0.55)',
+    backdropFilter: 'blur(16px)',
+    WebkitBackdropFilter: 'blur(16px)',
+    borderRight: '1.5px solid rgba(211,47,47,0.10)',
+    boxShadow: '0 8px 32px 0 rgba(211,47,47,0.12)',
+    borderRadius: open ? '18px' : '6px',
+    margin: open ? '12px 0 12px 12px' : '0', // bỏ margin khi minimize
+    height: '100vh', // luôn vừa với màn hình
+    transition: 'all 0.25s cubic-bezier(.4,2,.6,1)',
+    overflowX: 'hidden',
+  });
+  const glassMenuPaper = {
+    borderRadius: 8, // giảm bo góc
+    boxShadow: '0 8px 32px 0 rgba(211,47,47,0.18)',
+    background: 'rgba(255,255,255,0.85)',
+    backdropFilter: 'blur(18px)',
+    WebkitBackdropFilter: 'blur(18px)',
+    minWidth: 200,
+    p: 1,
+    animation: 'fadeInMenu 0.3s',
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       <AppBar
@@ -170,6 +195,8 @@ const MedicalCenterLayout = () => {
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
+              PaperProps={{ sx: glassMenuPaper }}
+              MenuListProps={{ sx: { p: 0 } }}
             >
               <MenuItem onClick={() => { navigate('/'); handleMenuClose(); }}>
                 {t('nav.home') || 'Home'}
@@ -209,7 +236,7 @@ const MedicalCenterLayout = () => {
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': glassSidebar(true),
           }}
           open
         >

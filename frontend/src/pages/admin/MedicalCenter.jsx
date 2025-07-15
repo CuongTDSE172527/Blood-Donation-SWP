@@ -97,16 +97,16 @@ const MedicalCenter = () => {
         email: '',
         phone: '',
         dob: '',
-        address: '',
+      address: '',
         role: ROLE.MEDICAL_CENTER,
         password: '',
         centerName: '',
         centerAddress: '',
         centerPhone: '',
         centerEmail: '',
-        capacity: '',
-        status: 'Active'
-      });
+      capacity: '',
+      status: 'Active'
+    });
     }
     setOpen(true);
   };
@@ -150,7 +150,7 @@ const MedicalCenter = () => {
         const newCenter = await adminService.createMedicalCenter(form);
         setCenters([...centers, newCenter]);
       }
-      handleClose();
+    handleClose();
     } catch (err) {
       setError(err.message || 'Failed to save medical center');
     }
@@ -317,16 +317,16 @@ const MedicalCenter = () => {
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                margin="dense"
+          <TextField
+            margin="dense"
                 label={t('admin.email') || 'Email'}
                 name="email"
                 type="email"
                 value={form.email}
-                onChange={handleChange}
-                fullWidth
-                required
-              />
+            onChange={handleChange}
+            fullWidth
+            required
+          />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -351,15 +351,15 @@ const MedicalCenter = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                margin="dense"
+          <TextField
+            margin="dense"
                 label={t('admin.address') || 'Address'}
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                fullWidth
-                multiline
-                rows={2}
+            name="address"
+            value={form.address}
+            onChange={handleChange}
+            fullWidth
+            multiline
+            rows={2}
               />
             </Grid>
             {!editCenter && (
@@ -372,8 +372,8 @@ const MedicalCenter = () => {
                   value={form.password} 
                   onChange={handleChange} 
                   fullWidth 
-                  required
-                />
+            required
+          />
               </Grid>
             )}
 
@@ -384,22 +384,22 @@ const MedicalCenter = () => {
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                margin="dense"
+          <TextField
+            margin="dense"
                 label={t('admin.centerName') || 'Center Name'}
                 name="centerName"
                 value={form.centerName}
-                onChange={handleChange}
-                fullWidth
-                required
-              />
+            onChange={handleChange}
+            fullWidth
+            required
+          />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                margin="dense"
+          <TextField
+            margin="dense"
                 label={t('admin.centerEmail') || 'Center Email'}
                 name="centerEmail"
-                type="email"
+            type="email"
                 value={form.centerEmail}
                 onChange={handleChange}
                 fullWidth
@@ -412,27 +412,27 @@ const MedicalCenter = () => {
                 label={t('admin.centerPhone') || 'Center Phone'}
                 name="centerPhone"
                 value={form.centerPhone}
-                onChange={handleChange}
-                fullWidth
-                required
-              />
+            onChange={handleChange}
+            fullWidth
+            required
+          />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                margin="dense"
+          <TextField
+            margin="dense"
                 label={t('admin.capacity') || 'Capacity'}
-                name="capacity"
-                type="number"
-                value={form.capacity}
-                onChange={handleChange}
-                fullWidth
-                required
+            name="capacity"
+            type="number"
+            value={form.capacity}
+            onChange={handleChange}
+            fullWidth
+            required
                 inputProps={{ min: 0 }}
-              />
+          />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                margin="dense"
+          <TextField
+            margin="dense"
                 label={t('admin.centerAddress') || 'Center Address'}
                 name="centerAddress"
                 value={form.centerAddress}
@@ -448,10 +448,10 @@ const MedicalCenter = () => {
                 <InputLabel>{t('admin.status') || 'Status'}</InputLabel>
                 <Select
                   label={t('admin.status') || 'Status'}
-                  name="status"
-                  value={form.status}
-                  onChange={handleChange}
-                >
+            name="status"
+            value={form.status}
+            onChange={handleChange}
+          >
                   <MenuItem value="Active">{t('admin.status_active') || 'Active'}</MenuItem>
                   <MenuItem value="Maintenance">{t('admin.status_maintenance') || 'Maintenance'}</MenuItem>
                   <MenuItem value="Inactive">{t('admin.status_inactive') || 'Inactive'}</MenuItem>

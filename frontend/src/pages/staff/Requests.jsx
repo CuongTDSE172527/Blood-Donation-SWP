@@ -78,7 +78,7 @@ export default function Requests() {
 
   const handleSave = async () => {
     try {
-      if (editRequest) {
+    if (editRequest) {
         // Update request status based on selection
         let result;
         switch (form.status) {
@@ -103,7 +103,7 @@ export default function Requests() {
         ));
 
         setSuccess('Request status updated successfully');
-        handleClose();
+    handleClose();
       }
     } catch (err) {
       setError(err.message || 'Failed to update request status');
@@ -219,14 +219,14 @@ export default function Requests() {
                       <TableCell>
                         {new Date(request.requestDate).toLocaleDateString()}
                       </TableCell>
-                      <TableCell align="right">
+                        <TableCell align="right">
                         <IconButton 
                           onClick={() => handleOpen(request)}
                           sx={{ color: '#d32f2f' }}
                         >
                           <Edit />
-                        </IconButton>
-                      </TableCell>
+                            </IconButton>
+                        </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -244,14 +244,14 @@ export default function Requests() {
             <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
               {t('staff.currentStatus') || 'Current Status'}: {STATUS_LABELS[editRequest?.status] || editRequest?.status}
             </Typography>
-            <FormControl fullWidth margin="dense">
+              <FormControl fullWidth margin="dense">
               <InputLabel>{t('staff.newStatus') || 'New Status'}</InputLabel>
-              <Select
+                <Select
                 label={t('staff.newStatus') || 'New Status'}
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-              >
+                  name="status"
+                  value={form.status}
+                  onChange={handleChange}
+                >
                 <MenuItem value={BLOOD_REQUEST_STATUS.WAITING}>
                   {STATUS_LABELS[BLOOD_REQUEST_STATUS.WAITING]} - Confirm Request
                 </MenuItem>
@@ -260,9 +260,9 @@ export default function Requests() {
                 </MenuItem>
                 <MenuItem value={BLOOD_REQUEST_STATUS.OUT_OF_STOCK}>
                   {STATUS_LABELS[BLOOD_REQUEST_STATUS.OUT_OF_STOCK]} - Mark as Out of Stock
-                </MenuItem>
-              </Select>
-            </FormControl>
+                      </MenuItem>
+                  </Select>
+                </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>

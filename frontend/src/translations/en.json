@@ -112,6 +112,8 @@
     "contact": "Have questions or need support? Reach out to us at support@blooddonation.org."
   },
   "admin": {
+    "phone": "Phone",
+    "managerName": "Manager Name",
     "dashboardTitle": "Admin Dashboard",
     "totalUsers": "Total Users",
     "totalDonors": "Total Donors",
@@ -280,7 +282,17 @@
     "updateError": "Failed to update profile",
     "saving": "Saving...",
     "save": "Save Changes",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "manageInventory": "Manage Inventory",
+    "dob": "Date of Birth",
+    "allBloodRequests": "All Blood Requests",
+    "recipientName": "Recipient Name",
+    "requestedAmount": "Requested Amount",
+    "urgencyLevel": "Urgency Level",
+    "requestDate": "Request Date",
+    "criticalEmergencyRequests": "Critical Emergency Requests",
+    "allBloodTypes": "All Blood Types",
+    "quantity": "Quantity"
   },
   "medicalCenter": {
     "title": "Medical Center",

@@ -116,17 +116,17 @@ export default function Users() {
 
   const handleSave = async () => {
     try {
-      if (editUser) {
+    if (editUser) {
         // Update existing user (without password)
         const { password, ...updateData } = form;
         await adminService.updateUser(editUser.id, updateData);
         setUsers(users.map(u => u.id === editUser.id ? { ...u, ...updateData } : u));
-      } else {
+    } else {
         // Create new user with password
         const newUser = await adminService.createUser(form);
         setUsers([...users, newUser]);
-      }
-      handleClose();
+    }
+    handleClose();
     } catch (err) {
       setError(err.message || 'Failed to save user');
     }
@@ -345,35 +345,35 @@ export default function Users() {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth margin="dense">
+            <FormControl fullWidth margin="dense">
                   <InputLabel>{t('admin.role') || 'Role'}</InputLabel>
-                  <Select
+              <Select
                     label={t('admin.role') || 'Role'}
-                    name="role"
-                    value={form.role}
-                    onChange={handleChange}
-                  >
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+              >
                     <MenuItem value={ROLE.ADMIN}>{t('admin.admin') || 'Admin'}</MenuItem>
                     <MenuItem value={ROLE.STAFF}>{t('admin.staff') || 'Staff'}</MenuItem>
                     <MenuItem value={ROLE.MEDICAL_CENTER}>{t('admin.medicalCenter') || 'Medical Center'}</MenuItem>
                     <MenuItem value={ROLE.DONOR}>{t('admin.donor') || 'Donor'}</MenuItem>
-                  </Select>
-                </FormControl>
+              </Select>
+            </FormControl>
               </Grid>
-              {!editUser && (
+            {!editUser && (
                 <Grid item xs={12} sm={6}>
-                  <TextField 
-                    margin="dense" 
-                    label={t('admin.password') || 'Password'} 
-                    name="password" 
-                    type="password" 
-                    value={form.password} 
-                    onChange={handleChange} 
-                    fullWidth 
-                    required
-                  />
+              <TextField 
+                margin="dense" 
+                label={t('admin.password') || 'Password'} 
+                name="password" 
+                type="password" 
+                value={form.password} 
+                onChange={handleChange} 
+                fullWidth 
+                required
+              />
                 </Grid>
-              )}
+            )}
             </Grid>
           </DialogContent>
           <DialogActions>

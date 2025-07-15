@@ -127,16 +127,16 @@ export default function Donors() {
 
   const handleSave = async () => {
     try {
-      if (editDonor) {
+    if (editDonor) {
         // Update existing donor
         await staffService.updateDonor(editDonor.id, form);
         setDonors(donors.map(d => d.id === editDonor.id ? { ...d, ...form } : d));
-      } else {
+    } else {
         // Add new donor
         const newDonor = await staffService.createDonor(form);
         setDonors([...donors, newDonor]);
-      }
-      handleClose();
+    }
+    handleClose();
     } catch (err) {
       setError(err.message || 'Failed to save donor');
     }
@@ -181,7 +181,7 @@ export default function Donors() {
               onClick={() => handleOpen()}
             >
               {t('staff.addDonor') || 'Add Donor'}
-            </Button>
+              </Button>
 
             <TableContainer component={Paper}>
               <Table>
@@ -224,7 +224,7 @@ export default function Donors() {
                         />
                       </TableCell>
                       <TableCell>{donor.dob}</TableCell>
-                      <TableCell align="right">
+                        <TableCell align="right">
                         <IconButton 
                           onClick={() => handleOpen(donor)}
                           sx={{ color: '#d32f2f' }}
@@ -237,7 +237,7 @@ export default function Donors() {
                         >
                           <Delete />
                         </IconButton>
-                      </TableCell>
+                        </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -299,21 +299,21 @@ export default function Donors() {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth margin="dense">
+            <FormControl fullWidth margin="dense">
                   <InputLabel>{t('staff.bloodType') || 'Blood Type'}</InputLabel>
-                  <Select
+              <Select
                     label={t('staff.bloodType') || 'Blood Type'}
-                    name="bloodType"
-                    value={form.bloodType}
-                    onChange={handleChange}
-                  >
+                name="bloodType"
+                value={form.bloodType}
+                onChange={handleChange}
+              >
                     {BLOOD_TYPES.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -350,16 +350,16 @@ export default function Donors() {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  margin="dense"
+            <TextField 
+              margin="dense" 
                   label={t('staff.allergies') || 'Allergies'}
                   name="allergies"
                   value={form.allergies}
-                  onChange={handleChange}
-                  fullWidth
+              onChange={handleChange} 
+              fullWidth 
                   multiline
                   rows={2}
-                />
+            />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -367,7 +367,7 @@ export default function Donors() {
                   label={t('staff.medications') || 'Current Medications'}
                   name="medications"
                   value={form.medications}
-                  onChange={handleChange}
+                onChange={handleChange}
                   fullWidth
                   multiline
                   rows={2}
