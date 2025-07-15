@@ -64,101 +64,103 @@ export default function MedicalCenterDonors() {
   const handleDelete = (id) => setDonors(donors.filter(d => d.id !== id));
 
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>
-        {t('medicalCenter.donorManagement') || 'Donor Management'}
-      </Typography>
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          {isAdmin && (
-            <Button variant="contained" startIcon={<Add />} sx={{ mb: 2, bgcolor: '#d32f2f' }} onClick={() => handleOpen()}>
-              {t('medicalCenter.addDonor') || 'Add Donor'}
-            </Button>
-          )}
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('medicalCenter.name') || 'Name'}</TableCell>
-                  <TableCell>{t('medicalCenter.bloodType') || 'Blood Type'}</TableCell>
-                  <TableCell>{t('medicalCenter.lastDonation') || 'Last Donation'}</TableCell>
-                  <TableCell>{t('medicalCenter.status') || 'Status'}</TableCell>
-                                      {isAdmin && <TableCell align="right">{t('medicalCenter.actions') || 'Actions'}</TableCell>}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {donors.map((donor) => (
-                  <TableRow key={donor.id}>
-                    <TableCell>{donor.name}</TableCell>
-                    <TableCell>{donor.bloodType}</TableCell>
-                    <TableCell>{donor.lastDonation}</TableCell>
-                    <TableCell>
-                      <Chip label={t(`medicalCenter.status_${donor.status.toLowerCase().replace(' ', '')}`) || donor.status} color={donor.status === 'Eligible' ? 'success' : 'error'} size="small" />
-                    </TableCell>
-                    {isAdmin && (
-                      <TableCell align="right">
-                        <IconButton onClick={() => handleOpen(donor)}><Edit /></IconButton>
-                        <IconButton color="error" onClick={() => handleDelete(donor.id)}><Delete /></IconButton>
-                      </TableCell>
-                    )}
+    <Box sx={{ bgcolor: '#fff5f5', minHeight: '100vh', py: 6 }}>
+      <Container maxWidth="lg">
+        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>
+          {t('medicalCenter.donorManagement') || 'Donor Management'}
+        </Typography>
+        <Card sx={{ mb: 3, borderRadius: 3, boxShadow: '0 4px 24px 0 rgba(211,47,47,0.07)' }}>
+          <CardContent>
+            {isAdmin && (
+              <Button variant="contained" startIcon={<Add />} sx={{ mb: 3, bgcolor: '#d32f2f' }} onClick={() => handleOpen()}>
+                {t('medicalCenter.addDonor') || 'Add Donor'}
+              </Button>
+            )}
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{t('medicalCenter.name') || 'Name'}</TableCell>
+                    <TableCell>{t('medicalCenter.bloodType') || 'Blood Type'}</TableCell>
+                    <TableCell>{t('medicalCenter.lastDonation') || 'Last Donation'}</TableCell>
+                    <TableCell>{t('medicalCenter.status') || 'Status'}</TableCell>
+                    {isAdmin && <TableCell align="right">{t('medicalCenter.actions') || 'Actions'}</TableCell>}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
-      {isAdmin && (
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{editDonor ? t('medicalCenter.editDonor') || 'Edit Donor' : t('medicalCenter.addDonor') || 'Add Donor'}</DialogTitle>
-        <DialogContent>
-          <TextField margin="dense" label={t('medicalCenter.name') || 'Name'} name="name" value={form.name} onChange={handleChange} fullWidth />
-          <FormControl fullWidth margin="dense">
-            <InputLabel>{t('medicalCenter.bloodType') || 'Blood Type'}</InputLabel>
-            <Select
-              label={t('medicalCenter.bloodType') || 'Blood Type'}
-              name="bloodType"
-              value={form.bloodType}
-              onChange={handleChange}
-            >
-              {bloodTypes.map((type) => (
-                <MenuItem key={type} value={type}>
-                  {type}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField 
-            margin="dense" 
-            label={t('medicalCenter.lastDonation') || 'Last Donation'} 
-            name="lastDonation" 
-            type="date"
-            value={form.lastDonation} 
-            onChange={handleChange} 
-            fullWidth 
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-          <FormControl fullWidth margin="dense">
-            <InputLabel>{t('medicalCenter.status') || 'Status'}</InputLabel>
-            <Select
-              label={t('medicalCenter.status') || 'Status'}
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-            >
-              <MenuItem value="Eligible">{t('medicalCenter.status_eligible') || 'Eligible'}</MenuItem>
-              <MenuItem value="Not Eligible">{t('medicalCenter.status_noteligible') || 'Not Eligible'}</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>{t('medicalCenter.cancel') || 'Cancel'}</Button>
-          <Button onClick={handleSave} variant="contained" sx={{ bgcolor: '#d32f2f' }}>{editDonor ? t('medicalCenter.save') || 'Save' : t('medicalCenter.add') || 'Add'}</Button>
-        </DialogActions>
-        </Dialog>
-      )}
-    </Container>
+                </TableHead>
+                <TableBody>
+                  {donors.map((donor) => (
+                    <TableRow key={donor.id}>
+                      <TableCell>{donor.name}</TableCell>
+                      <TableCell>{donor.bloodType}</TableCell>
+                      <TableCell>{donor.lastDonation}</TableCell>
+                      <TableCell>
+                        <Chip label={t(`medicalCenter.status_${donor.status.toLowerCase().replace(' ', '')}`) || donor.status} color={donor.status === 'Eligible' ? 'success' : 'error'} size="small" />
+                      </TableCell>
+                      {isAdmin && (
+                        <TableCell align="right">
+                          <IconButton onClick={() => handleOpen(donor)}><Edit /></IconButton>
+                          <IconButton color="error" onClick={() => handleDelete(donor.id)}><Delete /></IconButton>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
+        {isAdmin && (
+          <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+            <DialogTitle>{editDonor ? t('medicalCenter.editDonor') || 'Edit Donor' : t('medicalCenter.addDonor') || 'Add Donor'}</DialogTitle>
+            <DialogContent>
+              <TextField margin="dense" label={t('medicalCenter.name') || 'Name'} name="name" value={form.name} onChange={handleChange} fullWidth />
+              <FormControl fullWidth margin="dense">
+                <InputLabel>{t('medicalCenter.bloodType') || 'Blood Type'}</InputLabel>
+                <Select
+                  label={t('medicalCenter.bloodType') || 'Blood Type'}
+                  name="bloodType"
+                  value={form.bloodType}
+                  onChange={handleChange}
+                >
+                  {bloodTypes.map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField 
+                margin="dense" 
+                label={t('medicalCenter.lastDonation') || 'Last Donation'} 
+                name="lastDonation" 
+                type="date"
+                value={form.lastDonation} 
+                onChange={handleChange} 
+                fullWidth 
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+              <FormControl fullWidth margin="dense">
+                <InputLabel>{t('medicalCenter.status') || 'Status'}</InputLabel>
+                <Select
+                  label={t('medicalCenter.status') || 'Status'}
+                  name="status"
+                  value={form.status}
+                  onChange={handleChange}
+                >
+                  <MenuItem value="Eligible">{t('medicalCenter.status_eligible') || 'Eligible'}</MenuItem>
+                  <MenuItem value="Not Eligible">{t('medicalCenter.status_noteligible') || 'Not Eligible'}</MenuItem>
+                </Select>
+              </FormControl>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>{t('medicalCenter.cancel') || 'Cancel'}</Button>
+              <Button onClick={handleSave} variant="contained" sx={{ bgcolor: '#d32f2f' }}>{editDonor ? t('medicalCenter.save') || 'Save' : t('medicalCenter.add') || 'Add'}</Button>
+            </DialogActions>
+          </Dialog>
+        )}
+      </Container>
+    </Box>
   );
 } 

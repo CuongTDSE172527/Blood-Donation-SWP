@@ -61,23 +61,20 @@ const MedicalCenterDashboard = () => {
     {
       title: t('medicalCenter.manageDonors') || 'Manage Donors',
       description: t('medicalCenter.manageDonorsDesc') || 'View and manage donor information',
-      icon: <PeopleIcon sx={{ fontSize: 40, color: '#d32f2f' }} />,
+      icon: <PeopleIcon sx={{ fontSize: 40, color: '#fff' }} />, // đổi sang trắng
       path: '/medical-center/donors',
-      color: '#fff5f5',
     },
     {
       title: t('medicalCenter.manageReceivers') || 'Manage Receivers',
       description: t('medicalCenter.manageReceiversDesc') || 'Manage blood recipients information',
-      icon: <LocalHospitalIcon sx={{ fontSize: 40, color: '#d32f2f' }} />,
+      icon: <LocalHospitalIcon sx={{ fontSize: 40, color: '#fff' }} />, // đổi sang trắng
       path: '/medical-center/receivers',
-      color: '#fff5f5',
     },
     {
       title: t('medicalCenter.manageRequests') || 'Manage Requests',
-      description: t('medicalCenter.manageRequestsDesc') || 'Handle blood requests and approvals',
-      icon: <BloodtypeIcon sx={{ fontSize: 40, color: '#d32f2f' }} />,
+      description: t('medicalCenter.manageRequestsDesc') || 'View and process blood requests',
+      icon: <BloodtypeIcon sx={{ fontSize: 40, color: '#fff' }} />, // đổi sang trắng
       path: '/medical-center/requests',
-      color: '#fff5f5',
     },
   ];
 
@@ -141,7 +138,7 @@ const MedicalCenterDashboard = () => {
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {quickActions.map((action, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card sx={{ bgcolor: cardGradient, borderRadius: 3, height: '100%', color: '#fff', cursor: 'pointer', transition: 'all 0.25s cubic-bezier(.4,2,.6,1)', '&:hover': cardHover }}>
+            <Card sx={{ background: cardGradient, borderRadius: 3, height: '100%', color: '#fff', cursor: 'pointer', transition: 'all 0.25s cubic-bezier(.4,2,.6,1)', '&:hover': cardHover }}>
               <CardContent sx={{ textAlign: 'center', p: 3 }}>
                 <Box sx={{ mb: 2 }}>
                   {action.icon}

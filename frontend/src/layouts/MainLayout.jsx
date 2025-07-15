@@ -164,6 +164,8 @@ const MainLayout = () => {
                         navigate('/admin/dashboard');
                       } else if (user.role === 'STAFF') {
                         navigate('/staff/dashboard');
+                      } else if (user.role === 'MEDICALCENTER') {
+                        navigate('/medical-center/dashboard');
                       } else {
                         navigate(`/${user.role.toLowerCase()}/dashboard`);
                       }

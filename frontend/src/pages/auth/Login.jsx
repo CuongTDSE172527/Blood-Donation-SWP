@@ -82,6 +82,9 @@ const Login = () => {
         case 'DONOR':
           navigate('/donor/dashboard');
           break;
+        case 'MEDICALCENTER':
+          navigate('/medical-center/dashboard');
+          break;
         default:
           navigate('/user/dashboard');
       }

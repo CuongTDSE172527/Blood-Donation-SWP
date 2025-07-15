@@ -334,7 +334,19 @@
     "status_noteligible": "Không đủ điều kiện",
     "status_pending": "Đang chờ",
     "status_approved": "Đã phê duyệt",
-    "status_completed": "Đã hoàn thành"
+    "status_completed": "Đã hoàn thành",
+    "manageReceivers": "Quản lý Người nhận",
+    "manageReceiversDesc": "Xem và quản lý thông tin người nhận",
+    "receiverManagement": "Quản lý Người nhận",
+    "addReceiver": "Thêm Người nhận",
+    "recipientName": "Tên người nhận",
+    "requestedAmount": "Số lượng yêu cầu",
+    "urgencyLevel": "Mức độ khẩn cấp",
+    "hospital": "Bệnh viện",
+    "contact": "Liên hệ",
+    "receivers": "Người nhận",
+    "requestDate": "Ngày yêu cầu",
+    "addRequest": "Thêm yêu cầu"
   },
   "user": {
     "dashboardTitle": "Bảng điều khiển Người dùng",

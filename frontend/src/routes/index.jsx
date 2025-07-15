@@ -85,10 +85,10 @@ export const staffRoutes = [
 ];
 
 export const medicalCenterRoutes = [
-  { path: '/medical-center/dashboard', element: <MedicalCenterDashboard />, roles: ['MEDICAL_CENTER'] },
-  { path: '/medical-center/donors', element: <MedicalCenterDonors />, roles: ['MEDICAL_CENTER'] },
-  { path: '/medical-center/receivers', element: <MedicalCenterReceivers />, roles: ['MEDICAL_CENTER'] },
-  { path: '/medical-center/requests', element: <MedicalCenterRequests />, roles: ['MEDICAL_CENTER'] },
+  { path: '/medical-center/dashboard', element: <MedicalCenterDashboard />, roles: ['MEDICALCENTER'] },
+  { path: '/medical-center/donors', element: <MedicalCenterDonors />, roles: ['MEDICALCENTER'] },
+  { path: '/medical-center/receivers', element: <MedicalCenterReceivers />, roles: ['MEDICALCENTER'] },
+  { path: '/medical-center/requests', element: <MedicalCenterRequests />, roles: ['MEDICALCENTER'] },
 ];
 
 export const userRoutes = [

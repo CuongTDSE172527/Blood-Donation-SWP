@@ -123,7 +123,6 @@ const AdminDashboard = () => {
             { icon: <Bloodtype sx={{ color: '#fff', mr: 1, fontSize: 32, transition: 'transform 0.2s' }} />, label: t('admin.totalDonors'), value: stats.totalDonors },
             { icon: <Group sx={{ color: '#fff', mr: 1, fontSize: 32, transition: 'transform 0.2s' }} />, label: t('admin.totalStaff'), value: stats.totalStaff },
             { icon: <LocalHospital sx={{ color: '#fff', mr: 1, fontSize: 32, transition: 'transform 0.2s' }} />, label: t('admin.totalMedicalCenters') || 'Total Medical Centers', value: stats.totalMedicalCenters },
-            { icon: <Assignment sx={{ color: '#fff', mr: 1, fontSize: 32, transition: 'transform 0.2s' }} />, label: t('admin.totalRequests'), value: stats.totalRequests },
           ].map((stat, idx) => (
             <Grid item xs={12} sm={6} md={3} key={idx}>
               <Card
@@ -150,9 +149,9 @@ const AdminDashboard = () => {
             </Grid>
           ))}
         </Grid>
-        {/* Quick Actions */}
+        {/* Quick Actions + Tổng số yêu cầu */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {/* Lặp qua các quick actions, dùng card gradient và hover */}
+          {/* Quick Actions */}
           {[
             {
               icon: <People sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, title: t('admin.userManagement'), desc: t('admin.userManagementDesc'), btn: t('admin.manageUsers'), onClick: () => navigate('/admin/users')
@@ -206,6 +205,30 @@ const AdminDashboard = () => {
               </Card>
             </Grid>
           ))}
+          {/* Card Tổng số yêu cầu */}
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              sx={{
+                borderRadius: cardRadius,
+                boxShadow: cardShadow,
+                background: cardGradient,
+                color: '#fff',
+                cursor: 'pointer',
+                transition: 'all 0.25s cubic-bezier(.4,2,.6,1)',
+                '&:hover': cardHover,
+              }}
+            >
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Assignment sx={{ color: '#fff', mr: 1, fontSize: 32 }} />
+                  <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>{t('admin.totalRequests')}</Typography>
+                </Box>
+                <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
+                  {stats.totalRequests}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
 
         {/* Recent Users */}

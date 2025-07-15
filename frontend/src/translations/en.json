@@ -337,7 +337,20 @@
     "status_noteligible": "Not Eligible",
     "status_pending": "Pending",
     "status_approved": "Approved",
-    "status_completed": "Completed"
+    "status_completed": "Completed",
+    "receivers": "Receivers",
+    "receiverManagement": "Receiver Management",
+    "addReceiver": "Add Receiver",
+    "recipientName": "Recipient Name",
+    "requestedAmount": "Requested Amount",
+    "urgencyLevel": "Urgency Level",
+    "hospital": "Hospital",
+    "contact": "Contact",
+    "requestManagement": "Request Management",
+    "addRequest": "Add Request",
+    "requestDate": "Request Date",
+    "manageReceivers": "Manage Receivers",
+    "manageReceiversDesc": "View and manage receiver information"
   },
   "user": {
     "dashboardTitle": "User Dashboard",
