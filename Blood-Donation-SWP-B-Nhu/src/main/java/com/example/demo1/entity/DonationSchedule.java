@@ -18,8 +18,10 @@ public class DonationSchedule {
 
     private LocalDate date;
     private LocalTime time;
+
     @ManyToOne
     @JoinColumn(name = "location_id")
     private DonationLocation location;
+
 }
 

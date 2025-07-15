@@ -1,5 +1,6 @@
 package com.example.demo1.entity;
 
+import com.example.demo1.entity.enums.Gender;
 import com.example.demo1.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -24,6 +25,8 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 }
 
 
