@@ -141,25 +141,13 @@ const DonorProfile = () => {
                 />
                 <TextField
                   fullWidth
-                  select
                   label={t('register.bloodType')}
                   name="bloodType"
                   value={form.bloodType}
-                  onChange={handleChange}
-                  SelectProps={{ native: true }}
                   sx={{ mb: 2 }}
                   required
-                >
-                  <option value="">{t('register.bloodTypeSelect')}</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                </TextField>
+                  disabled
+                />
                 <Button
                   type="submit"
                   fullWidth
