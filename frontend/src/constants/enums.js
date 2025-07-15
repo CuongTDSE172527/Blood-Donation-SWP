@@ -66,4 +66,11 @@ export const ROLE_LABELS = {
   [ROLES.DONOR]: 'Người hiến máu',
   [ROLES.STAFF]: 'Nhân viên',
   [ROLES.MEDICALCENTER]: 'Trung tâm y tế',
+};
+
+export const ROLE = {
+  ADMIN: 'ADMIN',
+  STAFF: 'STAFF',
+  DONOR: 'DONOR',
+  MEDICAL_CENTER: 'MEDICAL_CENTER',
 }; 
