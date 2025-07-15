@@ -1,8 +1,13 @@
 package com.example.demo1.controller.admin;
 
+import com.example.demo1.entity.BloodInventory;
+import com.example.demo1.entity.BloodRequest;
 import com.example.demo1.entity.DonationSchedule;
 import com.example.demo1.entity.User;
+import com.example.demo1.entity.enums.BloodRequestStatus;
 import com.example.demo1.entity.enums.Role;
+import com.example.demo1.repo.BloodInventoryRepository;
+import com.example.demo1.repo.BloodRequestRepository;
 import com.example.demo1.repo.DonationScheduleRepository;
 import com.example.demo1.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,4 +119,111 @@ public class AdminController {
         scheduleRepo.deleteById(id);
         return ResponseEntity.ok("Schedule deleted successfully");
     }
+
+    @PostMapping("/users/medicalcenters")
+    public ResponseEntity<?> createMedicalCenter(@RequestBody User user) {
+        user.setRole(Role.MEDICALCENTER);
+        return ResponseEntity.ok(userRepository.save(user));
+    }
+
+    @PutMapping("/users/medicalcenters/{id}")
+    public ResponseEntity<?> updateMedicalCenter(@PathVariable Long id, @RequestBody User updatedUser) {
+        Optional<User> optional = userRepository.findById(id);
+        if (optional.isEmpty() || optional.get().getRole() != Role.MEDICALCENTER) {
+            return ResponseEntity.badRequest().body("Medical center not found");
+        }
+
+        User user = optional.get();
+
+        if (updatedUser.getFullName() != null) {
+            user.setFullName(updatedUser.getFullName());
+        }
+
+        if (updatedUser.getEmail() != null) {
+            user.setEmail(updatedUser.getEmail());
+        }
+
+        if (updatedUser.getPhone() != null) {
+            user.setPhone(updatedUser.getPhone());
+        }
+
+        return ResponseEntity.ok(userRepository.save(user));
+    }
+
+
+    @PostMapping("/users/staff")
+    public ResponseEntity<?> createStaff(@RequestBody User staff) {
+        staff.setRole(Role.STAFF); // Gán role là STAFF
+        return ResponseEntity.ok(userRepository.save(staff));
+    }
+
+
+    @PutMapping("/users/staff/{id}")
+    public ResponseEntity<?> updateStaff(@PathVariable Long id, @RequestBody User updatedUser) {
+        Optional<User> optional = userRepository.findById(id);
+        if (optional.isEmpty() || optional.get().getRole() != Role.STAFF) {
+            return ResponseEntity.badRequest().body("Staff not found");
+        }
+
+        User user = optional.get();
+
+        if (updatedUser.getFullName() != null) user.setFullName(updatedUser.getFullName());
+        if (updatedUser.getEmail() != null) user.setEmail(updatedUser.getEmail());
+        if (updatedUser.getPhone() != null) user.setPhone(updatedUser.getPhone());
+        if (updatedUser.getDob() != null) user.setDob(updatedUser.getDob());
+        if (updatedUser.getGender() != null) user.setGender(updatedUser.getGender());
+
+        return ResponseEntity.ok(userRepository.save(user));
+    }
+    @Autowired
+    private BloodInventoryRepository bloodInventoryRepo;
+
+    @GetMapping("/inventory")
+    public ResponseEntity<?> getAllBloodInventory() {
+        return ResponseEntity.ok(bloodInventoryRepo.findAll());
+    }
+    @PutMapping("/inventory/{id}")
+    public ResponseEntity<?> updateBloodInventory(@PathVariable Long id, @RequestBody BloodInventory updated) {
+        Optional<BloodInventory> optional = bloodInventoryRepo.findById(id);
+        if (optional.isEmpty()) {
+            return ResponseEntity.badRequest().body("Blood inventory not found");
+        }
+
+        BloodInventory inv = optional.get();
+        if (updated.getQuantity() != null) {
+            inv.setQuantity(updated.getQuantity());
+        }
+        return ResponseEntity.ok(bloodInventoryRepo.save(inv));
+    }
+    @Autowired
+    private BloodRequestRepository bloodRequestRepo;
+
+    @GetMapping("/blood-requests")
+    public ResponseEntity<?> getAllBloodRequests() {
+        return ResponseEntity.ok(bloodRequestRepo.findAll());
+    }
+    @PutMapping("/blood-requests/{id}/confirm")
+    public ResponseEntity<?> confirmBloodRequest(@PathVariable Long id) {
+        Optional<BloodRequest> optional = bloodRequestRepo.findById(id);
+        if (optional.isEmpty()) {
+            return ResponseEntity.badRequest().body("Request not found");
+        }
+
+        BloodRequest req = optional.get();
+        req.setStatus(BloodRequestStatus.WAITING);
+        return ResponseEntity.ok(bloodRequestRepo.save(req));
+    }
+
+    @PutMapping("/blood-requests/{id}/mark-out-of-stock")
+    public ResponseEntity<?> markOutOfStock(@PathVariable Long id) {
+        Optional<BloodRequest> optional = bloodRequestRepo.findById(id);
+        if (optional.isEmpty()) {
+            return ResponseEntity.badRequest().body("Request not found");
+        }
+
+        BloodRequest req = optional.get();
+        req.setStatus(BloodRequestStatus.OUT_OF_STOCK);
+        return ResponseEntity.ok(bloodRequestRepo.save(req));
+    }
+
 }
