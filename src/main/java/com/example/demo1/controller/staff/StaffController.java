@@ -1,3 +1,4 @@
+// StaffController.java
 package com.example.demo1.controller.staff;
 
 import com.example.demo1.entity.*;
@@ -86,23 +87,30 @@ public class StaffController {
     }
 
     @PostMapping("/registrations/{id}/confirm")
-    public ResponseEntity<?> confirmRegistration(@PathVariable Long id) {
+    public ResponseEntity<?> confirmRegistration(@PathVariable Long id, @RequestParam Long staffId) {
         Optional<DonationRegistration> opt = registrationRepo.findById(id);
+        Optional<User> staffOpt = userRepository.findById(staffId);
+
         if (opt.isEmpty()) return ResponseEntity.badRequest().body("Registration not found");
+        if (staffOpt.isEmpty()) return ResponseEntity.badRequest().body("Staff not found");
 
         DonationRegistration reg = opt.get();
+        User staff = staffOpt.get();
+
         reg.setStatus(RegistrationStatus.CONFIRMED);
         registrationRepo.save(reg);
 
         bloodInventoryRepo.findByBloodType(reg.getBloodType()).ifPresentOrElse(
                 inv -> {
                     inv.setQuantity(inv.getQuantity() + reg.getAmount());
+                    inv.setUpdatedBy(staff);
                     bloodInventoryRepo.save(inv);
                 },
                 () -> {
                     BloodInventory newInv = new BloodInventory();
                     newInv.setBloodType(reg.getBloodType());
                     newInv.setQuantity(reg.getAmount());
+                    newInv.setUpdatedBy(staff);
                     bloodInventoryRepo.save(newInv);
                 }
         );

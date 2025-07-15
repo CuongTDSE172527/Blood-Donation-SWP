@@ -1,11 +1,13 @@
 package com.example.demo1.entity;
 
+import com.example.demo1.entity.enums.Gender;
 import com.example.demo1.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -24,7 +26,10 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @OneToMany(mappedBy = "updatedBy")
+    private List<BloodInventory> inventoriesUpdated;
 }
-
-
-

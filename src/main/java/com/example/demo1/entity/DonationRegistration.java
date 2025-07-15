@@ -37,6 +37,8 @@ public class DonationRegistration {
     @JoinColumn(name = "location_id")
     private DonationLocation location;
 
+    private String gender; //
+
     @ManyToMany
     @JoinTable(
             name = "registration_diseases",

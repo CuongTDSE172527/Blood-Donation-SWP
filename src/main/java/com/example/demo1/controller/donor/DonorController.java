@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -75,6 +76,24 @@ public class DonorController {
         }
 
         return ResponseEntity.ok(registrationService.register(reg, userOpt.get()));
+    }
+
+
+    @Autowired
+    private DonationRegistrationRepository registrationRepository;
+
+    @PostMapping("/registrations")
+    public ResponseEntity<?> createRegistration(@RequestBody DonationRegistration registration, Principal principal) {
+        String email = principal.getName(); // Lấy email từ người đăng nhập
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+
+        registration.setUser(userOpt.get());
+        registration.setStatus(RegistrationStatus.PENDING);
+
+        return ResponseEntity.ok(registrationRepository.save(registration));
     }
 
     /**
