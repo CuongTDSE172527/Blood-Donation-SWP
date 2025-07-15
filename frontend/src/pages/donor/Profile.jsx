@@ -12,7 +12,7 @@ import {
   Divider,
   Grid
 } from '@mui/material';
-import { updateProfileStart, updateProfileSuccess, updateProfileFailure } from '../../store/slices/authSlice';
+import { clearError } from '../../store/slices/authSlice';
 
 const DonorProfile = () => {
   const { t } = useTranslation();
@@ -51,16 +51,15 @@ const DonorProfile = () => {
     setLoading(true);
     setError('');
     setSuccess('');
-    dispatch(updateProfileStart());
+    
     try {
-      // Simulate API call
+      // Note: Profile update is not available in the current backend API
+      // This is a placeholder for future implementation
       setTimeout(() => {
-        dispatch(updateProfileSuccess({ ...user, ...form }));
-        setSuccess(t('profile.updateSuccess') || 'Profile updated successfully!');
+        setSuccess(t('profile.updateSuccess') || 'Profile update feature coming soon!');
         setLoading(false);
       }, 1000);
     } catch (err) {
-      dispatch(updateProfileFailure('Update failed'));
       setError(t('profile.updateError') || 'Update failed.');
       setLoading(false);
     }

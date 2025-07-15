@@ -26,14 +26,13 @@ import {
   MenuItem
 } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
+import { BLOOD_TYPES } from '../../constants/enums';
 
 const mockInventory = [
   { id: 1, bloodType: 'A+', units: 25 },
   { id: 2, bloodType: 'O-', units: 15 },
   { id: 3, bloodType: 'B+', units: 30 },
 ];
-
-const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export default function Inventory() {
   const { t } = useTranslation();
@@ -62,29 +61,49 @@ export default function Inventory() {
   return (
     <Box sx={{ bgcolor: '#fff5f5', minHeight: '100vh', py: 6 }}>
       <Container maxWidth="md">
-        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>{t('admin.inventoryManagement')}</Typography>
+        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>
+          {t('admin.inventoryManagement') || 'Blood Inventory Management'}
+        </Typography>
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <Button variant="contained" startIcon={<Add />} sx={{ mb: 2, bgcolor: '#d32f2f' }} onClick={() => handleOpen()}>
-              {t('admin.addBloodType')}
+              {t('admin.addBloodType') || 'Add Blood Type'}
             </Button>
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>{t('admin.bloodType')}</TableCell>
-                    <TableCell>{t('admin.units')}</TableCell>
-                    <TableCell align="right">{t('admin.actions')}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('admin.bloodType') || 'Blood Type'}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('admin.units') || 'Units'}
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                      {t('admin.actions') || 'Actions'}
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {inventory.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell>{item.bloodType}</TableCell>
+                      <TableCell sx={{ fontWeight: 'medium' }}>
+                        {item.bloodType}
+                      </TableCell>
                       <TableCell>{item.units}</TableCell>
                       <TableCell align="right">
-                        <IconButton onClick={() => handleOpen(item)}><Edit /></IconButton>
-                        <IconButton color="error" onClick={() => handleDelete(item.id)}><Delete /></IconButton>
+                        <IconButton 
+                          onClick={() => handleOpen(item)}
+                          sx={{ color: '#d32f2f' }}
+                        >
+                          <Edit />
+                        </IconButton>
+                        <IconButton 
+                          color="error" 
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          <Delete />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -94,28 +113,47 @@ export default function Inventory() {
           </CardContent>
         </Card>
         <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{editItem ? t('admin.editBloodType') : t('admin.addBloodType')}</DialogTitle>
+          <DialogTitle>
+            {editItem ? t('admin.editBloodType') || 'Edit Blood Type' : t('admin.addBloodType') || 'Add Blood Type'}
+          </DialogTitle>
           <DialogContent>
             <FormControl fullWidth margin="dense">
-              <InputLabel>{t('admin.bloodType')}</InputLabel>
+              <InputLabel>{t('admin.bloodType') || 'Blood Type'}</InputLabel>
               <Select
-                label={t('admin.bloodType')}
+                label={t('admin.bloodType') || 'Blood Type'}
                 name="bloodType"
                 value={form.bloodType}
                 onChange={handleChange}
               >
-                {bloodTypes.map((type) => (
+                {BLOOD_TYPES.map((type) => (
                   <MenuItem key={type} value={type}>
                     {type}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
-            <TextField margin="dense" label={t('admin.units')} name="units" value={form.units} onChange={handleChange} fullWidth type="number" />
+            <TextField 
+              margin="dense" 
+              label={t('admin.units') || 'Units'} 
+              name="units" 
+              value={form.units} 
+              onChange={handleChange} 
+              fullWidth 
+              type="number"
+              inputProps={{ min: 0 }}
+            />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>{t('admin.cancel')}</Button>
-            <Button onClick={handleSave} variant="contained" sx={{ bgcolor: '#d32f2f' }}>{editItem ? t('admin.save') : t('admin.add')}</Button>
+            <Button onClick={handleClose}>
+              {t('admin.cancel') || 'Cancel'}
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              variant="contained" 
+              sx={{ bgcolor: '#d32f2f' }}
+            >
+              {editItem ? t('admin.save') || 'Save' : t('admin.add') || 'Add'}
+            </Button>
           </DialogActions>
         </Dialog>
       </Container>

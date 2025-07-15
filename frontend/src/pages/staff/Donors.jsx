@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { 
@@ -25,81 +25,219 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Grid,
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
-
-const mockDonors = [
-  { id: 1, name: 'John Doe', bloodType: 'A+', lastDonation: '2024-02-15', status: 'Eligible' },
-  { id: 2, name: 'Jane Smith', bloodType: 'O-', lastDonation: '2024-01-20', status: 'Eligible' },
-  { id: 3, name: 'Mike Johnson', bloodType: 'B+', lastDonation: '2023-12-10', status: 'Not Eligible' },
-];
-
-const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+import { staffService } from '../../services/staffService';
+import { BLOOD_TYPES } from '../../constants/enums';
 
 export default function Donors() {
   const { t } = useTranslation();
   const { user } = useSelector((state) => state.auth);
-  const isAdmin = user?.role === 'ADMIN';
-  const [donors, setDonors] = useState(mockDonors);
+  const [donors, setDonors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
   const [editDonor, setEditDonor] = useState(null);
-  const [form, setForm] = useState({ name: '', bloodType: '', lastDonation: '', status: 'Eligible' });
+  const [form, setForm] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    dob: '',
+    bloodType: '',
+    address: '',
+    emergencyContact: '',
+    medicalHistory: '',
+    allergies: '',
+    medications: ''
+  });
+
+  // Load donors data
+  useEffect(() => {
+    loadDonors();
+  }, []);
+
+  const loadDonors = async () => {
+    try {
+      setLoading(true);
+      const data = await staffService.getAllDonors();
+      setDonors(data);
+    } catch (err) {
+      setError(err.message || 'Failed to load donors');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpen = (donor = null) => {
     setEditDonor(donor);
-    setForm(donor ? { ...donor } : { name: '', bloodType: '', lastDonation: '', status: 'Eligible' });
+    if (donor) {
+      setForm({
+        fullName: donor.fullName || '',
+        email: donor.email || '',
+        phone: donor.phone || '',
+        dob: donor.dob || '',
+        bloodType: donor.bloodType || '',
+        address: donor.address || '',
+        emergencyContact: donor.emergencyContact || '',
+        medicalHistory: donor.medicalHistory || '',
+        allergies: donor.allergies || '',
+        medications: donor.medications || ''
+      });
+    } else {
+      setForm({
+        fullName: '',
+        email: '',
+        phone: '',
+        dob: '',
+        bloodType: '',
+        address: '',
+        emergencyContact: '',
+        medicalHistory: '',
+        allergies: '',
+        medications: ''
+      });
+    }
     setOpen(true);
   };
-  const handleClose = () => setOpen(false);
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  const handleSave = () => {
-    if (editDonor) {
-      setDonors(donors.map(d => d.id === editDonor.id ? { ...form, id: editDonor.id } : d));
-    } else {
-      setDonors([...donors, { ...form, id: donors.length + 1 }]);
-    }
-    handleClose();
+
+  const handleClose = () => {
+    setOpen(false);
+    setEditDonor(null);
+    setForm({
+      fullName: '',
+      email: '',
+      phone: '',
+      dob: '',
+      bloodType: '',
+      address: '',
+      emergencyContact: '',
+      medicalHistory: '',
+      allergies: '',
+      medications: ''
+    });
   };
-  const handleDelete = (id) => setDonors(donors.filter(d => d.id !== id));
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    try {
+      if (editDonor) {
+        // Update existing donor
+        await staffService.updateDonor(editDonor.id, form);
+        setDonors(donors.map(d => d.id === editDonor.id ? { ...d, ...form } : d));
+      } else {
+        // Add new donor
+        const newDonor = await staffService.createDonor(form);
+        setDonors([...donors, newDonor]);
+      }
+      handleClose();
+    } catch (err) {
+      setError(err.message || 'Failed to save donor');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await staffService.deleteDonor(id);
+      setDonors(donors.filter(d => d.id !== id));
+    } catch (err) {
+      setError(err.message || 'Failed to delete donor');
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ bgcolor: '#fff5f5', minHeight: '100vh', py: 6 }}>
-      <Container maxWidth="md">
-        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>{t('staff.donorManagement')}</Typography>
-        <Card sx={{ mb: 3 }}>
+      <Container maxWidth="lg">
+        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>
+          {t('staff.donorManagement') || 'Donor Management'}
+        </Typography>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
+
+        <Card>
           <CardContent>
-            {isAdmin && (
-              <Button variant="contained" startIcon={<Add />} sx={{ mb: 2, bgcolor: '#d32f2f' }} onClick={() => handleOpen()}>
-                {t('staff.addDonor')}
-              </Button>
-            )}
+            <Button 
+              variant="contained" 
+              startIcon={<Add />} 
+              sx={{ mb: 3, bgcolor: '#d32f2f' }} 
+              onClick={() => handleOpen()}
+            >
+              {t('staff.addDonor') || 'Add Donor'}
+            </Button>
+
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>{t('staff.name')}</TableCell>
-                    <TableCell>{t('staff.bloodType')}</TableCell>
-                    <TableCell>{t('staff.lastDonation')}</TableCell>
-                    <TableCell>{t('staff.status')}</TableCell>
-                    {isAdmin && <TableCell align="right">{t('staff.actions')}</TableCell>}
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('staff.name') || 'Name'}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('staff.email') || 'Email'}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('staff.phone') || 'Phone'}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('staff.bloodType') || 'Blood Type'}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('staff.dob') || 'Date of Birth'}
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                      {t('staff.actions') || 'Actions'}
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {donors.map((donor) => (
                     <TableRow key={donor.id}>
-                      <TableCell>{donor.name}</TableCell>
-                      <TableCell>{donor.bloodType}</TableCell>
-                      <TableCell>{donor.lastDonation}</TableCell>
-                      <TableCell>
-                        <Chip label={t('staff.status_' + donor.status.toLowerCase().replace(' ', ''))} color={donor.status === 'Eligible' ? 'success' : 'error'} size="small" />
+                      <TableCell sx={{ fontWeight: 'medium' }}>
+                        {donor.fullName}
                       </TableCell>
-                      {isAdmin && (
-                        <TableCell align="right">
-                          <IconButton onClick={() => handleOpen(donor)}><Edit /></IconButton>
-                          <IconButton color="error" onClick={() => handleDelete(donor.id)}><Delete /></IconButton>
-                        </TableCell>
-                      )}
+                      <TableCell>{donor.email}</TableCell>
+                      <TableCell>{donor.phone}</TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={donor.bloodType} 
+                          color="primary" 
+                          size="small" 
+                          sx={{ bgcolor: '#d32f2f' }}
+                        />
+                      </TableCell>
+                      <TableCell>{donor.dob}</TableCell>
+                      <TableCell align="right">
+                        <IconButton 
+                          onClick={() => handleOpen(donor)}
+                          sx={{ color: '#d32f2f' }}
+                        >
+                          <Edit />
+                        </IconButton>
+                        <IconButton 
+                          color="error" 
+                          onClick={() => handleDelete(donor.id)}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -107,57 +245,149 @@ export default function Donors() {
             </TableContainer>
           </CardContent>
         </Card>
-        {isAdmin && (
-          <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>{editDonor ? t('staff.editDonor') : t('staff.addDonor')}</DialogTitle>
+
+        {/* Add/Edit Donor Dialog */}
+        <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+          <DialogTitle>
+            {editDonor ? t('staff.editDonor') || 'Edit Donor' : t('staff.addDonor') || 'Add Donor'}
+          </DialogTitle>
           <DialogContent>
-            <TextField margin="dense" label={t('staff.name')} name="name" value={form.name} onChange={handleChange} fullWidth />
-            <FormControl fullWidth margin="dense">
-              <InputLabel>{t('staff.bloodType')}</InputLabel>
-              <Select
-                label={t('staff.bloodType')}
-                name="bloodType"
-                value={form.bloodType}
-                onChange={handleChange}
-              >
-                {bloodTypes.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField 
-              margin="dense" 
-              label={t('staff.lastDonation')} 
-              name="lastDonation" 
-              type="date"
-              value={form.lastDonation} 
-              onChange={handleChange} 
-              fullWidth 
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-            <FormControl fullWidth margin="dense">
-              <InputLabel>{t('staff.status')}</InputLabel>
-              <Select
-                label={t('staff.status')}
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-              >
-                <MenuItem value="Eligible">{t('staff.status_eligible')}</MenuItem>
-                <MenuItem value="Not Eligible">{t('staff.status_noteligible')}</MenuItem>
-              </Select>
-            </FormControl>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  margin="dense"
+                  label={t('staff.fullName') || 'Full Name'}
+                  name="fullName"
+                  value={form.fullName}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  margin="dense"
+                  label={t('staff.email') || 'Email'}
+                  name="email"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  margin="dense"
+                  label={t('staff.phone') || 'Phone'}
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  margin="dense"
+                  label={t('staff.dob') || 'Date of Birth'}
+                  name="dob"
+                  type="date"
+                  value={form.dob}
+                  onChange={handleChange}
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth margin="dense">
+                  <InputLabel>{t('staff.bloodType') || 'Blood Type'}</InputLabel>
+                  <Select
+                    label={t('staff.bloodType') || 'Blood Type'}
+                    name="bloodType"
+                    value={form.bloodType}
+                    onChange={handleChange}
+                  >
+                    {BLOOD_TYPES.map((type) => (
+                      <MenuItem key={type} value={type}>
+                        {type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  margin="dense"
+                  label={t('staff.emergencyContact') || 'Emergency Contact'}
+                  name="emergencyContact"
+                  value={form.emergencyContact}
+                  onChange={handleChange}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  margin="dense"
+                  label={t('staff.address') || 'Address'}
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  fullWidth
+                  multiline
+                  rows={2}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  margin="dense"
+                  label={t('staff.medicalHistory') || 'Medical History'}
+                  name="medicalHistory"
+                  value={form.medicalHistory}
+                  onChange={handleChange}
+                  fullWidth
+                  multiline
+                  rows={3}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  margin="dense"
+                  label={t('staff.allergies') || 'Allergies'}
+                  name="allergies"
+                  value={form.allergies}
+                  onChange={handleChange}
+                  fullWidth
+                  multiline
+                  rows={2}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  margin="dense"
+                  label={t('staff.medications') || 'Current Medications'}
+                  name="medications"
+                  value={form.medications}
+                  onChange={handleChange}
+                  fullWidth
+                  multiline
+                  rows={2}
+                />
+              </Grid>
+            </Grid>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>{t('staff.cancel')}</Button>
-            <Button onClick={handleSave} variant="contained" sx={{ bgcolor: '#d32f2f' }}>{editDonor ? t('staff.save') : t('staff.add')}</Button>
+            <Button onClick={handleClose}>
+              {t('staff.cancel') || 'Cancel'}
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              variant="contained" 
+              sx={{ bgcolor: '#d32f2f' }}
+            >
+              {editDonor ? t('staff.save') || 'Save' : t('staff.add') || 'Add'}
+            </Button>
           </DialogActions>
         </Dialog>
-        )}
       </Container>
     </Box>
   );

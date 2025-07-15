@@ -1,4 +1,7 @@
-// User Roles
+// Export all enums from the enums file
+export * from './enums';
+
+// Legacy constants for backward compatibility
 export const USER_ROLES = {
   ADMIN: 'ADMIN',
   STAFF: 'STAFF',
@@ -6,12 +9,7 @@ export const USER_ROLES = {
   USER: 'USER',
 };
 
-// Blood Types
-export const BLOOD_TYPES = [
-  'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
-];
-
-// Request Status
+// Request Status (legacy)
 export const REQUEST_STATUS = {
   PENDING: 'PENDING',
   APPROVED: 'APPROVED',

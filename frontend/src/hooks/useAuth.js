@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginUser, registerUser, updateUserProfile } from '../store/thunks/authThunks';
+import { loginUser, registerUser } from '../store/thunks/authThunks';
 import { logout } from '../store/slices/authSlice';
 import { USER_ROLES } from '../constants';
 
@@ -28,12 +28,9 @@ export const useAuth = () => {
   };
 
   const updateProfile = async (profileData) => {
-    try {
-      await dispatch(updateUserProfile(profileData)).unwrap();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+    // Note: Profile update is not available in the current backend API
+    // This is a placeholder for future implementation
+    return { success: false, error: 'Profile update feature coming soon!' };
   };
 
   const logoutUser = () => {

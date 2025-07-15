@@ -4,6 +4,7 @@ import { loginStart, loginSuccess, loginFailure } from '../../store/slices/authS
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authService } from '../../services/authService';
 import {
   Box,
   Container,
@@ -60,28 +61,13 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      console.log('Attempting to connect to:', `${import.meta.env.VITE_API_URL}/auth/login`);
+      console.log('Attempting to login...');
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const user = await authService.login({
           email: formData.email,
           password: formData.password,
-        }),
       });
       
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) {
-        const errMsg = await response.text();
-        console.log('Server error:', errMsg);
-        dispatch(loginFailure(errMsg));
-        setError(errMsg);
-        return;
-      }
-      
-      const user = await response.json();
       console.log('Login successful:', user);
       dispatch(loginSuccess({ user }));
       
@@ -101,18 +87,15 @@ const Login = () => {
       }
     } catch (error) {
       console.log('Caught error:', error);
-      console.log('Error name:', error.name);
-      console.log('Error message:', error.message);
+      console.log('Error message:', error.message || error);
       
       // Handle network errors when backend is not running
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.');
-      } else if (error.name === 'TypeError') {
+      if (error.message && error.message.includes('Network Error')) {
         setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.');
       } else {
-        setError(`Lỗi kết nối server: ${error.message}`);
+        setError(error.message || 'Lỗi kết nối server');
       }
-      dispatch(loginFailure(error.message));
+      dispatch(loginFailure(error.message || 'Login failed'));
     } finally {
       setIsLoading(false);
     }

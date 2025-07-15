@@ -38,6 +38,8 @@ import StaffEmergency from '../pages/staff/Emergency';
 // Medical Center Pages
 import MedicalCenterDashboard from '../pages/medicalCenter/Dashboard';
 import MedicalCenterDonors from '../pages/medicalCenter/Donors';
+import MedicalCenterReceivers from '../pages/medicalCenter/Receivers';
+import MedicalCenterRequests from '../pages/medicalCenter/Requests';
 
 // Layouts
 import MainLayout from '../layouts/MainLayout';
@@ -83,11 +85,10 @@ export const staffRoutes = [
 ];
 
 export const medicalCenterRoutes = [
-  { path: '/medical-center/dashboard', element: <MedicalCenterDashboard />, roles: ['STAFF', 'ADMIN'] },
-  { path: '/medical-center/donors', element: <MedicalCenterDonors />, roles: ['STAFF', 'ADMIN'] },
-  { path: '/medical-center/requests', element: <StaffRequests />, roles: ['STAFF', 'ADMIN'] },
-  { path: '/medical-center/inventory', element: <StaffInventory />, roles: ['STAFF', 'ADMIN'] },
-  { path: '/medical-center/emergency', element: <StaffEmergency />, roles: ['STAFF', 'ADMIN'] },
+  { path: '/medical-center/dashboard', element: <MedicalCenterDashboard />, roles: ['MEDICAL_CENTER'] },
+  { path: '/medical-center/donors', element: <MedicalCenterDonors />, roles: ['MEDICAL_CENTER'] },
+  { path: '/medical-center/receivers', element: <MedicalCenterReceivers />, roles: ['MEDICAL_CENTER'] },
+  { path: '/medical-center/requests', element: <MedicalCenterRequests />, roles: ['MEDICAL_CENTER'] },
 ];
 
 export const userRoutes = [

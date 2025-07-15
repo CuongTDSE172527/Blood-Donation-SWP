@@ -74,19 +74,14 @@ const MedicalCenterLayout = () => {
       path: '/medical-center/donors',
     },
     {
+      text: t('medicalCenter.receivers') || 'Receiver Management',
+      icon: <LocalHospitalIcon />,
+      path: '/medical-center/receivers',
+    },
+    {
       text: t('medicalCenter.requests') || 'Request Management',
       icon: <BloodtypeIcon />,
       path: '/medical-center/requests',
-    },
-    {
-      text: t('medicalCenter.inventory') || 'Inventory',
-      icon: <LocalHospitalIcon />,
-      path: '/medical-center/inventory',
-    },
-    {
-      text: t('medicalCenter.emergency') || 'Emergency',
-      icon: <EmergencyIcon />,
-      path: '/medical-center/emergency',
     },
   ];
 

@@ -66,24 +66,17 @@ const MedicalCenterDashboard = () => {
       color: '#fff5f5',
     },
     {
+      title: t('medicalCenter.manageReceivers') || 'Manage Receivers',
+      description: t('medicalCenter.manageReceiversDesc') || 'Manage blood recipients information',
+      icon: <LocalHospitalIcon sx={{ fontSize: 40, color: '#d32f2f' }} />,
+      path: '/medical-center/receivers',
+      color: '#fff5f5',
+    },
+    {
       title: t('medicalCenter.manageRequests') || 'Manage Requests',
       description: t('medicalCenter.manageRequestsDesc') || 'Handle blood requests and approvals',
       icon: <BloodtypeIcon sx={{ fontSize: 40, color: '#d32f2f' }} />,
       path: '/medical-center/requests',
-      color: '#fff5f5',
-    },
-    {
-      title: t('medicalCenter.manageInventory') || 'Manage Inventory',
-      description: t('medicalCenter.manageInventoryDesc') || 'Track blood inventory and stock',
-      icon: <LocalHospitalIcon sx={{ fontSize: 40, color: '#d32f2f' }} />,
-      path: '/medical-center/inventory',
-      color: '#fff5f5',
-    },
-    {
-      title: t('medicalCenter.emergencyCases') || 'Emergency Cases',
-      description: t('medicalCenter.emergencyCasesDesc') || 'Handle urgent blood requests',
-      icon: <EmergencyIcon sx={{ fontSize: 40, color: '#d32f2f' }} />,
-      path: '/medical-center/emergency',
       color: '#fff5f5',
     },
   ];

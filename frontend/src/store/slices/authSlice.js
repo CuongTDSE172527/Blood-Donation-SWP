@@ -58,20 +58,7 @@ const authSlice = createSlice({
       localStorage.removeItem('user');
     },
 
-    // Update user profile
-    updateProfileStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    updateProfileSuccess: (state, action) => {
-      state.loading = false;
-      state.user = action.payload;
-      localStorage.setItem('user', JSON.stringify(action.payload));
-    },
-    updateProfileFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
+
 
     // Clear error
     clearError: (state) => {
@@ -88,9 +75,6 @@ export const {
   registerSuccess,
   registerFailure,
   logout,
-  updateProfileStart,
-  updateProfileSuccess,
-  updateProfileFailure,
   clearError,
 } = authSlice.actions;
 

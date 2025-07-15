@@ -175,7 +175,7 @@ npm run test:coverage
 
 ### Environment Variables
 ```bash
-VITE_API_URL=http://localhost:3000/api
+VITE_API_URL=http://localhost:8080/api
 VITE_APP_NAME=Blood Donation System
 ```
 

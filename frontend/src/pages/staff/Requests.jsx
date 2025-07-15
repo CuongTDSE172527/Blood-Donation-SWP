@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { 
@@ -7,7 +7,6 @@ import {
   Typography, 
   Card, 
   CardContent, 
-  Button, 
   Table, 
   TableBody, 
   TableCell, 
@@ -21,116 +20,213 @@ import {
   DialogTitle, 
   DialogContent, 
   DialogActions, 
-  TextField, 
   FormControl, 
   InputLabel, 
   Select, 
-  MenuItem 
+  MenuItem,
+  Alert,
+  CircularProgress,
+  Button
 } from '@mui/material';
-import { Add, Edit, Delete, CheckCircle } from '@mui/icons-material';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
-import { completeBloodRequest } from '../../utils/testHelpers';
-
-const mockRequests = [
-  { id: 1, patient: 'Sarah Wilson', bloodType: 'A+', units: 2, status: 'Pending', date: '2024-03-20' },
-  { id: 2, patient: 'Tom Brown', bloodType: 'O-', units: 1, status: 'Approved', date: '2024-03-19' },
-  { id: 3, patient: 'Lisa Davis', bloodType: 'B+', units: 3, status: 'Pending', date: '2024-03-18' },
-];
-
-const mockInventory = [
-  { id: 1, bloodType: 'A+', units: 25 },
-  { id: 2, bloodType: 'O-', units: 15 },
-  { id: 3, bloodType: 'B+', units: 30 },
-];
-
-const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+import { Edit, CheckCircle } from '@mui/icons-material';
+import { staffService } from '../../services/staffService';
+import { BLOOD_REQUEST_STATUS, STATUS_LABELS } from '../../constants/enums';
 
 export default function Requests() {
   const { t } = useTranslation();
   const { user } = useSelector((state) => state.auth);
-  const isAdmin = user?.role === 'ADMIN';
-  const [requests, setRequests] = useState(mockRequests);
-  const [inventory, setInventory] = useState(mockInventory);
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
   const [editRequest, setEditRequest] = useState(null);
-  const [form, setForm] = useState({ patient: '', bloodType: '', units: 1, status: 'Pending', date: '' });
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'error' });
+  const [form, setForm] = useState({ status: '' });
+  const [success, setSuccess] = useState('');
+
+  // Load requests data
+  useEffect(() => {
+    loadRequests();
+  }, []);
+
+  const loadRequests = async () => {
+    try {
+      setLoading(true);
+      const data = await staffService.getAllBloodRequests();
+      setRequests(data);
+    } catch (err) {
+      setError(err.message || 'Failed to load requests');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpen = (request = null) => {
     setEditRequest(request);
-    setForm(request ? { ...request } : { patient: '', bloodType: '', units: 1, status: 'Pending', date: '' });
+    setForm({ status: request?.status || '' });
     setOpen(true);
   };
-  const handleClose = () => setOpen(false);
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  const handleSave = () => {
-    if (editRequest) {
-      // Only update status for existing requests
-      setRequests(requests.map(r => r.id === editRequest.id ? { ...r, status: form.status } : r));
-    } else {
-      setRequests([...requests, { ...form, id: requests.length + 1 }]);
-    }
-    handleClose();
-  };
-  const handleDelete = (id) => setRequests(requests.filter(r => r.id !== id));
 
-  const handleComplete = (request) => {
-    const { updatedRequests, updatedInventory, result } = completeBloodRequest(
-      request,
-      requests,
-      inventory,
-      {
-        insufficientMsg: t('staff.insufficientInventory'),
-        successMsg: t('staff.completeRequestSuccess'),
+  const handleClose = () => {
+    setOpen(false);
+    setEditRequest(null);
+    setForm({ status: '' });
+  };
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    try {
+      if (editRequest) {
+        // Update request status based on selection
+        let result;
+        switch (form.status) {
+          case BLOOD_REQUEST_STATUS.WAITING:
+            result = await staffService.confirmBloodRequest(editRequest.id);
+            break;
+          case BLOOD_REQUEST_STATUS.PRIORITY:
+            result = await staffService.markPriority(editRequest.id);
+            break;
+          case BLOOD_REQUEST_STATUS.OUT_OF_STOCK:
+            result = await staffService.markOutOfStock(editRequest.id);
+            break;
+          default:
+            throw new Error('Invalid status');
+        }
+
+        // Update local state
+        setRequests(requests.map(req => 
+          req.id === editRequest.id 
+            ? { ...req, status: form.status }
+            : req
+        ));
+
+        setSuccess('Request status updated successfully');
+        handleClose();
       }
-    );
-    setRequests(updatedRequests);
-    setInventory(updatedInventory);
-    setSnackbar({ open: true, message: result.message, severity: result.severity });
+    } catch (err) {
+      setError(err.message || 'Failed to update request status');
+    }
   };
 
-  const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
+  const getStatusColor = (status) => {
+    switch (status) {
+      case BLOOD_REQUEST_STATUS.PENDING:
+        return 'warning';
+      case BLOOD_REQUEST_STATUS.WAITING:
+        return 'info';
+      case BLOOD_REQUEST_STATUS.PRIORITY:
+        return 'error';
+      case BLOOD_REQUEST_STATUS.OUT_OF_STOCK:
+        return 'default';
+      default:
+        return 'default';
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ bgcolor: '#fff5f5', minHeight: '100vh', py: 6 }}>
-      <Container maxWidth="md">
-        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>{t('staff.requestManagement')}</Typography>
-        <Card sx={{ mb: 3 }}>
+      <Container maxWidth="lg">
+        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>
+          {t('staff.requestManagement') || 'Blood Request Management'}
+        </Typography>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
+
+        {success && (
+          <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess(null)}>
+            {success}
+          </Alert>
+        )}
+
+        <Card>
           <CardContent>
+            <Typography variant="h6" sx={{ mb: 3, color: '#d32f2f' }}>
+              {t('staff.allBloodRequests') || 'All Blood Requests'}
+            </Typography>
+
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>{t('staff.patient')}</TableCell>
-                    <TableCell>{t('staff.bloodType')}</TableCell>
-                    <TableCell>{t('staff.units')}</TableCell>
-                    <TableCell>{t('staff.status')}</TableCell>
-                    <TableCell>{t('staff.date')}</TableCell>
-                    {isAdmin && <TableCell align="right">{t('staff.actions')}</TableCell>}
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('staff.recipientName') || 'Recipient Name'}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('staff.bloodType') || 'Blood Type'}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('staff.requestedAmount') || 'Requested Amount'}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('staff.urgencyLevel') || 'Urgency Level'}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('staff.status') || 'Status'}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      {t('staff.requestDate') || 'Request Date'}
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                      {t('staff.actions') || 'Actions'}
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {requests.map((request) => (
                     <TableRow key={request.id}>
-                      <TableCell>{request.patient}</TableCell>
-                      <TableCell>{request.bloodType}</TableCell>
-                      <TableCell>{request.units}</TableCell>
-                      <TableCell>
-                        <Chip label={t('staff.status_' + request.status.toLowerCase())} color={request.status === 'Approved' ? 'success' : request.status === 'Completed' ? 'default' : 'warning'} size="small" />
+                      <TableCell sx={{ fontWeight: 'medium' }}>
+                        {request.recipientName}
                       </TableCell>
-                      <TableCell>{request.date}</TableCell>
-                      {isAdmin && (
-                        <TableCell align="right">
-                          <IconButton onClick={() => handleOpen(request)}><Edit /></IconButton>
-                          <IconButton color="error" onClick={() => handleDelete(request.id)}><Delete /></IconButton>
-                          {(request.status === 'Approved' || request.status === 'Pending') && (
-                            <IconButton color="success" onClick={() => handleComplete(request)} title={t('staff.complete')}>
-                              <CheckCircle />
-                            </IconButton>
-                          )}
-                        </TableCell>
-                      )}
+                      <TableCell>
+                        <Chip 
+                          label={request.recipientBloodType} 
+                          color="primary" 
+                          size="small" 
+                          sx={{ bgcolor: '#d32f2f' }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {request.requestedAmount} units
+                      </TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={request.urgencyLevel} 
+                          color={request.urgencyLevel === 'CRITICAL' ? 'error' : 'default'}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={STATUS_LABELS[request.status] || request.status} 
+                          color={getStatusColor(request.status)}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {new Date(request.requestDate).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell align="right">
+                        <IconButton 
+                          onClick={() => handleOpen(request)}
+                          sx={{ color: '#d32f2f' }}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -138,73 +234,50 @@ export default function Requests() {
             </TableContainer>
           </CardContent>
         </Card>
-        {isAdmin && (
-          <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>{editRequest ? t('staff.editRequest') : t('staff.addRequest')}</DialogTitle>
+
+        {/* Edit Status Dialog */}
+        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+          <DialogTitle>
+            {t('staff.editRequestStatus') || 'Edit Request Status'}
+          </DialogTitle>
           <DialogContent>
-            {editRequest ? (
-              // For editing, only show status field
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{t('staff.status')}</InputLabel>
-                <Select
-                  label={t('staff.status')}
-                  name="status"
-                  value={form.status}
-                  onChange={handleChange}
-                >
-                  <MenuItem value="Pending">{t('staff.status_pending')}</MenuItem>
-                  <MenuItem value="Approved">{t('staff.status_approved')}</MenuItem>
-                  <MenuItem value="Completed">{t('staff.status_completed')}</MenuItem>
-                </Select>
-              </FormControl>
-            ) : (
-              // For adding new request, show all fields
-              <>
-                <TextField margin="dense" label={t('staff.patient')} name="patient" value={form.patient} onChange={handleChange} fullWidth />
-                <FormControl fullWidth margin="dense">
-                  <InputLabel>{t('staff.bloodType')}</InputLabel>
-                  <Select
-                    label={t('staff.bloodType')}
-                    name="bloodType"
-                    value={form.bloodType}
-                    onChange={handleChange}
-                  >
-                    {bloodTypes.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <TextField margin="dense" label={t('staff.units')} name="units" value={form.units} onChange={handleChange} fullWidth type="number" />
-                <FormControl fullWidth margin="dense">
-                  <InputLabel>{t('staff.status')}</InputLabel>
-                  <Select
-                    label={t('staff.status')}
-                    name="status"
-                    value={form.status}
-                    onChange={handleChange}
-                  >
-                    <MenuItem value="Pending">{t('staff.status_pending')}</MenuItem>
-                    <MenuItem value="Approved">{t('staff.status_approved')}</MenuItem>
-                    <MenuItem value="Completed">{t('staff.status_completed')}</MenuItem>
-                  </Select>
-                </FormControl>
-                <TextField margin="dense" label={t('staff.date')} name="date" value={form.date} onChange={handleChange} fullWidth />
-              </>
-            )}
+            <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+              {t('staff.currentStatus') || 'Current Status'}: {STATUS_LABELS[editRequest?.status] || editRequest?.status}
+            </Typography>
+            <FormControl fullWidth margin="dense">
+              <InputLabel>{t('staff.newStatus') || 'New Status'}</InputLabel>
+              <Select
+                label={t('staff.newStatus') || 'New Status'}
+                name="status"
+                value={form.status}
+                onChange={handleChange}
+              >
+                <MenuItem value={BLOOD_REQUEST_STATUS.WAITING}>
+                  {STATUS_LABELS[BLOOD_REQUEST_STATUS.WAITING]} - Confirm Request
+                </MenuItem>
+                <MenuItem value={BLOOD_REQUEST_STATUS.PRIORITY}>
+                  {STATUS_LABELS[BLOOD_REQUEST_STATUS.PRIORITY]} - Mark as Priority
+                </MenuItem>
+                <MenuItem value={BLOOD_REQUEST_STATUS.OUT_OF_STOCK}>
+                  {STATUS_LABELS[BLOOD_REQUEST_STATUS.OUT_OF_STOCK]} - Mark as Out of Stock
+                </MenuItem>
+              </Select>
+            </FormControl>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>{t('staff.cancel')}</Button>
-            <Button onClick={handleSave} variant="contained" sx={{ bgcolor: '#d32f2f' }}>{editRequest ? t('staff.save') : t('staff.add')}</Button>
+            <Button onClick={handleClose}>
+              {t('staff.cancel') || 'Cancel'}
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              variant="contained" 
+              sx={{ bgcolor: '#d32f2f' }}
+              disabled={!form.status || form.status === editRequest?.status}
+            >
+              {t('staff.updateStatus') || 'Update Status'}
+            </Button>
           </DialogActions>
         </Dialog>
-        )}
-        <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-          <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
       </Container>
     </Box>
   );

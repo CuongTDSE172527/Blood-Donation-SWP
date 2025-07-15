@@ -2,6 +2,7 @@ import LanguageSwitcher from '../../components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authService } from '../../services/authService';
 import {
   Box,
   Container,
@@ -83,43 +84,27 @@ const Register = () => {
     }
     
     try {
-      console.log('Attempting to connect to:', `${import.meta.env.VITE_API_URL}/auth/register`);
+      console.log('Attempting to register...');
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.fullName,
+      await authService.register({
+        fullName: formData.fullName,
           email: formData.email,
           password: formData.password,
           bloodType: formData.bloodType
-        })
       });
-      
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) {
-        const errMsg = await response.text();
-        console.log('Server error:', errMsg);
-        setError(errMsg);
-        return;
-      }
       
       console.log('Registration successful');
       // Đăng ký thành công
       navigate('/login');
     } catch (err) {
       console.log('Caught error:', err);
-      console.log('Error name:', err.name);
-      console.log('Error message:', err.message);
+      console.log('Error message:', err.message || err);
       
       // Handle network errors when backend is not running
-      if (err.name === 'TypeError' && err.message.includes('fetch')) {
-        setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.');
-      } else if (err.name === 'TypeError') {
+      if (err.message && err.message.includes('Network Error')) {
         setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.');
       } else {
-        setError(`Lỗi kết nối server: ${err.message}`);
+        setError(err.message || 'Lỗi kết nối server');
       }
     } finally {
       setIsLoading(false);

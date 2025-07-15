@@ -1,151 +1,83 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { donorService } from '../../services/donorService';
+
+// Async thunks
+export const registerDonation = createAsyncThunk(
+  'donor/registerDonation',
+  async ({ userId, donationData }, { rejectWithValue }) => {
+    try {
+      const response = await donorService.registerDonation(userId, donationData);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const getDonationHistory = createAsyncThunk(
+  'donor/getHistory',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await donorService.getDonationHistory(userId);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
 
 const initialState = {
-  donors: [],
-  currentDonor: null,
+  donationHistory: [],
+  currentRegistration: null,
   loading: false,
   error: null,
-  stats: {
-    totalDonations: 0,
-    lastDonation: null,
-    nextEligibleDate: null,
-  },
 };
 
 const donorSlice = createSlice({
   name: 'donor',
   initialState,
   reducers: {
-    // Fetch donors
-    fetchDonorsStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    fetchDonorsSuccess: (state, action) => {
-      state.loading = false;
-      state.donors = action.payload;
-    },
-    fetchDonorsFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-
-    // Get donor profile
-    getDonorProfileStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    getDonorProfileSuccess: (state, action) => {
-      state.loading = false;
-      state.currentDonor = action.payload;
-    },
-    getDonorProfileFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-
-    // Update donor profile
-    updateDonorProfileStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    updateDonorProfileSuccess: (state, action) => {
-      state.loading = false;
-      state.currentDonor = action.payload;
-      // Update the donor in the donors list if it exists
-      const index = state.donors.findIndex(
-        (donor) => donor.id === action.payload.id
-      );
-      if (index !== -1) {
-        state.donors[index] = action.payload;
-      }
-    },
-    updateDonorProfileFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-
-    // Get donor stats
-    getDonorStatsStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    getDonorStatsSuccess: (state, action) => {
-      state.loading = false;
-      state.stats = action.payload;
-    },
-    getDonorStatsFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-
-    // Schedule donation
-    scheduleDonationStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    scheduleDonationSuccess: (state, action) => {
-      state.loading = false;
-      // Update stats if needed
-      if (action.payload.stats) {
-        state.stats = action.payload.stats;
-      }
-    },
-    scheduleDonationFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-
-    // Cancel donation
-    cancelDonationStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    cancelDonationSuccess: (state, action) => {
-      state.loading = false;
-      // Update stats if needed
-      if (action.payload.stats) {
-        state.stats = action.payload.stats;
-      }
-    },
-    cancelDonationFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-
-    // Clear current donor
-    clearCurrentDonor: (state) => {
-      state.currentDonor = null;
-    },
-
-    // Clear error
     clearError: (state) => {
       state.error = null;
     },
+    clearCurrentRegistration: (state) => {
+      state.currentRegistration = null;
+    },
+    setCurrentRegistration: (state, action) => {
+      state.currentRegistration = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Register donation
+      .addCase(registerDonation.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerDonation.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentRegistration = action.payload;
+        state.donationHistory.push(action.payload);
+      })
+      .addCase(registerDonation.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Get donation history
+      .addCase(getDonationHistory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getDonationHistory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.donationHistory = action.payload;
+      })
+      .addCase(getDonationHistory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
-export const {
-  fetchDonorsStart,
-  fetchDonorsSuccess,
-  fetchDonorsFailure,
-  getDonorProfileStart,
-  getDonorProfileSuccess,
-  getDonorProfileFailure,
-  updateDonorProfileStart,
-  updateDonorProfileSuccess,
-  updateDonorProfileFailure,
-  getDonorStatsStart,
-  getDonorStatsSuccess,
-  getDonorStatsFailure,
-  scheduleDonationStart,
-  scheduleDonationSuccess,
-  scheduleDonationFailure,
-  cancelDonationStart,
-  cancelDonationSuccess,
-  cancelDonationFailure,
-  clearCurrentDonor,
-  clearError,
-} = donorSlice.actions;
-
+export const { clearError, clearCurrentRegistration, setCurrentRegistration } = donorSlice.actions;
 export default donorSlice.reducer; 

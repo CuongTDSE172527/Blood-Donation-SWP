@@ -5,7 +5,7 @@ export const authService = {
   register: async (userData) => {
     try {
       const response = await api.post('/auth/register', {
-        fullName: userData.name,
+        fullName: userData.fullName,
         email: userData.email,
         password: userData.password,
         phone: userData.phone,
@@ -34,24 +34,6 @@ export const authService = {
   logout: async () => {
     try {
       const response = await api.post('/auth/logout');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // Update user profile
-  updateProfile: async (profileData) => {
-    try {
-      const response = await api.put('/auth/profile', {
-        name: profileData.name,
-        email: profileData.email,
-        phone: profileData.phone,
-        address: profileData.address,
-        position: profileData.position,
-        department: profileData.department,
-        password: profileData.password || undefined,
-      });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

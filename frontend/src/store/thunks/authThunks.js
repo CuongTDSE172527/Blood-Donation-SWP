@@ -7,9 +7,6 @@ import {
   registerStart,
   registerSuccess,
   registerFailure,
-  updateProfileStart,
-  updateProfileSuccess,
-  updateProfileFailure,
 } from '../slices/authSlice';
 
 // Login thunk
@@ -44,18 +41,4 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-// Update profile thunk
-export const updateUserProfile = createAsyncThunk(
-  'auth/updateProfile',
-  async (profileData, { dispatch }) => {
-    try {
-      dispatch(updateProfileStart());
-      const response = await authService.updateProfile(profileData);
-      dispatch(updateProfileSuccess(response.user));
-      return response;
-    } catch (error) {
-      dispatch(updateProfileFailure(error.message || 'Profile update failed'));
-      throw error;
-    }
-  }
-); 
+ 

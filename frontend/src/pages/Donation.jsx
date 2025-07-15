@@ -77,7 +77,8 @@ function Donation() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Implement form submission logic
+    // TODO: Implement form submission logic using donorService.registerDonation
+    // This would need to be connected to the actual user and use the new API structure
     setSnackbar({
       open: true,
       message: t('donation.successMessage'),

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import {
   Box,
   Button,
@@ -24,19 +25,27 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { useState } from 'react';
 import CancelIcon from '@mui/icons-material/Cancel';
+import bloodDonationImage from '../assets/images/blood_dono.jpg';
 
 const Home = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
   const isVi = i18n.language === 'vi';
   const [openCard, setOpenCard] = useState(null);
 
-  const learnCards = [
-    { icon: <FavoriteIcon sx={{ color: '#d32f2f', fontSize: 32 }} />, title: t('home.learnSection.universalDonor') },
-    { icon: <BloodtypeIcon sx={{ color: '#d32f2f', fontSize: 32 }} />, title: t('home.learnSection.bloodInfo') },
-    { icon: <EmojiEmotionsIcon sx={{ color: '#d32f2f', fontSize: 32 }} />, title: t('home.learnSection.advice') },
-    { icon: <GroupIcon sx={{ color: '#d32f2f', fontSize: 32 }} />, title: t('home.learnSection.donationProcess') },
-  ];
+  // Function to handle registration/donation button clicks
+  const handleDonationButtonClick = () => {
+    if (isAuthenticated && user?.role === 'DONOR') {
+      // If donor is logged in, redirect to donation registration
+      navigate('/donation-registration');
+    } else {
+      // If not logged in or not a donor, redirect to general registration
+      navigate('/register');
+    }
+  };
+
+
 
   const bloodCards = [
     {
@@ -201,7 +210,22 @@ const Home = () => {
   return (
     <Box sx={{ bgcolor: '#fff', minHeight: '100vh', pb: 0 }}>
       {/* Hero Section */}
-      <Box sx={{ bgcolor: 'linear-gradient(135deg, #fff5f5 0%, #fff 100%)', py: { xs: 6, md: 10 } }}>
+      <Box sx={{ 
+        background: 'linear-gradient(135deg, #fff5f5 0%, #fff 100%)', 
+        py: { xs: 6, md: 10 },
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'radial-gradient(circle at 20% 80%, rgba(211,47,47,0.03) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(211,47,47,0.03) 0%, transparent 50%)',
+          pointerEvents: 'none'
+        }
+      }}>
         <Container maxWidth="lg">
           <Grid container spacing={6} alignItems="center" justifyContent="center">
             <Grid item xs={12} md={6}>
@@ -224,20 +248,60 @@ const Home = () => {
                       transition: 'transform 0.15s',
                       '&:hover': { background: 'linear-gradient(90deg, #b71c1c 60%, #ff7961 100%)', transform: 'scale(1.04)' }
                     }}
-                    onClick={() => navigate('/register')}
+                    onClick={handleDonationButtonClick}
                 >
-                    {t('home.hero.registerButton')}
+                    {isAuthenticated && user?.role === 'DONOR' 
+                      ? (t('home.hero.donateButton') || 'Donate Blood Now') 
+                      : t('home.hero.registerButton')
+                    }
                 </Button>
               </Box>
               </Paper>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Paper elevation={0} sx={{ bgcolor: '#fff', borderRadius: 4, p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: cardShadow }}>
+              <Paper 
+                elevation={0} 
+                sx={{ 
+                  bgcolor: 'transparent', 
+                  borderRadius: 4, 
+                  p: 3, 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center',
+                  position: 'relative',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '120%',
+                    height: '120%',
+                    background: 'radial-gradient(circle, rgba(211,47,47,0.1) 0%, rgba(211,47,47,0.05) 50%, transparent 70%)',
+                    borderRadius: '50%',
+                    zIndex: 0
+                  }
+                }}
+              >
               <Box
                 component="img"
-                src="/images/blood-donation-hero.jpg"
+                  src={bloodDonationImage}
                 alt="Blood Donation"
-                  sx={{ width: '100%', maxWidth: 280, height: 'auto', display: 'block', borderRadius: 2 }}
+                  sx={{ 
+                    width: '100%', 
+                    maxWidth: 1280,
+                    height: 'auto', 
+                    display: 'block', 
+                    borderRadius: 3,
+                    boxShadow: '0 12px 40px rgba(211,47,47,0.2)',
+                    transition: 'all 0.3s ease-in-out',
+                    position: 'relative',
+                    zIndex: 1,
+                    '&:hover': {
+                      transform: 'scale(1.03)',
+                      boxShadow: '0 16px 50px rgba(211,47,47,0.3)'
+                    }
+                  }}
               />
               </Paper>
             </Grid>
@@ -245,27 +309,7 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Section: Tìm hiểu về hiến máu */}
-      <Box sx={{ bgcolor: sectionBg, py: 8 }}>
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-            <CheckCircleIcon sx={{ color: 'success.main', fontSize: 32, mr: 1 }} />
-            <Typography variant="h4" fontWeight={700} sx={{ textDecoration: 'underline', textUnderlineOffset: 8, fontSize: { xs: 22, md: 30 }, color: '#d32f2f', letterSpacing: -0.5 }}>
-              {t('home.learnSection.title')}
-        </Typography>
-          </Box>
-          <Grid container spacing={4} justifyContent="center">
-            {learnCards.map((card, idx) => (
-              <Grid item xs={12} sm={6} md={3} key={idx}>
-                <Paper elevation={2} sx={{ bgcolor: '#fff', borderRadius: cardRadius, p: 3, minHeight: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: cardShadow }}>
-                  {card.icon}
-                  <Typography fontWeight={600} sx={{ mt: 1, fontSize: 18, color: '#d32f2f' }}>{card.title}</Typography>
-                </Paper>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-      </Box>
+
 
       {/* Section: Nhóm Máu và Tính Tương Thích */}
       <Box sx={{ bgcolor: '#fff', py: 8 }}>
@@ -324,9 +368,12 @@ const Home = () => {
                 transition: 'transform 0.15s',
                 '&:hover': { background: 'linear-gradient(90deg, #b71c1c 60%, #ff7961 100%)', transform: 'scale(1.04)' }
               }}
-              onClick={() => navigate('/register')}
+              onClick={handleDonationButtonClick}
             >
-              {t('home.cta.button')}
+              {isAuthenticated && user?.role === 'DONOR' 
+                ? (t('home.cta.donateButton') || 'Donate Blood Now') 
+                : t('home.cta.button')
+              }
             </Button>
           </Box>
         </Container>
