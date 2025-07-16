@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -33,6 +32,9 @@ import {
   Assignment,
   Inventory,
 } from '@mui/icons-material';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { staffService } from '../../services/staffService';
 
 const sectionBg = 'linear-gradient(135deg, #fff5f5 0%, #fff 100%)';
 const cardShadow = '0 4px 24px 0 rgba(211,47,47,0.07)';
@@ -48,25 +50,61 @@ const cardHover = {
 const StaffDashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [stats] = useState({
-    totalDonors: 75,
-    totalRequests: 45,
-    pendingRequests: 12,
-    totalInventory: 500,
-    lowStock: 3,
+  const [stats, setStats] = useState({
+    totalDonors: 0,
+    totalRequests: 0,
+    pendingRequests: 0,
+    totalInventory: 0,
+    lowStock: 0,
   });
+  const [recentDonors, setRecentDonors] = useState([]);
+  const [recentRequests, setRecentRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const [recentDonors] = useState([
-    { id: 1, name: 'John Doe', bloodType: 'A+', lastDonation: '2024-02-15', status: 'Eligible' },
-    { id: 2, name: 'Jane Smith', bloodType: 'O-', lastDonation: '2024-01-20', status: 'Eligible' },
-    { id: 3, name: 'Mike Johnson', bloodType: 'B+', lastDonation: '2023-12-10', status: 'Not Eligible' },
-  ]);
-
-  const [recentRequests] = useState([
-    { id: 1, patient: 'Sarah Wilson', bloodType: 'A+', units: 2, status: 'Pending', date: '2024-03-20' },
-    { id: 2, patient: 'Tom Brown', bloodType: 'O-', units: 1, status: 'Approved', date: '2024-03-19' },
-    { id: 3, patient: 'Lisa Davis', bloodType: 'B+', units: 3, status: 'Pending', date: '2024-03-18' },
-  ]);
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        // Lấy dữ liệu song song
+        const [donorsRes, registrationsRes, requestsRes, inventoryRes] = await Promise.all([
+          staffService.getAllDonors(),
+          staffService.getPendingRegistrations(),
+          staffService.getAllBloodRequests(),
+          staffService.getBloodInventory()
+        ]);
+        // Merge donor info với registration info
+        const donorsWithInfo = donorsRes.slice(0, 5).map(donor => {
+          const reg = registrationsRes.find(r => r.user && (r.user.id === donor.id));
+          return {
+            ...donor,
+            bloodType: reg?.bloodType || donor.bloodType,
+            lastDonationDate: reg?.lastDonationDate || donor.lastDonationDate,
+            status: reg?.status || donor.status,
+          };
+        });
+        setRecentDonors(donorsWithInfo);
+        setRecentRequests(requestsRes.slice(0, 5));
+        const totalInventory = inventoryRes.reduce((sum, item) => sum + (item.quantity || 0), 0);
+        const lowStock = inventoryRes.filter(item => item.quantity < 10).length;
+        const totalRequests = requestsRes.length;
+        const pendingRequests = requestsRes.filter(r => r.status === 'PENDING').length;
+        setStats({
+          totalDonors: donorsRes.length,
+          totalRequests,
+          pendingRequests,
+          totalInventory,
+          lowStock,
+        });
+      } catch (err) {
+        setError(t('common.error') || 'Error loading dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [t]);
 
   return (
     <Box sx={{ bgcolor: sectionBg, minHeight: '100vh', py: 6, animation: 'fadeInDash 0.7s' }}>
@@ -82,6 +120,12 @@ const StaffDashboard = () => {
         >
           {t('staff.dashboardTitle') || 'Staff Dashboard'}
         </Typography>
+        {loading ? (
+          <Typography>{t('common.loading') || 'Loading...'}</Typography>
+        ) : error ? (
+          <Typography color="error">{error}</Typography>
+        ) : (
+        <>
         {/* Stats Overview */}
         <Grid container spacing={4} sx={{ mb: 4 }}>
           {/* Lặp qua các stats, dùng card gradient và hover */}
@@ -192,14 +236,16 @@ const StaffDashboard = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {recentDonors.map((donor) => (
+                    {recentDonors.length === 0 ? (
+                      <TableRow><TableCell colSpan={4} align="center">{t('common.noData') || 'No data'}</TableCell></TableRow>
+                    ) : recentDonors.map((donor) => (
                       <TableRow key={donor.id}>
-                        <TableCell>{donor.name}</TableCell>
-                        <TableCell>{donor.bloodType}</TableCell>
-                        <TableCell>{donor.lastDonation}</TableCell>
+                        <TableCell>{donor.fullName || donor.name}</TableCell>
+                        <TableCell>{donor.bloodType || '-'}</TableCell>
+                        <TableCell>{donor.lastDonationDate || '-'}</TableCell>
                         <TableCell>
                           <Chip
-                            label={t(`staff.status_${donor.status.replace(/\s/g, '').toLowerCase()}`)}
+                            label={t(`staff.status_${(donor.status || '').replace(/\s/g, '').toLowerCase()}`)}
                             color={donor.status === 'Eligible' ? 'success' : 'error'}
                             size="small"
                           />
@@ -232,19 +278,21 @@ const StaffDashboard = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {recentRequests.map((request) => (
+                {recentRequests.length === 0 ? (
+                  <TableRow><TableCell colSpan={5} align="center">{t('common.noData') || 'No data'}</TableCell></TableRow>
+                ) : recentRequests.map((request) => (
                   <TableRow key={request.id}>
-                    <TableCell>{request.patient}</TableCell>
-                    <TableCell>{request.bloodType}</TableCell>
-                    <TableCell>{request.units}</TableCell>
+                    <TableCell>{request.patient || request.recipientName}</TableCell>
+                    <TableCell>{request.recipientBloodType || request.bloodType}</TableCell>
+                    <TableCell>{request.units || request.requestedAmount}</TableCell>
                     <TableCell>
                       <Chip
-                        label={t('staff.status_' + request.status.toLowerCase())}
-                        color={request.status === 'Approved' ? 'success' : 'warning'}
+                        label={t(`status_${(request.status || '').toUpperCase()}`)}
+                        color={request.status === 'PRIORITY' ? 'error' : request.status === 'WAITING' ? 'info' : request.status === 'OUT_OF_STOCK' ? 'default' : 'warning'}
                         size="small"
                       />
                     </TableCell>
-                    <TableCell>{request.date}</TableCell>
+                    <TableCell>{request.date || request.requestDate}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -253,8 +301,10 @@ const StaffDashboard = () => {
               </CardContent>
             </Card>
         </Grid>
+        </>
+        )}
       </Container>
-      </Box>
+    </Box>
   );
 };
 

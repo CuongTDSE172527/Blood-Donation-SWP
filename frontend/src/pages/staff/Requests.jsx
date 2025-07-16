@@ -211,7 +211,7 @@ export default function Requests() {
                       </TableCell>
                       <TableCell>
                         <Chip 
-                          label={STATUS_LABELS[request.status] || request.status} 
+                          label={t(`status_${(request.status || '').toUpperCase()}`)} 
                           color={getStatusColor(request.status)}
                           size="small"
                         />

@@ -23,7 +23,8 @@
     "hero": {
       "title": "Blood Donation Support System",
       "subtitle": "Join our blood donation network and make a difference in someone's life today",
-      "registerButton": "Register to Donate Blood Now"
+      "registerButton": "Register to Donate Blood Now",
+      "donateButton": "Donate Blood Now"
     },
     "learnSection": {
       "title": "Learn About Blood Donation",
@@ -76,7 +77,8 @@
     },
     "cta": {
       "text": "Join our blood donor community and help save lives in your area.",
-      "button": "Register to Donate Blood Now"
+      "button": "Register to Donate Blood Now",
+      "donateButton": "Donate Blood Now"
     },
     "footer": {
       "title": "Blood Donation Supported System",
@@ -92,7 +94,10 @@
   },
   "common": {
     "language": "Language",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "noData": "No data",
+    "select": "Select"
   },
   "about": {
     "title": "About Us",
@@ -292,7 +297,16 @@
     "requestDate": "Request Date",
     "criticalEmergencyRequests": "Critical Emergency Requests",
     "allBloodTypes": "All Blood Types",
-    "quantity": "Quantity"
+    "quantity": "Quantity",
+    "status_out_of_stock": "Out of Stock",
+    "status_waiting": "Waiting",
+    "status_priority": "Priority",
+    "editRequestStatus": "Edit Request Status",
+    "currentStatus": "Current Status",
+    "newStatus": "New Status",
+    "updateStatus": "Update Status",
+    "editEmergencyStatus": "Edit Emergency Status",
+    "status_": "Unknown"
   },
   "medicalCenter": {
     "title": "Medical Center",
@@ -350,7 +364,13 @@
     "addRequest": "Add Request",
     "requestDate": "Request Date",
     "manageReceivers": "Manage Receivers",
-    "manageReceiversDesc": "View and manage receiver information"
+    "manageReceiversDesc": "View and manage receiver information",
+    "editRequest": "Edit Request",
+    "editReceiver": "Edit Receiver",
+    "status_urgent": "Urgent",
+    "status_waiting": "Waiting",
+    "status_out_of_stock": "Out of Stock",
+    "age": "Age"
   },
   "user": {
     "dashboardTitle": "User Dashboard",
@@ -394,7 +414,9 @@
     "units": "Units",
     "registerDonation": "Register to Blood Donation",
     "registerDonationDesc": "Register for your next blood donation with height, weight, and health information",
-    "registerNow": "Register Now"
+    "registerNow": "Register Now",
+    "dob": "Date of Birth",
+    "gender": "Gender"
   },
   "login": {
     "title": "Login",
@@ -433,5 +455,22 @@
     "passwordUpdateError": "Password update failed",
     "updateSuccess": "Profile updated successfully!",
     "updateError": "Profile update failed"
-  }
+  },
+  "donation": {
+    "bloodType": "Blood Type",
+    "lastDonationDate": "Last Donation Date",
+    "weight": "Weight",
+    "height": "Height",
+    "amount": "Amount",
+    "location": "Location",
+    "prohibitedDiseases": "Prohibited Diseases",
+    "register": "Register",
+    "submit": "Submit"
+  },
+  "status_PENDING": "Pending",
+  "status_WAITING": "Processing",
+  "status_PRIORITY": "Priority",
+  "status_OUT_OF_STOCK": "Out of stock",
+  "status_CONFIRMED": "Confirmed",
+  "status_CANCELLED": "Cancelled"
 } 

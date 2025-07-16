@@ -1,17 +1,25 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Container, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
-
-const mockStaff = [
-  { id: 1, name: 'Staff User', email: 'staff@test.com', role: 'staff' },
-  { id: 2, name: 'Another Staff', email: 'staff2@test.com', role: 'staff' },
-];
+import { adminService } from '../../services/adminService';
 
 export default function Staff() {
-  const [staff, setStaff] = useState(mockStaff);
+  const [staff, setStaff] = useState([]);
   const [open, setOpen] = useState(false);
   const [editStaff, setEditStaff] = useState(null);
   const [form, setForm] = useState({ name: '', email: '', role: 'staff' });
+
+  useEffect(() => {
+    const fetchStaff = async () => {
+      try {
+        const data = await adminService.getStaffs();
+        setStaff(data);
+      } catch (err) {
+        // Có thể set error nếu muốn
+      }
+    };
+    fetchStaff();
+  }, []);
 
   const handleOpen = (user = null) => {
     setEditStaff(user);

@@ -2,9 +2,9 @@ import api from './api';
 
 export const medicalCenterService = {
   // === Receiver Management ===
-  getAllReceivers: async () => {
+  getAllReceivers: async (medicalCenterId) => {
     try {
-      const response = await api.get('/medical-center/receivers');
+      const response = await api.get(`/medicalcenter/recipients?medicalCenterId=${medicalCenterId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -48,9 +48,9 @@ export const medicalCenterService = {
   },
 
   // === Blood Request Management ===
-  getAllBloodRequests: async () => {
+  getAllBloodRequests: async (medicalCenterId) => {
     try {
-      const response = await api.get('/medical-center/blood-requests');
+      const response = await api.get(`/medicalcenter/blood-requests?medicalCenterId=${medicalCenterId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

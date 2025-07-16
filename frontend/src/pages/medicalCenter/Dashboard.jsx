@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -31,6 +30,8 @@ import {
   Add as AddIcon,
   Visibility as VisibilityIcon,
 } from '@mui/icons-material';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const MedicalCenterDashboard = () => {
   const { t } = useTranslation();
@@ -38,32 +39,41 @@ const MedicalCenterDashboard = () => {
   const { user } = useSelector((state) => state.auth);
   const isAdmin = user?.role === 'ADMIN';
 
-  const [stats] = useState({
-    totalDonors: 156,
-    activeRequests: 23,
-    availableBlood: 89,
-    emergencyCases: 5,
+  const [stats, setStats] = useState({
+    activeRequests: 0,
+    availableBlood: 0,
+    emergencyCases: 0,
   });
+  const [recentRequests, setRecentRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const [recentRequests] = useState([
-    { id: 1, patient: 'Nguyễn Văn A', bloodType: 'A+', units: 2, status: 'Pending', date: '2024-03-20' },
-    { id: 2, patient: 'Trần Thị B', bloodType: 'O-', units: 1, status: 'Approved', date: '2024-03-19' },
-    { id: 3, patient: 'Lê Văn C', bloodType: 'B+', units: 3, status: 'Completed', date: '2024-03-18' },
-  ]);
-
-  const [recentDonors] = useState([
-    { id: 1, name: 'Phạm Thị D', bloodType: 'A+', lastDonation: '2024-03-15', status: 'Eligible' },
-    { id: 2, name: 'Hoàng Văn E', bloodType: 'O+', lastDonation: '2024-03-10', status: 'Eligible' },
-    { id: 3, name: 'Vũ Thị F', bloodType: 'B-', lastDonation: '2024-02-28', status: 'Not Eligible' },
-  ]);
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        // Lấy danh sách requests của medical center
+        const requestsRes = await axios.get(`/api/medicalcenter/blood-requests?medicalCenterId=${user.id}`);
+        setRecentRequests(requestsRes.data.slice(0, 5));
+        // Tính toán stats
+        const activeRequests = requestsRes.data.filter(r => r.status === 'PENDING' || r.status === 'APPROVED').length;
+        // Nếu có API lấy availableBlood, emergencyCases thì fetch, nếu không thì để 0
+        setStats({
+          activeRequests,
+          availableBlood: 0,
+          emergencyCases: 0,
+        });
+      } catch (err) {
+        setError(t('common.error') || 'Error loading dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (user?.id) fetchData();
+  }, [user, t]);
 
   const quickActions = [
-    {
-      title: t('medicalCenter.manageDonors') || 'Manage Donors',
-      description: t('medicalCenter.manageDonorsDesc') || 'View and manage donor information',
-      icon: <PeopleIcon sx={{ fontSize: 40, color: '#fff' }} />, // đổi sang trắng
-      path: '/medical-center/donors',
-    },
     {
       title: t('medicalCenter.manageReceivers') || 'Manage Receivers',
       description: t('medicalCenter.manageReceiversDesc') || 'Manage blood recipients information',
@@ -100,11 +110,16 @@ const MedicalCenterDashboard = () => {
       >
         {t('medicalCenter.dashboardTitle') || 'Medical Center Dashboard'}
       </Typography>
+      {loading ? (
+        <Typography>{t('common.loading') || 'Loading...'}</Typography>
+      ) : error ? (
+        <Typography color="error">{error}</Typography>
+      ) : (
+      <>
       {/* Statistics Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {/* Lặp qua các stats, dùng card gradient và hover */}
         {[
-          { icon: <PeopleIcon sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, label: t('medicalCenter.totalDonors') || 'Total Donors', value: stats.totalDonors },
           { icon: <BloodtypeIcon sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, label: t('medicalCenter.activeRequests') || 'Active Requests', value: stats.activeRequests },
           { icon: <LocalHospitalIcon sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, label: t('medicalCenter.availableBlood') || 'Available Blood', value: stats.availableBlood },
           { icon: <EmergencyIcon sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, label: t('medicalCenter.emergencyCases') || 'Emergency Cases', value: stats.emergencyCases },
@@ -173,7 +188,6 @@ const MedicalCenterDashboard = () => {
           </Grid>
         ))}
       </Grid>
-
       {/* Recent Activity */}
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
@@ -193,55 +207,20 @@ const MedicalCenterDashboard = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {recentRequests.map((request) => (
+                    {recentRequests.length === 0 ? (
+                      <TableRow><TableCell colSpan={4} align="center">{t('common.noData') || 'No data'}</TableCell></TableRow>
+                    ) : recentRequests.map((request) => (
                       <TableRow key={request.id}>
-                        <TableCell>{request.patient}</TableCell>
-                        <TableCell>{request.bloodType}</TableCell>
+                        <TableCell>{request.patient || request.recipientName}</TableCell>
+                        <TableCell>{request.bloodType || request.recipientBloodType}</TableCell>
                         <TableCell>
                           <Chip
-                            label={t(`medicalCenter.status_${request.status.toLowerCase()}`) || request.status}
+                            label={t(`medicalCenter.status_${(request.status || '').toLowerCase()}`) || request.status}
                             color={request.status === 'Completed' ? 'success' : request.status === 'Approved' ? 'primary' : 'warning'}
                             size="small"
                           />
                         </TableCell>
-                        <TableCell>{request.date}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Card sx={{ borderRadius: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 600 }}>
-                {t('medicalCenter.recentDonors') || 'Recent Donors'}
-              </Typography>
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>{t('medicalCenter.name') || 'Name'}</TableCell>
-                      <TableCell>{t('medicalCenter.bloodType') || 'Blood Type'}</TableCell>
-                      <TableCell>{t('medicalCenter.lastDonation') || 'Last Donation'}</TableCell>
-                      <TableCell>{t('medicalCenter.status') || 'Status'}</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {recentDonors.map((donor) => (
-                      <TableRow key={donor.id}>
-                        <TableCell>{donor.name}</TableCell>
-                        <TableCell>{donor.bloodType}</TableCell>
-                        <TableCell>{donor.lastDonation}</TableCell>
-                        <TableCell>
-                          <Chip
-                            label={t(`medicalCenter.status_${donor.status.toLowerCase().replace(' ', '')}`) || donor.status}
-                            color={donor.status === 'Eligible' ? 'success' : 'error'}
-                            size="small"
-                          />
-                        </TableCell>
+                        <TableCell>{request.date || request.requestDate}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -251,6 +230,8 @@ const MedicalCenterDashboard = () => {
           </Card>
         </Grid>
       </Grid>
+      </>
+      )}
     </Container>
   );
 };

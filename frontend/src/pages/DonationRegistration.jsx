@@ -42,6 +42,7 @@ const DonationRegistration = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingForm, setLoadingForm] = useState(true);
 
   const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -50,33 +51,23 @@ const DonationRegistration = () => {
       navigate('/login', { state: { from: '/donation-registration' } });
       return;
     }
-    
-    // Load locations and diseases (you'll need to create these endpoints in backend)
     loadFormData();
   }, [isAuthenticated, navigate]);
 
   const loadFormData = async () => {
+    setLoadingForm(true);
+    setError('');
     try {
-      // Load locations and diseases from backend
       const [locationsResponse, diseasesResponse] = await Promise.all([
         api.get('/locations'),
         api.get('/diseases')
       ]);
-      
       setLocations(locationsResponse.data);
       setDiseases(diseasesResponse.data);
     } catch (error) {
-      console.error('Error loading form data:', error);
-      // Fallback to mock data if API fails
-      setLocations([
-        { id: 1, name: 'Bệnh viện A', address: '123 Đường ABC, Quận 1' },
-        { id: 2, name: 'Bệnh viện B', address: '456 Đường XYZ, Quận 2' },
-      ]);
-      setDiseases([
-        { id: 1, name: 'HIV' },
-        { id: 2, name: 'Viêm gan B' },
-        { id: 3, name: 'Viêm gan C' },
-      ]);
+      setError('Không thể tải dữ liệu địa điểm hoặc bệnh cấm hiến.');
+    } finally {
+      setLoadingForm(false);
     }
   };
 
@@ -136,6 +127,14 @@ const DonationRegistration = () => {
 
   if (!isAuthenticated) {
     return null;
+  }
+
+  if (loadingForm) {
+    return <Container maxWidth="md"><Typography>{t('common.loading') || 'Loading...'}</Typography></Container>;
+  }
+
+  if (error) {
+    return <Container maxWidth="md"><Alert severity="error">{error}</Alert></Container>;
   }
 
   return (

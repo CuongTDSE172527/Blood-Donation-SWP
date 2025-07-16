@@ -32,9 +32,11 @@ import {
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { medicalCenterService } from '../../services/medicalCenterService';
 import { BLOOD_TYPES, BLOOD_REQUEST_STATUS, STATUS_LABELS } from '../../constants/enums';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function Requests() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -56,13 +58,15 @@ export default function Requests() {
 
   // Load requests data
   useEffect(() => {
-    loadRequests();
-  }, []);
+    if (user?.id) {
+      loadRequests(user.id);
+    }
+  }, [user]);
 
-  const loadRequests = async () => {
+  const loadRequests = async (medicalCenterId) => {
     try {
       setLoading(true);
-      const data = await medicalCenterService.getAllBloodRequests();
+      const data = await medicalCenterService.getAllBloodRequests(medicalCenterId);
       setRequests(data);
     } catch (err) {
       setError(err.message || 'Failed to load requests');
@@ -222,90 +226,63 @@ export default function Requests() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('medicalCenter.recipientName') || 'Recipient Name'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('medicalCenter.bloodType') || 'Blood Type'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('medicalCenter.requestedAmount') || 'Requested Amount'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('medicalCenter.urgencyLevel') || 'Urgency Level'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('medicalCenter.status') || 'Status'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('medicalCenter.hospital') || 'Hospital'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('medicalCenter.requestDate') || 'Request Date'}
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                      {t('medicalCenter.actions') || 'Actions'}
-                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>ID</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.bloodType') || 'Blood Type'}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.recipientName') || 'Recipient Name'}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.requestDate') || 'Request Date'}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.requestedAmount') || 'Requested Amount'}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.status') || 'Status'}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.urgencyLevel') || 'Urgency Level'}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>{t('medicalCenter.actions') || 'Actions'}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {requests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell sx={{ fontWeight: 'medium' }}>
-                        {request.recipientName}
-                      </TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={request.recipientBloodType} 
-                          color="primary" 
-                          size="small" 
-                          sx={{ bgcolor: '#d32f2f' }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {request.requestedAmount} units
-                      </TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={request.urgencyLevel} 
-                          color={getUrgencyColor(request.urgencyLevel)}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={STATUS_LABELS[request.status] || request.status} 
-                          color={getStatusColor(request.status)}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight="medium">
-                          {request.hospitalName}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Dr. {request.doctorName}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(request.requestDate).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell align="right">
-                        <IconButton 
-                          onClick={() => handleOpen(request)}
-                          sx={{ color: '#d32f2f' }}
-                        >
-                          <Edit />
-                        </IconButton>
-                        <IconButton 
-                          color="error" 
-                          onClick={() => handleDelete(request.id)}
-                        >
-                          <Delete />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {requests
+                    .filter(request => ['PENDING', 'OUT_OF_STOCK', 'WAITING', 'PRIORITY'].includes(request.status))
+                    .map((request) => (
+                      <TableRow key={request.id}>
+                        <TableCell>{request.id}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={request.recipientBloodType} 
+                            color="primary" 
+                            size="small" 
+                            sx={{ bgcolor: '#d32f2f' }}
+                          />
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 'medium' }}>{request.recipientName}</TableCell>
+                        <TableCell>{request.requestDate ? new Date(request.requestDate).toLocaleDateString() : ''}</TableCell>
+                        <TableCell>{request.requestedAmount}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={STATUS_LABELS && STATUS_LABELS[request.status] ? STATUS_LABELS[request.status] : request.status} 
+                            color={getStatusColor(request.status)}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={request.urgencyLevel} 
+                            color={getUrgencyColor(request.urgencyLevel)}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <IconButton 
+                            onClick={() => handleOpen(request)}
+                            sx={{ color: '#d32f2f' }}
+                          >
+                            <Edit />
+                          </IconButton>
+                          <IconButton 
+                            color="error" 
+                            onClick={() => handleDelete(request.id)}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -369,81 +346,12 @@ export default function Requests() {
                     value={form.urgencyLevel}
                     onChange={handleChange}
                   >
-                    <MenuItem value="NORMAL">Normal</MenuItem>
+                    <MenuItem value="LOW">Low</MenuItem>
+                    <MenuItem value="MEDIUM">Medium</MenuItem>
                     <MenuItem value="HIGH">High</MenuItem>
                     <MenuItem value="CRITICAL">Critical</MenuItem>
                   </Select>
                 </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  margin="dense"
-                  label={t('medicalCenter.hospitalName') || 'Hospital Name'}
-                  name="hospitalName"
-                  value={form.hospitalName}
-                  onChange={handleChange}
-                  fullWidth
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  margin="dense"
-                  label={t('medicalCenter.doctorName') || 'Doctor Name'}
-                  name="doctorName"
-                  value={form.doctorName}
-                  onChange={handleChange}
-                  fullWidth
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  margin="dense"
-                  label={t('medicalCenter.contactPhone') || 'Contact Phone'}
-                  name="contactPhone"
-                  value={form.contactPhone}
-                  onChange={handleChange}
-                  fullWidth
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  margin="dense"
-                  label={t('medicalCenter.contactEmail') || 'Contact Email'}
-                  name="contactEmail"
-                  type="email"
-                  value={form.contactEmail}
-                  onChange={handleChange}
-                  fullWidth
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  margin="dense"
-                  label={t('medicalCenter.medicalReason') || 'Medical Reason'}
-                  name="medicalReason"
-                  value={form.medicalReason}
-                  onChange={handleChange}
-                  fullWidth
-                  multiline
-                  rows={2}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  margin="dense"
-                  label={t('medicalCenter.notes') || 'Notes'}
-                  name="notes"
-                  value={form.notes}
-                  onChange={handleChange}
-                  fullWidth
-                  multiline
-                  rows={3}
-                />
               </Grid>
               {editRequest && (
                 <Grid item xs={12} sm={6}>

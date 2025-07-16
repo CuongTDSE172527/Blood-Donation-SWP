@@ -211,7 +211,7 @@ export default function Emergency() {
                       </TableCell>
                       <TableCell>
                         <Chip 
-                          label={STATUS_LABELS[emergency.status] || emergency.status} 
+                          label={t(`status_${(emergency.status || '').toUpperCase()}`)}
                           color={getStatusColor(emergency.status)}
                           size="small"
                         />

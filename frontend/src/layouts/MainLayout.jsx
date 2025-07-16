@@ -166,8 +166,10 @@ const MainLayout = () => {
                         navigate('/staff/dashboard');
                       } else if (user.role === 'MEDICALCENTER') {
                         navigate('/medical-center/dashboard');
-                      } else {
+                      } else if (user && user.role) {
                         navigate(`/${user.role.toLowerCase()}/dashboard`);
+                      } else {
+                        navigate('/');
                       }
                     }}>
                       <ListItemIcon>

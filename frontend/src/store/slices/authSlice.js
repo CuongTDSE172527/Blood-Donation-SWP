@@ -19,8 +19,12 @@ const authSlice = createSlice({
     loginSuccess: (state, action) => {
       state.loading = false;
       state.isAuthenticated = true;
-      state.user = action.payload.user;
-      localStorage.setItem('user', JSON.stringify(action.payload.user));
+      let user = action.payload.user;
+      if (Array.isArray(user)) {
+        user = user[0];
+      }
+      state.user = user;
+      localStorage.setItem('user', JSON.stringify(user));
     },
     loginFailure: (state, action) => {
       state.loading = false;
@@ -38,8 +42,12 @@ const authSlice = createSlice({
     registerSuccess: (state, action) => {
       state.loading = false;
       state.isAuthenticated = true;
-      state.user = action.payload.user;
-      localStorage.setItem('user', JSON.stringify(action.payload.user));
+      let user = action.payload.user;
+      if (Array.isArray(user)) {
+        user = user[0];
+      }
+      state.user = user;
+      localStorage.setItem('user', JSON.stringify(user));
     },
     registerFailure: (state, action) => {
       state.loading = false;

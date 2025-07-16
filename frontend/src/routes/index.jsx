@@ -37,7 +37,6 @@ import StaffEmergency from '../pages/staff/Emergency';
 
 // Medical Center Pages
 import MedicalCenterDashboard from '../pages/medicalCenter/Dashboard';
-import MedicalCenterDonors from '../pages/medicalCenter/Donors';
 import MedicalCenterReceivers from '../pages/medicalCenter/Receivers';
 import MedicalCenterRequests from '../pages/medicalCenter/Requests';
 
@@ -86,7 +85,6 @@ export const staffRoutes = [
 
 export const medicalCenterRoutes = [
   { path: '/medical-center/dashboard', element: <MedicalCenterDashboard />, roles: ['MEDICALCENTER'] },
-  { path: '/medical-center/donors', element: <MedicalCenterDonors />, roles: ['MEDICALCENTER'] },
   { path: '/medical-center/receivers', element: <MedicalCenterReceivers />, roles: ['MEDICALCENTER'] },
   { path: '/medical-center/requests', element: <MedicalCenterRequests />, roles: ['MEDICALCENTER'] },
 ];

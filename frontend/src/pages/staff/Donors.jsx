@@ -197,9 +197,6 @@ export default function Donors() {
                       {t('staff.phone') || 'Phone'}
                     </TableCell>
                     <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('staff.bloodType') || 'Blood Type'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
                       {t('staff.dob') || 'Date of Birth'}
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: 'bold' }}>
@@ -215,14 +212,6 @@ export default function Donors() {
                       </TableCell>
                       <TableCell>{donor.email}</TableCell>
                       <TableCell>{donor.phone}</TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={donor.bloodType} 
-                          color="primary" 
-                          size="small" 
-                          sx={{ bgcolor: '#d32f2f' }}
-                        />
-                      </TableCell>
                       <TableCell>{donor.dob}</TableCell>
                         <TableCell align="right">
                         <IconButton 

@@ -23,7 +23,8 @@
     "hero": {
       "title": "Hệ Thống Hỗ Trợ Hiến Máu",
       "subtitle": "Tham gia mạng lưới hiến máu của chúng tôi và tạo sự khác biệt trong cuộc sống của ai đó ngay hôm nay",
-      "registerButton": "Đăng ký hiến máu ngay"
+      "registerButton": "Đăng ký hiến máu ngay",
+      "donateButton": "Hiến máu ngay"
     },
     "learnSection": {
       "title": "Tìm hiểu về hiến máu",
@@ -76,7 +77,8 @@
     },
     "cta": {
       "text": "Tham gia cộng đồng người hiến máu của chúng tôi và giúp cứu sống người khác trong khu vực của bạn.",
-      "button": "Đăng ký hiến máu ngay"
+      "button": "Đăng ký hiến máu ngay",
+      "donateButton": "Hiến máu ngay"
     },
     "footer": {
       "title": "Blood Donation Supported System",
@@ -91,7 +93,11 @@
     }
   },
   "common": {
-    "language": "Ngôn ngữ"
+    "language": "Ngôn ngữ",
+    "saving": "Đang lưu...",
+    "cancel": "Hủy",
+    "noData": "Không có dữ liệu",
+    "select": "Chọn"
   },
   "about": {
     "title": "Về Chúng Tôi",
@@ -346,7 +352,13 @@
     "contact": "Liên hệ",
     "receivers": "Người nhận",
     "requestDate": "Ngày yêu cầu",
-    "addRequest": "Thêm yêu cầu"
+    "addRequest": "Thêm yêu cầu",
+    "editRequest": "Chỉnh sửa yêu cầu",
+    "editReceiver": "Chỉnh sửa người nhận",
+    "status_urgent": "Khẩn cấp",
+    "status_waiting": "Chờ xử lý",
+    "status_out_of_stock": "Hết hàng",
+    "requestManagement": "Quản lý yêu cầu"
   },
   "user": {
     "dashboardTitle": "Bảng điều khiển Người dùng",
@@ -435,5 +447,11 @@
     "passwordUpdateError": "Cập nhật mật khẩu thất bại",
     "updateSuccess": "Cập nhật hồ sơ thành công!",
     "updateError": "Cập nhật hồ sơ thất bại"
-  }
+  },
+  "status_PENDING": "Chờ xác nhận",
+  "status_WAITING": "Đang xử lý",
+  "status_PRIORITY": "Ưu tiên",
+  "status_OUT_OF_STOCK": "Hết hàng",
+  "status_CONFIRMED": "Đã xác nhận",
+  "status_CANCELLED": "Đã hủy"
 }

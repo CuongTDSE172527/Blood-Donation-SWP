@@ -100,11 +100,6 @@ const MedicalCenterLayout = () => {
       path: '/medical-center/dashboard',
     },
     {
-      text: t('medicalCenter.donors') || 'Donor Management',
-      icon: <PeopleIcon />,
-      path: '/medical-center/donors',
-    },
-    {
       text: t('medicalCenter.receivers') || 'Receiver Management',
       icon: <LocalHospitalIcon />,
       path: '/medical-center/receivers',

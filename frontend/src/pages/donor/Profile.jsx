@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -13,16 +12,20 @@ import {
   Grid
 } from '@mui/material';
 import { clearError } from '../../store/slices/authSlice';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const DonorProfile = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [form, setForm] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    bloodType: user?.bloodType || '',
+    name: '',
+    email: '',
+    phone: '',
+    bloodType: '',
+    dob: '',
+    gender: '',
   });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -31,8 +34,32 @@ const DonorProfile = () => {
   });
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [passwordLoading, setPasswordLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await axios.get('/api/donor/profile');
+        const data = res.data;
+        setForm({
+          name: data.fullName || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          bloodType: data.bloodType || '',
+          dob: data.dob || '',
+          gender: data.gender || '',
+        });
+      } catch (err) {
+        setError(t('common.error') || 'Error loading profile');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [t]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -51,16 +78,18 @@ const DonorProfile = () => {
     setLoading(true);
     setError('');
     setSuccess('');
-    
     try {
-      // Note: Profile update is not available in the current backend API
-      // This is a placeholder for future implementation
-      setTimeout(() => {
-        setSuccess(t('profile.updateSuccess') || 'Profile update feature coming soon!');
-        setLoading(false);
-      }, 1000);
+      const payload = {
+        fullName: form.name,
+        phone: form.phone,
+        dob: form.dob,
+        gender: form.gender,
+      };
+      await axios.put('/api/donor/profile', payload);
+      setSuccess(t('profile.updateSuccess') || 'Profile updated successfully!');
     } catch (err) {
       setError(t('profile.updateError') || 'Update failed.');
+    } finally {
       setLoading(false);
     }
   };
@@ -148,6 +177,33 @@ const DonorProfile = () => {
                   required
                   disabled
                 />
+                {/* Date of Birth */}
+                <TextField
+                  fullWidth
+                  label={t('donor.dob') || 'Date of Birth'}
+                  name="dob"
+                  type="date"
+                  value={form.dob}
+                  onChange={handleChange}
+                  sx={{ mb: 2 }}
+                  InputLabelProps={{ shrink: true }}
+                />
+                {/* Gender */}
+                <TextField
+                  fullWidth
+                  select
+                  label={t('donor.gender') || 'Gender'}
+                  name="gender"
+                  value={form.gender}
+                  onChange={handleChange}
+                  sx={{ mb: 2 }}
+                  SelectProps={{ native: true }}
+                >
+                  <option value="">{t('common.select') || 'Select'}</option>
+                  <option value="Male">{t('common.male') || 'Male'}</option>
+                  <option value="Female">{t('common.female') || 'Female'}</option>
+                  <option value="Other">{t('common.other') || 'Other'}</option>
+                </TextField>
                 <Button
                   type="submit"
                   fullWidth
