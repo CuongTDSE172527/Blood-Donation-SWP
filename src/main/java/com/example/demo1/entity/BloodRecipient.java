@@ -27,4 +27,8 @@ public class BloodRecipient {
     private double height;
 
     private double weight;
+
+    @ManyToOne
+    @JoinColumn(name = "MC_id")
+    private User mcid;
 }

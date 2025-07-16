@@ -212,4 +212,69 @@ public class StaffController {
             return ResponseEntity.ok("Status updated");
         }).orElse(ResponseEntity.badRequest().body("Request not found"));
     }
+
+
+    // Thêm ở đầu class StaffController
+    @Autowired
+    private ProhibitedDiseaseRepository diseaseRepo;
+
+// === Quản lý bệnh bị cấm hiến máu ===
+
+    @PostMapping("/diseases")
+    public ResponseEntity<?> createDisease(@RequestBody ProhibitedDisease disease) {
+        return ResponseEntity.ok(diseaseRepo.save(disease));
+    }
+
+    @PutMapping("/diseases/{id}")
+    public ResponseEntity<?> updateDisease(@PathVariable Long id, @RequestBody ProhibitedDisease updated) {
+        Optional<ProhibitedDisease> optional = diseaseRepo.findById(id);
+        if (optional.isEmpty()) {
+            return ResponseEntity.badRequest().body("Disease not found");
+        }
+
+        ProhibitedDisease disease = optional.get();
+        if (updated.getName() != null) {
+            disease.setName(updated.getName());
+        }
+        if (updated.getDescription() != null) {
+            disease.setDescription(updated.getDescription());
+        }
+
+        return ResponseEntity.ok(diseaseRepo.save(disease));
+    }
+
+    @DeleteMapping("/diseases/{id}")
+    public ResponseEntity<?> deleteDisease(@PathVariable Long id) {
+        if (!diseaseRepo.existsById(id)) {
+            return ResponseEntity.badRequest().body("Disease not found");
+        }
+        diseaseRepo.deleteById(id);
+        return ResponseEntity.ok("Disease deleted successfully");
+    }
+
+    @GetMapping("/diseases")
+    public ResponseEntity<?> getAllDiseases() {
+        return ResponseEntity.ok(diseaseRepo.findAll());
+    }
+
+
+    @GetMapping("/donors/by-schedule/{scheduleId}")
+    public ResponseEntity<?> getDonorsBySchedule(@PathVariable Long scheduleId) {
+        Optional<DonationSchedule> scheduleOpt = scheduleRepo.findById(scheduleId);
+        if (scheduleOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Schedule not found");
+        }
+
+        Long locationId = scheduleOpt.get().getLocation().getId();
+        List<DonationRegistration> registrations = registrationRepo.findByLocationId(locationId);
+
+        // Lấy danh sách User (Donor) từ các đăng ký
+        List<User> donors = registrations.stream()
+                .map(DonationRegistration::getUser)
+                .distinct()
+                .toList();
+
+        return ResponseEntity.ok(donors);
+    }
+
 }

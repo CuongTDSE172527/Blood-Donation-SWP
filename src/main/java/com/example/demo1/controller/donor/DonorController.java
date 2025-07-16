@@ -117,4 +117,40 @@ public class DonorController {
             );
         }
     }
+
+
+    /**
+     * Donor xem thông tin cá nhân
+     */
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(Principal principal) {
+        String email = principal.getName();
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+        return ResponseEntity.ok(userOpt.get());
+    }
+
+    /**
+     * Donor cập nhật thông tin cá nhân
+     */
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(Principal principal, @RequestBody User updated) {
+        String email = principal.getName();
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+
+        User user = userOpt.get();
+
+        if (updated.getFullName() != null) user.setFullName(updated.getFullName());
+        if (updated.getPhone() != null) user.setPhone(updated.getPhone());
+        if (updated.getDob() != null) user.setDob(updated.getDob());
+        if (updated.getGender() != null) user.setGender(updated.getGender());
+
+        return ResponseEntity.ok(userRepository.save(user));
+    }
+
 }
