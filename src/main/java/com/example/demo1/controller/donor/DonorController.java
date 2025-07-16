@@ -152,5 +152,26 @@ public class DonorController {
 
         return ResponseEntity.ok(userRepository.save(user));
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+        Optional<User> existingUserOpt = userRepository.findById(id);
 
+        if (existingUserOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User existingUser = existingUserOpt.get();
+
+        // Update fields except role
+        existingUser.setFullName(updatedUser.getFullName());
+        existingUser.setDob(updatedUser.getDob());
+        existingUser.setPhone(updatedUser.getPhone());
+        existingUser.setEmail(updatedUser.getEmail());
+        existingUser.setPassword(updatedUser.getPassword());
+        existingUser.setGender(updatedUser.getGender());
+
+        // Save updated user
+        User savedUser = userRepository.save(existingUser);
+        return ResponseEntity.ok(savedUser);
+    }
 }
