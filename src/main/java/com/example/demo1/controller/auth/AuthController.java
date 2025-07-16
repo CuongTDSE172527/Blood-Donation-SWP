@@ -2,10 +2,8 @@ package com.example.demo1.controller.auth;
 
 import com.example.demo1.entity.User;
 import com.example.demo1.entity.enums.Role;
-import com.example.demo1.exception.EmailAlreadyExistsException;
 import com.example.demo1.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

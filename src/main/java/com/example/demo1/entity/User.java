@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @NoArgsConstructor
@@ -31,5 +32,6 @@ public class User {
     private Gender gender;
 
     @OneToMany(mappedBy = "updatedBy")
+    @JsonIgnore
     private List<BloodInventory> inventoriesUpdated;
 }
