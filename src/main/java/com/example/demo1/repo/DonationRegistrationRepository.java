@@ -15,5 +15,7 @@ public interface DonationRegistrationRepository extends JpaRepository<DonationRe
     List<DonationRegistration> findByUserId(Long userId);
 
     List<DonationRegistration> findByUserIdAndStatus(Long userId, RegistrationStatus status);
+    List<DonationRegistration> findByLocationId(Long locationId);
+    List<DonationRegistration> findByLocation_Id(Long locationId);
 
 }
