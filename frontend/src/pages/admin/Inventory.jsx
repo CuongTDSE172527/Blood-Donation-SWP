@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
   Box, 
@@ -20,43 +20,74 @@ import {
   DialogContent, 
   DialogActions, 
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
+  Alert,
+  CircularProgress
 } from '@mui/material';
-import { Add, Edit, Delete } from '@mui/icons-material';
-import { BLOOD_TYPES } from '../../constants/enums';
-
-const mockInventory = [
-  { id: 1, bloodType: 'A+', units: 25 },
-  { id: 2, bloodType: 'O-', units: 15 },
-  { id: 3, bloodType: 'B+', units: 30 },
-];
+import { Edit, Delete } from '@mui/icons-material';
+import { adminService } from '../../services/adminService';
 
 export default function Inventory() {
   const { t } = useTranslation();
-  const [inventory, setInventory] = useState(mockInventory);
+  const [inventory, setInventory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [form, setForm] = useState({ bloodType: '', units: 0 });
+  const [form, setForm] = useState({ quantity: 0 });
+
+  // Load inventory data
+  useEffect(() => {
+    loadInventory();
+  }, []);
+
+  const loadInventory = async () => {
+    try {
+      setLoading(true);
+      const data = await adminService.getBloodInventory();
+      setInventory(data);
+    } catch (err) {
+      setError(err.message || 'Failed to load inventory');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpen = (item = null) => {
     setEditItem(item);
-    setForm(item ? { ...item } : { bloodType: '', units: 0 });
+    setForm(item ? { quantity: item.quantity } : { quantity: 0 });
     setOpen(true);
   };
   const handleClose = () => setOpen(false);
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  const handleSave = () => {
-    if (editItem) {
-      setInventory(inventory.map(i => i.id === editItem.id ? { ...form, id: editItem.id } : i));
-    } else {
-      setInventory([...inventory, { ...form, id: inventory.length + 1 }]);
+  
+  const handleSave = async () => {
+    try {
+      if (editItem) {
+        await adminService.updateBloodInventory(editItem.id, { quantity: form.quantity });
+        setInventory(inventory.map(i => i.id === editItem.id ? { ...i, quantity: form.quantity } : i));
+      }
+      handleClose();
+    } catch (err) {
+      setError(err.message || 'Failed to update inventory');
     }
-    handleClose();
   };
-  const handleDelete = (id) => setInventory(inventory.filter(i => i.id !== id));
+  
+  const handleDelete = async (id) => {
+    try {
+      await adminService.deleteBloodInventory(id);
+      setInventory(inventory.filter(i => i.id !== id));
+    } catch (err) {
+      setError(err.message || 'Failed to delete inventory item');
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 50 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ bgcolor: '#fff5f5', minHeight: '100vh', py: 6 }}>
@@ -64,11 +95,15 @@ export default function Inventory() {
         <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>
           {t('admin.inventoryManagement') || 'Blood Inventory Management'}
         </Typography>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
+
         <Card sx={{ mb: 3 }}>
           <CardContent>
-            <Button variant="contained" startIcon={<Add />} sx={{ mb: 2, bgcolor: '#d32f2f' }} onClick={() => handleOpen()}>
-              {t('admin.addBloodType') || 'Add Blood Type'}
-            </Button>
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
@@ -90,7 +125,7 @@ export default function Inventory() {
                       <TableCell sx={{ fontWeight: 'medium' }}>
                         {item.bloodType}
                       </TableCell>
-                      <TableCell>{item.units}</TableCell>
+                      <TableCell>{item.quantity}</TableCell>
                       <TableCell align="right">
                         <IconButton 
                           onClick={() => handleOpen(item)}
@@ -114,29 +149,14 @@ export default function Inventory() {
         </Card>
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>
-            {editItem ? t('admin.editBloodType') || 'Edit Blood Type' : t('admin.addBloodType') || 'Add Blood Type'}
+            {t('admin.editBloodType') || 'Edit Blood Type'}
           </DialogTitle>
           <DialogContent>
-            <FormControl fullWidth margin="dense">
-              <InputLabel>{t('admin.bloodType') || 'Blood Type'}</InputLabel>
-              <Select
-                label={t('admin.bloodType') || 'Blood Type'}
-                name="bloodType"
-                value={form.bloodType}
-                onChange={handleChange}
-              >
-                {BLOOD_TYPES.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
             <TextField 
               margin="dense" 
               label={t('admin.units') || 'Units'} 
-              name="units" 
-              value={form.units} 
+              name="quantity" 
+              value={form.quantity} 
               onChange={handleChange} 
               fullWidth 
               type="number"
@@ -152,7 +172,7 @@ export default function Inventory() {
               variant="contained" 
               sx={{ bgcolor: '#d32f2f' }}
             >
-              {editItem ? t('admin.save') || 'Save' : t('admin.add') || 'Add'}
+              {t('admin.save') || 'Save'}
             </Button>
           </DialogActions>
         </Dialog>

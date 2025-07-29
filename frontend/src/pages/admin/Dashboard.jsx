@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -22,6 +22,7 @@ import {
   Avatar,
   Snackbar,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import {
   People,
@@ -37,7 +38,7 @@ import {
   Inventory,
   CheckCircle,
 } from '@mui/icons-material';
-import { completeBloodRequest } from '../../utils/testHelpers';
+import { adminService } from '../../services/adminService';
 
 const sectionBg = 'linear-gradient(135deg, #fff5f5 0%, #fff 100%)';
 const cardShadow = '0 4px 24px 0 rgba(211,47,47,0.07)';
@@ -53,53 +54,100 @@ const cardHover = {
 const AdminDashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [stats] = useState({
-    totalUsers: 150,
-    totalDonors: 75,
-    totalStaff: 10,
-    totalMedicalCenters: 5,
-    totalRequests: 45,
-    pendingRequests: 12,
-    totalInventory: 500,
-    lowStock: 3,
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalDonors: 0,
+    totalStaff: 0,
+    totalMedicalCenters: 0,
+    totalRequests: 0,
+    pendingRequests: 0,
+    totalInventory: 0,
+    lowStock: 0,
   });
-
-  const [recentUsers] = useState([
-    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'donor', joinDate: '2024-03-15' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'staff', joinDate: '2024-03-14' },
-    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', role: 'user', joinDate: '2024-03-13' },
-  ]);
-
-  const [recentRequests] = useState([
-    { id: 1, patient: 'Sarah Wilson', bloodType: 'A+', units: 2, status: 'Pending', date: '2024-03-20' },
-    { id: 2, patient: 'Tom Brown', bloodType: 'O-', units: 1, status: 'Approved', date: '2024-03-19' },
-    { id: 3, patient: 'Lisa Davis', bloodType: 'B+', units: 3, status: 'Pending', date: '2024-03-18' },
-  ]);
-
-  const [inventory, setInventory] = useState([
-    { id: 1, bloodType: 'A+', units: 25 },
-    { id: 2, bloodType: 'O-', units: 15 },
-    { id: 3, bloodType: 'B+', units: 30 },
-  ]);
-
+  const [recentUsers, setRecentUsers] = useState([]);
+  const [recentRequests, setRecentRequests] = useState([]);
+  const [inventory, setInventory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'error' });
 
-  const handleComplete = (request) => {
-    const { updatedRequests, updatedInventory, result } = completeBloodRequest(
-      request,
-      recentRequests,
-      inventory,
-      {
-        insufficientMsg: 'Không đủ máu trong kho!',
-        successMsg: 'Hoàn thành yêu cầu thành công!',
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        // Fetch all data in parallel
+        const [usersRes, donorsRes, staffRes, medicalCentersRes, requestsRes, inventoryRes] = await Promise.all([
+          adminService.getAllUsers(),
+          adminService.getDonors(),
+          adminService.getStaffs(),
+          adminService.getMedicalCenters(),
+          adminService.getAllBloodRequests(),
+          adminService.getBloodInventory()
+        ]);
+
+        // Calculate stats
+        const totalRequests = requestsRes.length;
+        const pendingRequests = requestsRes.filter(r => r.status === 'PENDING').length;
+        const totalInventory = inventoryRes.reduce((sum, item) => sum + (item.quantity || 0), 0);
+        const lowStock = inventoryRes.filter(item => item.quantity < 10).length;
+
+        setStats({
+          totalUsers: usersRes.length,
+          totalDonors: donorsRes.length,
+          totalStaff: staffRes.length,
+          totalMedicalCenters: medicalCentersRes.length,
+          totalRequests,
+          pendingRequests,
+          totalInventory,
+          lowStock,
+        });
+
+        setRecentUsers(usersRes.slice(0, 5));
+        setRecentRequests(requestsRes.slice(0, 5));
+        setInventory(inventoryRes.slice(0, 5));
+      } catch (err) {
+        setError(t('common.error') || 'Error loading dashboard data');
+      } finally {
+        setLoading(false);
       }
-    );
-    setRecentRequests(updatedRequests);
-    setInventory(updatedInventory);
-    setSnackbar({ open: true, message: result.message, severity: result.severity });
+    };
+    fetchData();
+  }, [t]);
+
+  const handleComplete = async (request) => {
+    try {
+      // Update request status to completed
+      await adminService.updateBloodRequest(request.id, { status: 'COMPLETED' });
+      
+      // Update local state
+      setRecentRequests(prev => prev.map(r => 
+        r.id === request.id ? { ...r, status: 'COMPLETED' } : r
+      ));
+      
+      setSnackbar({ 
+        open: true, 
+        message: t('admin.completeRequestSuccess') || 'Request completed successfully!', 
+        severity: 'success' 
+      });
+    } catch (err) {
+      setSnackbar({ 
+        open: true, 
+        message: err.message || 'Failed to complete request', 
+        severity: 'error' 
+      });
+    }
   };
 
   const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ bgcolor: sectionBg, minHeight: '100vh', py: 6, animation: 'fadeInDash 0.7s' }}>
@@ -115,6 +163,13 @@ const AdminDashboard = () => {
         >
           {t('admin.dashboardTitle') || 'Admin Dashboard'}
         </Typography>
+        
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
+            {error}
+          </Alert>
+        )}
+
         {/* Stats Overview */}
         <Grid container spacing={4} sx={{ mb: 4 }}>
           {/* Lặp qua các stats, dùng card gradient và hover */}
@@ -149,18 +204,21 @@ const AdminDashboard = () => {
             </Grid>
           ))}
         </Grid>
-        {/* Quick Actions + Tổng số yêu cầu */}
+        {/* Quick Actions */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {/* Quick Actions */}
+          {/* Lặp qua các quick actions, dùng card gradient và hover */}
           {[
             {
               icon: <People sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, title: t('admin.userManagement'), desc: t('admin.userManagementDesc'), btn: t('admin.manageUsers'), onClick: () => navigate('/admin/users')
             },
             {
-              icon: <Assignment sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, title: t('admin.medicalCenterManagement') || 'Medical Center Management', desc: t('admin.medicalCenterManagementDesc') || 'Manage medical centers and their staff', btn: t('admin.manageMedicalCenters') || 'Manage Medical Centers', onClick: () => navigate('/admin/staff')
+              icon: <Assignment sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, title: t('admin.medicalCenterManagement') || 'Medical Center Management', desc: t('admin.medicalCenterManagementDesc') || 'Manage medical centers and their staff', btn: t('admin.manageMedicalCenters') || 'Manage Medical Centers', onClick: () => navigate('/admin/medical-center')
             },
             {
               icon: <Inventory sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, title: t('admin.inventory'), desc: t('admin.inventoryDesc'), btn: t('admin.viewInventory'), onClick: () => navigate('/admin/inventory')
+            },
+            {
+              icon: <CalendarToday sx={{ color: '#fff', mr: 1, fontSize: 32 }} />, title: t('admin.scheduleManagement') || 'Schedule Management', desc: t('admin.scheduleManagementDesc') || 'Manage donation schedules', btn: t('admin.manageSchedules') || 'Manage Schedules', onClick: () => navigate('/admin/schedule')
             },
           ].map((action, idx) => (
             <Grid item xs={12} sm={6} md={3} key={idx}>
@@ -249,26 +307,26 @@ const AdminDashboard = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {recentUsers.map((user) => (
+                    {recentUsers.length === 0 ? (
+                      <TableRow><TableCell colSpan={4} align="center">{t('common.noData') || 'No data'}</TableCell></TableRow>
+                    ) : recentUsers.map((user) => (
                       <TableRow key={user.id}>
-                        <TableCell>{user.name}</TableCell>
+                        <TableCell>{user.fullName || user.name}</TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>
                           <Chip
-                            label={t(`admin.role_${user.role}`)}
+                            label={t(`admin.role_${(user.role || '').toLowerCase()}`) || user.role}
                             color={
                               user.role === 'admin'
                                 ? 'error'
                                 : user.role === 'staff'
                                 ? 'warning'
-                                : user.role === 'donor'
-                                ? 'success'
                                 : 'default'
                             }
                             size="small"
                           />
                         </TableCell>
-                        <TableCell>{user.joinDate}</TableCell>
+                        <TableCell>{user.createdAt || user.joinDate}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -284,52 +342,54 @@ const AdminDashboard = () => {
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f' }}>
                 {t('admin.recentRequests')}
-          </Typography>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
+              </Typography>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
                       <TableCell>{t('admin.patient')}</TableCell>
                       <TableCell>{t('admin.bloodType')}</TableCell>
                       <TableCell>{t('admin.units')}</TableCell>
                       <TableCell>{t('admin.status')}</TableCell>
                       <TableCell>{t('admin.date')}</TableCell>
                       <TableCell align="right">{t('admin.actions')}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {recentRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell>{request.patient}</TableCell>
-                    <TableCell>{request.bloodType}</TableCell>
-                    <TableCell>{request.units}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={t('admin.status_' + request.status.toLowerCase())}
-                        color={request.status === 'Approved' ? 'success' : 'warning'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>{request.date}</TableCell>
-                    <TableCell align="right">
-                      {(request.status === 'Approved' || request.status === 'Pending') && (
-                        <Button
-                          color="success"
-                          startIcon={<CheckCircle />}
-                          onClick={() => handleComplete(request)}
-                          sx={{ minWidth: 0, px: 1 }}
-                        >
-                          {t('admin.complete') || 'Hoàn thành'}
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-              </CardContent>
-            </Card>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {recentRequests.length === 0 ? (
+                      <TableRow><TableCell colSpan={6} align="center">{t('common.noData') || 'No data'}</TableCell></TableRow>
+                    ) : recentRequests.map((request) => (
+                      <TableRow key={request.id}>
+                        <TableCell>{request.recipientName || request.patient}</TableCell>
+                        <TableCell>{request.recipientBloodType || request.bloodType}</TableCell>
+                        <TableCell>{request.requestedAmount || request.units}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={t(`status_${(request.status || '').toUpperCase()}`)}
+                            color={request.status === 'PRIORITY' ? 'error' : request.status === 'WAITING' ? 'info' : request.status === 'OUT_OF_STOCK' ? 'default' : 'warning'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>{request.requestDate || request.date}</TableCell>
+                        <TableCell align="right">
+                          {(request.status === 'WAITING' || request.status === 'PENDING') && (
+                            <Button
+                              color="success"
+                              startIcon={<CheckCircle />}
+                              onClick={() => handleComplete(request)}
+                              sx={{ minWidth: 0, px: 1 }}
+                            >
+                              {t('admin.complete') || 'Hoàn thành'}
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
         </Grid>
       </Container>
       <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
@@ -337,7 +397,7 @@ const AdminDashboard = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-      </Box>
+    </Box>
   );
 };
 

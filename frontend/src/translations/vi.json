@@ -202,7 +202,14 @@
     "updateError": "Cập nhật hồ sơ thất bại",
     "saving": "Đang lưu...",
     "save": "Lưu thay đổi",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "role_admin": "Admin",
+    "role_medicalcenter": "Trung tâm y tế",
+    "medicalCenter": "Trung tâm y tế",
+    "scheduleManagement": "Quản lý lịch hiến máu",
+    "time": "Thời gian",
+    "location": "Địa điểm",
+    "createSchedule": "Tạo lịch hiến máu"
   },
   "staff": {
     "dashboardTitle": "Bảng điều khiển Nhân viên",

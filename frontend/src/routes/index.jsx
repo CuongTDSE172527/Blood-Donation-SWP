@@ -26,6 +26,7 @@ import AdminSettings from '../pages/admin/Settings';
 import AdminRequests from '../pages/admin/Requests';
 import AdminProfile from '../pages/admin/Profile';
 import AdminMedicalCenter from '../pages/admin/MedicalCenter';
+import AdminSchedule from '../pages/admin/Schedule';
 
 // Staff Pages
 import StaffDashboard from '../pages/staff/Dashboard';
@@ -34,6 +35,7 @@ import StaffDonors from '../pages/staff/Donors';
 import StaffRequests from '../pages/staff/Requests';
 import StaffInventory from '../pages/staff/Inventory';
 import StaffEmergency from '../pages/staff/Emergency';
+import StaffSchedule from '../pages/staff/Schedule';
 
 // Medical Center Pages
 import MedicalCenterDashboard from '../pages/medicalCenter/Dashboard';
@@ -72,6 +74,7 @@ export const adminRoutes = [
   { path: '/admin/requests', element: <AdminRequests />, roles: ['ADMIN'] },
   { path: '/admin/profile', element: <AdminProfile />, roles: ['ADMIN'] },
   { path: '/admin/medical-center', element: <AdminMedicalCenter />, roles: ['ADMIN'] },
+  { path: '/admin/schedule', element: <AdminSchedule />, roles: ['ADMIN'] },
 ];
 
 export const staffRoutes = [
@@ -81,6 +84,7 @@ export const staffRoutes = [
   { path: '/staff/inventory', element: <StaffInventory />, roles: ['STAFF', 'ADMIN'] },
   { path: '/staff/emergency', element: <StaffEmergency />, roles: ['STAFF', 'ADMIN'] },
   { path: '/staff/profile', element: <StaffProfile />, roles: ['STAFF', 'ADMIN'] },
+  { path: '/staff/schedule', element: <StaffSchedule />, roles: ['STAFF', 'ADMIN'] },
 ];
 
 export const medicalCenterRoutes = [

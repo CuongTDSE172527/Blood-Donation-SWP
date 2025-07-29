@@ -25,6 +25,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
   AccessTime as AccessTimeIcon,
   CalendarToday as CalendarTodayIcon,
+  Schedule as ScheduleIcon,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -125,6 +126,7 @@ const StaffLayout = () => {
     { text: t('staff.requestManagement'), icon: <AssignmentIcon />, path: '/staff/requests' },
     { text: t('staff.emergency'), icon: <WarningIcon />, path: '/staff/emergency' },
     { text: t('staff.inventory'), icon: <InventoryIcon />, path: '/staff/inventory' },
+    { text: t('staff.scheduleManagement') || 'Schedule Management', icon: <ScheduleIcon />, path: '/staff/schedule' },
   ];
 
   const handleProfileClick = (event) => {

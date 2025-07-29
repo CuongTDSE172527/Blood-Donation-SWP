@@ -26,6 +26,7 @@ import {
   AccessTime as AccessTimeIcon,
   CalendarToday as CalendarTodayIcon,
   LocalHospital as LocalHospitalIcon,
+  Schedule as ScheduleIcon,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -137,6 +138,7 @@ const AdminLayout = () => {
     { text: t('admin.requestManagement') || 'Requests', icon: <InventoryIcon />, path: '/admin/requests' },
     { text: t('admin.inventory'), icon: <InventoryIcon />, path: '/admin/inventory' },
     { text: t('admin.medicalCenters') || 'Medical Centers', icon: <LocalHospitalIcon />, path: '/admin/medical-center' },
+    { text: t('admin.scheduleManagement') || 'Schedule Management', icon: <ScheduleIcon />, path: '/admin/schedule' },
   ];
 
   const handleProfileClick = (event) => {

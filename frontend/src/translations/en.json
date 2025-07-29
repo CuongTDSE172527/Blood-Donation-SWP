@@ -97,7 +97,8 @@
     "saving": "Saving...",
     "cancel": "Cancel",
     "noData": "No data",
-    "select": "Select"
+    "select": "Select",
+    "error": "Error"
   },
   "about": {
     "title": "About Us",
@@ -204,7 +205,14 @@
     "updateError": "Failed to update profile",
     "saving": "Saving...",
     "save": "Save Changes",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "role_admin": "Admin",
+    "role_medicalcenter": "Medical Center",
+    "medicalCenter": "Medical Center",
+    "scheduleManagement": "Schedule Management",
+    "time": "Time",
+    "location": "Location",
+    "createSchedule": "Create Schedule"
   },
   "staff": {
     "dashboardTitle": "Staff Dashboard",

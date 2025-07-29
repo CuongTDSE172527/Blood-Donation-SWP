@@ -1,17 +1,7 @@
 import api from './api';
 
 export const staffService = {
-  // === Donation Locations ===
-  createLocation: async (locationData) => {
-    try {
-      const response = await api.post('/staff/locations', locationData);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // === Donation Schedules ===
+  // === Schedule Management ===
   createSchedule: async (scheduleData) => {
     try {
       const response = await api.post('/staff/schedules', scheduleData);
@@ -48,7 +38,44 @@ export const staffService = {
     }
   },
 
-  // === Donation Registrations ===
+  // === Location Management ===
+  createLocation: async (locationData) => {
+    try {
+      const response = await api.post('/staff/locations', locationData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  getAllLocations: async () => {
+    try {
+      const response = await api.get('/staff/locations');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  updateLocation: async (id, locationData) => {
+    try {
+      const response = await api.put(`/staff/locations/${id}`, locationData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  deleteLocation: async (id) => {
+    try {
+      const response = await api.delete(`/staff/locations/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // === Registration Management ===
   getPendingRegistrations: async () => {
     try {
       const response = await api.get('/staff/registrations/pending');
@@ -58,9 +85,9 @@ export const staffService = {
     }
   },
 
-  confirmRegistration: async (id) => {
+  confirmRegistration: async (id, staffId) => {
     try {
-      const response = await api.post(`/staff/registrations/${id}/confirm`);
+      const response = await api.post(`/staff/registrations/${id}/confirm?staffId=${staffId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -86,16 +113,7 @@ export const staffService = {
     }
   },
 
-  updateBloodInventory: async (id, data) => {
-    try {
-      const response = await api.put(`/staff/inventory/${id}`, data);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // === Users ===
+  // === User Management ===
   getAllDonors: async () => {
     try {
       const response = await api.get('/staff/users/donors');
@@ -132,34 +150,7 @@ export const staffService = {
     }
   },
 
-  createDonor: async (donorData) => {
-    try {
-      const response = await api.post('/staff/users/donors', donorData);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  updateDonor: async (id, donorData) => {
-    try {
-      const response = await api.put(`/staff/users/donors/${id}`, donorData);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  deleteDonor: async (id) => {
-    try {
-      const response = await api.delete(`/staff/users/donors/${id}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-
-  // === Blood Requests ===
+  // === Blood Request Management ===
   getAllBloodRequests: async () => {
     try {
       const response = await api.get('/staff/blood-requests');
@@ -190,6 +181,53 @@ export const staffService = {
   markOutOfStock: async (id) => {
     try {
       const response = await api.post(`/staff/blood-requests/${id}/mark-out-of-stock`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // === Disease Management ===
+  createDisease: async (diseaseData) => {
+    try {
+      const response = await api.post('/staff/diseases', diseaseData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  updateDisease: async (id, diseaseData) => {
+    try {
+      const response = await api.put(`/staff/diseases/${id}`, diseaseData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  deleteDisease: async (id) => {
+    try {
+      const response = await api.delete(`/staff/diseases/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  getAllDiseases: async () => {
+    try {
+      const response = await api.get('/staff/diseases');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // === Donor Management by Schedule ===
+  getDonorsBySchedule: async (scheduleId) => {
+    try {
+      const response = await api.get(`/staff/donors/by-schedule/${scheduleId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
