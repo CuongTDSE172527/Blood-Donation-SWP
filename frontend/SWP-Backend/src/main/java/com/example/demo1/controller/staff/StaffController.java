@@ -15,9 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/staff")
@@ -88,20 +85,7 @@ public class StaffController {
     }
 
     @GetMapping("/schedules")
-    public ResponseEntity<?> getAllSchedules(@RequestParam(required = false) String startDate,
-                                             @RequestParam(required = false) String endDate) {
-        if (startDate != null && endDate != null) {
-            // Filter by date range
-            LocalDate start = LocalDate.parse(startDate);
-            LocalDate end = LocalDate.parse(endDate);
-            List<DonationSchedule> filteredSchedules = scheduleRepo.findAll().stream()
-                .filter(schedule -> {
-                    LocalDate scheduleDate = schedule.getDate();
-                    return !scheduleDate.isBefore(start) && !scheduleDate.isAfter(end);
-                })
-                .collect(Collectors.toList());
-            return ResponseEntity.ok(filteredSchedules);
-        }
+    public ResponseEntity<?> getAllSchedules() {
         return ResponseEntity.ok(scheduleRepo.findAll());
     }
 
@@ -110,22 +94,6 @@ public class StaffController {
     @GetMapping("/registrations/pending")
     public ResponseEntity<?> getPendingRegistrations() {
         return ResponseEntity.ok(registrationRepo.findByStatus(RegistrationStatus.PENDING));
-    }
-
-    @PostMapping("/registrations")
-    public ResponseEntity<?> createRegistration(@RequestBody DonationRegistration registration) {
-        // Set default status to PENDING
-        registration.setStatus(RegistrationStatus.PENDING);
-        
-        // Set registration date to current date
-        registration.setRegisteredAt(LocalDateTime.now());
-        
-        return ResponseEntity.ok(registrationRepo.save(registration));
-    }
-
-    @GetMapping("/registrations/user/{userId}")
-    public ResponseEntity<?> getRegistrationsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(registrationRepo.findByUserId(userId));
     }
 
     @PostMapping("/registrations/{id}/confirm")
