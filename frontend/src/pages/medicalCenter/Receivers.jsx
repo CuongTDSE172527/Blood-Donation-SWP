@@ -43,12 +43,12 @@ export default function Receivers() {
   const [open, setOpen] = useState(false);
   const [editReceiver, setEditReceiver] = useState(null);
   const [form, setForm] = useState({
-    recipientName: '',
-    recipientBloodType: '',
-    requestedAmount: 0,
-    urgencyLevel: 'NORMAL',
-    medicalReason: '',
-    notes: ''
+    name: '',
+    age: '',
+    bloodType: '',
+    gender: '',
+    height: '',
+    weight: ''
   });
 
   // Load receivers data
@@ -75,7 +75,8 @@ export default function Receivers() {
     if (receiver) {
       setForm({
         age: receiver.age || '',
-        blood_type: receiver.blood_type || receiver.bloodType || '',
+        bloodType: receiver.bloodType || '',
+        gender: receiver.gender || '',
         height: receiver.height || '',
         name: receiver.name || '',
         weight: receiver.weight || ''
@@ -83,7 +84,8 @@ export default function Receivers() {
     } else {
       setForm({
         age: '',
-        blood_type: '',
+        bloodType: '',
+        gender: '',
         height: '',
         name: '',
         weight: ''
@@ -96,18 +98,18 @@ export default function Receivers() {
     setOpen(false);
     setEditReceiver(null);
     setForm({
-      recipientName: '',
-      recipientBloodType: '',
-      requestedAmount: 0,
-      urgencyLevel: 'NORMAL',
-      medicalReason: '',
-      notes: ''
+      name: '',
+      age: '',
+      bloodType: '',
+      gender: '',
+      height: '',
+      weight: ''
     });
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'requestedAmount') {
+    if (name === 'age' || name === 'height' || name === 'weight') {
       setForm({ ...form, [name]: Math.max(0, parseInt(value) || 0) });
     } else {
       setForm({ ...form, [name]: value });
@@ -122,7 +124,7 @@ export default function Receivers() {
         setReceivers(receivers.map(r => r.id === editReceiver.id ? { ...r, ...form } : r));
       } else {
         // Create new receiver
-        const newReceiver = await medicalCenterService.createReceiver(form);
+        const newReceiver = await medicalCenterService.createReceiver(form, user.id);
         setReceivers([...receivers, newReceiver]);
       }
       handleClose();
@@ -140,18 +142,7 @@ export default function Receivers() {
     }
   };
 
-  const getUrgencyColor = (urgency) => {
-    switch (urgency) {
-      case 'CRITICAL':
-        return 'error';
-      case 'HIGH':
-        return 'warning';
-      case 'NORMAL':
-        return 'info';
-      default:
-        return 'default';
-    }
-  };
+
 
   if (loading) {
     return (
@@ -189,13 +180,13 @@ export default function Receivers() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 'bold' }}>ID</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Age</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Blood Type</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Gender</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Height</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Weight</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.id') || 'ID'}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.age') || 'Age'}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.bloodType') || 'Blood Type'}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.gender') || 'Gender'}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.height') || 'Height'}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.name') || 'Name'}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.weight') || 'Weight'}</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 'bold' }}>{t('medicalCenter.actions') || 'Actions'}</TableCell>
                   </TableRow>
                 </TableHead>
@@ -206,13 +197,18 @@ export default function Receivers() {
                       <TableCell>{receiver.age}</TableCell>
                       <TableCell>
                         <Chip 
-                          label={receiver.blood_type || receiver.bloodType} 
+                          label={receiver.bloodType} 
                           color="primary" 
                           size="small" 
                           sx={{ bgcolor: '#d32f2f' }}
                         />
                       </TableCell>
-                      <TableCell>{receiver.gender}</TableCell>
+                      <TableCell>
+                        {receiver.gender === 'MALE' ? t('common.male') || 'Male' :
+                         receiver.gender === 'FEMALE' ? t('common.female') || 'Female' :
+                         receiver.gender === 'OTHER' ? t('common.other') || 'Other' :
+                         receiver.gender}
+                      </TableCell>
                       <TableCell>{receiver.height}</TableCell>
                       <TableCell sx={{ fontWeight: 'medium' }}>{receiver.name}</TableCell>
                       <TableCell>{receiver.weight}</TableCell>
@@ -248,7 +244,7 @@ export default function Receivers() {
               <Grid item xs={12} sm={6}>
                 <TextField
                   margin="dense"
-                  label="Age"
+                  label={t('medicalCenter.age') || 'Age'}
                   name="age"
                   type="number"
                   value={form.age || ''}
@@ -259,11 +255,11 @@ export default function Receivers() {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth margin="dense">
-                  <InputLabel>Blood Type</InputLabel>
+                  <InputLabel>{t('medicalCenter.bloodType') || 'Blood Type'}</InputLabel>
                   <Select
-                    label="Blood Type"
-                    name="blood_type"
-                    value={form.blood_type || ''}
+                    label={t('medicalCenter.bloodType') || 'Blood Type'}
+                    name="bloodType"
+                    value={form.bloodType || ''}
                     onChange={handleChange}
                   >
                     {BLOOD_TYPES.map((type) => (
@@ -275,9 +271,24 @@ export default function Receivers() {
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>
+                <FormControl fullWidth margin="dense">
+                  <InputLabel>{t('medicalCenter.gender') || 'Gender'}</InputLabel>
+                  <Select
+                    label={t('medicalCenter.gender') || 'Gender'}
+                    name="gender"
+                    value={form.gender || ''}
+                    onChange={handleChange}
+                  >
+                    <MenuItem value="MALE">{t('common.male') || 'Male'}</MenuItem>
+                    <MenuItem value="FEMALE">{t('common.female') || 'Female'}</MenuItem>
+                    <MenuItem value="OTHER">{t('common.other') || 'Other'}</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   margin="dense"
-                  label="Height"
+                  label={t('medicalCenter.height') || 'Height'}
                   name="height"
                   type="number"
                   value={form.height || ''}
@@ -289,7 +300,7 @@ export default function Receivers() {
               <Grid item xs={12} sm={6}>
                 <TextField
                   margin="dense"
-                  label="Weight"
+                  label={t('medicalCenter.weight') || 'Weight'}
                   name="weight"
                   type="number"
                   value={form.weight || ''}
@@ -298,10 +309,10 @@ export default function Receivers() {
                   required
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   margin="dense"
-                  label="Name"
+                  label={t('medicalCenter.name') || 'Name'}
                   name="name"
                   value={form.name || ''}
                   onChange={handleChange}

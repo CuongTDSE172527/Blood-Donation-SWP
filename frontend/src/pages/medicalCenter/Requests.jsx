@@ -47,7 +47,7 @@ export default function Requests() {
     recipientName: '',
     recipientBloodType: '',
     requestedAmount: 0,
-    urgencyLevel: 'NORMAL',
+    urgencyLevel: 'MEDIUM',
     medicalReason: '',
     hospitalName: '',
     doctorName: '',
@@ -173,7 +173,7 @@ export default function Requests() {
         recipientName: request.recipientName || '',
         recipientBloodType: request.recipientBloodType || '',
         requestedAmount: request.requestedAmount || 0,
-        urgencyLevel: request.urgencyLevel || 'NORMAL',
+        urgencyLevel: request.urgencyLevel || 'MEDIUM',
         medicalReason: request.medicalReason || '',
         hospitalName: request.hospitalName || '',
         doctorName: request.doctorName || '',
@@ -187,7 +187,7 @@ export default function Requests() {
         recipientName: '',
         recipientBloodType: '',
         requestedAmount: 0,
-        urgencyLevel: 'NORMAL',
+        urgencyLevel: 'MEDIUM',
         medicalReason: '',
         hospitalName: '',
         doctorName: '',
@@ -221,7 +221,7 @@ export default function Requests() {
         setRequests(requests.map(r => r.id === editRequest.id ? { ...r, ...form } : r));
       } else {
         // Create new request
-        const newRequest = await medicalCenterService.createBloodRequest(form);
+        const newRequest = await medicalCenterService.createBloodRequest(form, user.id);
         setRequests([...requests, newRequest]);
       }
       handleClose();
@@ -245,8 +245,10 @@ export default function Requests() {
         return 'error';
       case 'HIGH':
         return 'warning';
-      case 'NORMAL':
+      case 'MEDIUM':
         return 'info';
+      case 'LOW':
+        return 'success';
       default:
         return 'default';
     }
@@ -509,10 +511,10 @@ export default function Requests() {
                     value={form.urgencyLevel}
                     onChange={handleChange}
                   >
-                    <MenuItem value="LOW">Low</MenuItem>
-                    <MenuItem value="MEDIUM">Medium</MenuItem>
-                    <MenuItem value="HIGH">High</MenuItem>
-                    <MenuItem value="CRITICAL">Critical</MenuItem>
+                    <MenuItem value="LOW">{t('medicalCenter.urgency_low') || 'Low'}</MenuItem>
+                    <MenuItem value="MEDIUM">{t('medicalCenter.urgency_medium') || 'Medium'}</MenuItem>
+                    <MenuItem value="HIGH">{t('medicalCenter.urgency_high') || 'High'}</MenuItem>
+                    <MenuItem value="CRITICAL">{t('medicalCenter.urgency_critical') || 'Critical'}</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>

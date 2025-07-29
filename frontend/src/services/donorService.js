@@ -28,4 +28,24 @@ export const donorService = {
       throw error.response?.data || error.message;
     }
   },
+
+  // Get donor profile
+  getProfile: async () => {
+    try {
+      const response = await api.get('/donor/profile');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Update donor profile
+  updateProfile: async (profileData) => {
+    try {
+      const response = await api.put('/donor/profile', profileData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 }; 

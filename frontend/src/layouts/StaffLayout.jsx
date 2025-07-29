@@ -215,9 +215,7 @@ const StaffLayout = () => {
               <MenuItem onClick={() => { navigate('/'); handleProfileClose(); }} sx={{ fontWeight: 600, fontSize: 17, py: 1.5, px: 2, borderRadius: 2, '&:hover': { bgcolor: '#fff5f5', color: '#d32f2f' } }}>
                 {t('nav.home') || 'Home'}
               </MenuItem>
-              <MenuItem onClick={() => { navigate('/medical-center'); handleProfileClose(); }} sx={{ fontWeight: 600, fontSize: 17, py: 1.5, px: 2, borderRadius: 2, '&:hover': { bgcolor: '#fff5f5', color: '#d32f2f' } }}>
-                {t('nav.medicalCenter') || 'Medical Center'}
-              </MenuItem>
+
               <MenuItem onClick={() => { navigate('/staff/profile'); handleProfileClose(); }} sx={{ fontWeight: 600, fontSize: 17, py: 1.5, px: 2, borderRadius: 2, '&:hover': { bgcolor: '#fff5f5', color: '#d32f2f' } }}>
                 {t('staff.editProfile') || 'Edit Profile'}
               </MenuItem>

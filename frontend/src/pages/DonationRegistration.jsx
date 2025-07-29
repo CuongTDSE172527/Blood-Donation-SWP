@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
   Box,
@@ -17,15 +17,26 @@ import {
   Checkbox,
   FormControlLabel,
   FormGroup,
+  Card,
+  CardContent,
+  Chip,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { donorService } from '../services/donorService';
-import api from '../services/api';
+import { scheduleService } from '../services/scheduleService';
+import { staffService } from '../services/staffService';
+import { CalendarToday, LocationOn, AccessTime } from '@mui/icons-material';
+import dayjs from 'dayjs';
 
 const DonationRegistration = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+  
+  // Get schedule data from navigation state
+  const selectedSchedule = location.state?.selectedSchedule;
+  const fromSchedule = location.state?.fromSchedule;
   
   const [formData, setFormData] = useState({
     bloodType: '',
@@ -33,7 +44,7 @@ const DonationRegistration = () => {
     weight: '',
     height: '',
     amount: 1,
-    locationId: '',
+    locationId: selectedSchedule?.location?.id || '',
     diseaseIds: [],
   });
   
@@ -59,13 +70,14 @@ const DonationRegistration = () => {
     setError('');
     try {
       const [locationsResponse, diseasesResponse] = await Promise.all([
-        api.get('/locations'),
-        api.get('/diseases')
+        staffService.getAllLocations(),
+        staffService.getAllDiseases()
       ]);
-      setLocations(locationsResponse.data);
-      setDiseases(diseasesResponse.data);
+      setLocations(locationsResponse);
+      setDiseases(diseasesResponse);
     } catch (error) {
-      setError('Không thể tải dữ liệu địa điểm hoặc bệnh cấm hiến.');
+      console.error('Error loading form data:', error);
+      setError('Không thể tải dữ liệu địa điểm hoặc bệnh cấm hiến. Vui lòng thử lại.');
     } finally {
       setLoadingForm(false);
     }
@@ -112,7 +124,20 @@ const DonationRegistration = () => {
     setError('');
 
     try {
-      await donorService.registerDonation(user.id, formData);
+      // If coming from schedule, use schedule registration
+      if (fromSchedule && selectedSchedule) {
+        const registrationData = {
+          ...formData,
+          userId: user.id,
+          scheduleId: selectedSchedule.id,
+          locationId: selectedSchedule.location.id
+        };
+        await scheduleService.registerForSchedule(registrationData);
+      } else {
+        // Regular donation registration
+        await donorService.registerDonation(user.id, formData);
+      }
+      
       setSuccess('Blood donation registration submitted successfully!');
       setTimeout(() => {
         navigate('/donor/dashboard');
@@ -125,23 +150,35 @@ const DonationRegistration = () => {
     }
   };
 
+  const formatTime = (time) => {
+    if (!time) return '';
+    return dayjs(`2000-01-01T${time}`).format('HH:mm');
+  };
+
+  const formatDate = (date) => {
+    if (!date) return '';
+    return dayjs(date).format('DD/MM/YYYY');
+  };
+
   if (!isAuthenticated) {
     return null;
   }
 
   if (loadingForm) {
-    return <Container maxWidth="md"><Typography>{t('common.loading') || 'Loading...'}</Typography></Container>;
-  }
-
-  if (error) {
-    return <Container maxWidth="md"><Alert severity="error">{error}</Alert></Container>;
+    return (
+      <Container maxWidth="md">
+        <Box sx={{ mt: 4, textAlign: 'center' }}>
+          <Typography variant="h6">{t('common.loading') || 'Loading...'}</Typography>
+        </Box>
+      </Container>
+    );
   }
 
   return (
     <Container maxWidth="md">
       <Box sx={{ mt: 4, mb: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
-          <Typography variant="h4" component="h1" align="center" gutterBottom>
+          <Typography variant="h4" component="h1" align="center" gutterBottom sx={{ color: '#d32f2f', fontWeight: 600 }}>
             {t('donation.register')}
           </Typography>
           
@@ -155,6 +192,43 @@ const DonationRegistration = () => {
             <Alert severity="success" sx={{ mb: 2 }}>
               {success}
             </Alert>
+          )}
+
+          {/* Show selected schedule if coming from schedule page */}
+          {fromSchedule && selectedSchedule && (
+            <Card sx={{ mb: 3, bgcolor: '#fff5f5', border: '1px solid #d32f2f' }}>
+              <CardContent>
+                <Typography variant="h6" sx={{ mb: 2, color: '#d32f2f', fontWeight: 600 }}>
+                  {t('donation.selectedSchedule') || 'Selected Schedule'}
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <CalendarToday sx={{ color: '#d32f2f', mr: 1 }} />
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {formatDate(selectedSchedule.date)}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <AccessTime sx={{ color: '#d32f2f', mr: 1 }} />
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {formatTime(selectedSchedule.time)}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <LocationOn sx={{ color: '#d32f2f', mr: 1 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {selectedSchedule.location?.name} - {selectedSchedule.location?.address}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
           )}
           
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
@@ -229,23 +303,26 @@ const DonationRegistration = () => {
                 />
               </Grid>
               
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth required>
-                  <InputLabel>{t('donation.location')}</InputLabel>
-                  <Select
-                    name="locationId"
-                    value={formData.locationId}
-                    onChange={handleChange}
-                    label={t('donation.location')}
-                  >
-                    {locations.map((location) => (
-                      <MenuItem key={location.id} value={location.id}>
-                        {location.name} - {location.address}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+              {/* Only show location selection if not coming from schedule */}
+              {!fromSchedule && (
+                <Grid item xs={12} md={6}>
+                  <FormControl fullWidth required>
+                    <InputLabel>{t('donation.location')}</InputLabel>
+                    <Select
+                      name="locationId"
+                      value={formData.locationId}
+                      onChange={handleChange}
+                      label={t('donation.location')}
+                    >
+                      {locations.map((location) => (
+                        <MenuItem key={location.id} value={location.id}>
+                          {location.name} - {location.address}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              )}
               
               <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom>
@@ -281,6 +358,7 @@ const DonationRegistration = () => {
                 type="submit"
                 variant="contained"
                 disabled={loading}
+                sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
               >
                 {loading ? t('common.submitting') : t('donation.submit')}
               </Button>

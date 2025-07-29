@@ -177,14 +177,7 @@ const MainLayout = () => {
                       </ListItemIcon>
                       <ListItemText primary={t('nav.dashboard')} />
                     </MenuItem>
-                    {(user.role === 'STAFF' || user.role === 'ADMIN') && (
-                      <MenuItem onClick={() => navigate('/medical-center/dashboard')}>
-                        <ListItemIcon>
-                          <LocalHospital fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText primary={t('nav.medicalCenter') || 'Medical Center'} />
-                      </MenuItem>
-                    )}
+
                     <MenuItem onClick={handleLogoutClick} sx={{ color: 'error.main' }}>
                       <ListItemIcon>
                         <Login fontSize="small" />

@@ -9,10 +9,12 @@ import {
   Paper, 
   Alert,
   Divider,
-  Grid
+  Grid,
+  CircularProgress,
+  Tooltip
 } from '@mui/material';
 import { clearError } from '../../store/slices/authSlice';
-import axios from 'axios';
+import { donorService } from '../../services/donorService';
 import { useEffect, useState } from 'react';
 
 const DonorProfile = () => {
@@ -26,6 +28,8 @@ const DonorProfile = () => {
     bloodType: '',
     dob: '',
     gender: '',
+    address: '',
+    role: '',
   });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -42,17 +46,20 @@ const DonorProfile = () => {
       setLoading(true);
       setError('');
       try {
-        const res = await axios.get('/api/donor/profile');
-        const data = res.data;
+        const data = await donorService.getProfile();
+        console.log('Profile data:', data); // Debug log
         setForm({
           name: data.fullName || '',
           email: data.email || '',
           phone: data.phone || '',
           bloodType: data.bloodType || '',
-          dob: data.dob || '',
+          dob: data.dob ? data.dob.split('T')[0] : '', // Format date to YYYY-MM-DD
           gender: data.gender || '',
+          address: data.address || '',
+          role: data.role || '',
         });
       } catch (err) {
+        console.error('Error fetching profile:', err); // Debug log
         setError(t('common.error') || 'Error loading profile');
       } finally {
         setLoading(false);
@@ -78,14 +85,30 @@ const DonorProfile = () => {
     setLoading(true);
     setError('');
     setSuccess('');
+    
+    // Validation
+    if (!form.name.trim()) {
+      setError('Tên không được để trống');
+      setLoading(false);
+      return;
+    }
+    
+    if (form.phone && !/^\d{9,11}$/.test(form.phone)) {
+      setError('Số điện thoại không hợp lệ');
+      setLoading(false);
+      return;
+    }
+    
     try {
       const payload = {
         fullName: form.name,
         phone: form.phone,
         dob: form.dob,
         gender: form.gender,
+        address: form.address,
+        bloodType: form.bloodType,
       };
-      await axios.put('/api/donor/profile', payload);
+      await donorService.updateProfile(payload);
       setSuccess(t('profile.updateSuccess') || 'Profile updated successfully!');
     } catch (err) {
       setError(t('profile.updateError') || 'Update failed.');
@@ -140,6 +163,11 @@ const DonorProfile = () => {
               </Typography>
               {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
               {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+              {loading && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                  <CircularProgress />
+                </Box>
+              )}
               <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
                 <TextField
                   fullWidth
@@ -149,17 +177,21 @@ const DonorProfile = () => {
                   onChange={handleChange}
                   sx={{ mb: 2 }}
                   required
+                  placeholder="Nhập họ và tên"
                 />
-                <TextField
-                  fullWidth
-                  label={t('register.email')}
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  sx={{ mb: 2 }}
-                  required
-                  disabled
-                />
+                <Tooltip title="Email không thể thay đổi">
+                  <TextField
+                    fullWidth
+                    label={t('register.email')}
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    sx={{ mb: 2 }}
+                    required
+                    disabled
+                    placeholder="Email của bạn"
+                  />
+                </Tooltip>
                 <TextField
                   fullWidth
                   label={t('register.phone')}
@@ -167,16 +199,29 @@ const DonorProfile = () => {
                   value={form.phone}
                   onChange={handleChange}
                   sx={{ mb: 2 }}
+                  placeholder="Số điện thoại"
                 />
                 <TextField
                   fullWidth
                   label={t('register.bloodType')}
                   name="bloodType"
                   value={form.bloodType}
+                  onChange={handleChange}
                   sx={{ mb: 2 }}
                   required
-                  disabled
-                />
+                  select
+                  SelectProps={{ native: true }}
+                >
+                  <option value="">{t('register.bloodTypeSelect')}</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </TextField>
                 {/* Date of Birth */}
                 <TextField
                   fullWidth
@@ -200,10 +245,29 @@ const DonorProfile = () => {
                   SelectProps={{ native: true }}
                 >
                   <option value="">{t('common.select') || 'Select'}</option>
-                  <option value="Male">{t('common.male') || 'Male'}</option>
-                  <option value="Female">{t('common.female') || 'Female'}</option>
-                  <option value="Other">{t('common.other') || 'Other'}</option>
+                  <option value="MALE">{t('common.male') || 'Male'}</option>
+                  <option value="FEMALE">{t('common.female') || 'Female'}</option>
+                  <option value="OTHER">{t('common.other') || 'Other'}</option>
                 </TextField>
+                <TextField
+                  fullWidth
+                  label={t('register.address') || 'Address'}
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  sx={{ mb: 2 }}
+                  placeholder="Địa chỉ của bạn"
+                />
+                <Tooltip title="Vai trò không thể thay đổi">
+                  <TextField
+                    fullWidth
+                    label={t('common.role') || 'Role'}
+                    name="role"
+                    value={form.role}
+                    sx={{ mb: 2 }}
+                    disabled
+                  />
+                </Tooltip>
                 <Button
                   type="submit"
                   fullWidth

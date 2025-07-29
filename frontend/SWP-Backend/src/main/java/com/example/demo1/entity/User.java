@@ -25,6 +25,7 @@ public class User {
     private String email;
     private String password;
     private String address;
+    private String bloodType;
 
     @Enumerated(EnumType.STRING)
     private Role role;

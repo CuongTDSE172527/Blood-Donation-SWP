@@ -113,6 +113,33 @@ export const staffService = {
     }
   },
 
+  updateBloodInventory: async (id, inventoryData) => {
+    try {
+      const response = await api.put(`/staff/inventory/${id}`, inventoryData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  addBloodInventory: async (inventoryData) => {
+    try {
+      const response = await api.post('/staff/inventory', inventoryData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  deleteBloodInventory: async (id) => {
+    try {
+      const response = await api.delete(`/staff/inventory/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   // === User Management ===
   getAllDonors: async () => {
     try {

@@ -1,5 +1,4 @@
 import { useSelector } from 'react-redux';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +21,8 @@ import {
   Divider,
   Stack,
 } from '@mui/material';
-import { Edit, CalendarToday, History, Favorite, Wc, Cake } from '@mui/icons-material';
+import { Edit, CalendarToday, History, Favorite, Wc, Cake, Phone, Email, LocationOn, Person } from '@mui/icons-material';
+import { donorService } from '../../services/donorService';
 
 const cardRadius = 3;
 const cardShadow = '0 2px 8px 0 rgba(0,0,0,0.04)';
@@ -37,25 +37,38 @@ const DonorDashboard = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [donationHistory, setDonationHistory] = useState([]);
+  const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchHistory = async () => {
+    const fetchData = async () => {
       if (!user?.id) return;
       setLoading(true);
       setError('');
       try {
-        const res = await axios.get(`/api/donor/history?userId=${user.id}`);
-        setDonationHistory(res.data);
+        const [historyData, profileData] = await Promise.all([
+          donorService.getDonationHistory(user.id),
+          donorService.getProfile()
+        ]);
+        setDonationHistory(historyData);
+        setUserDetails(profileData);
       } catch (err) {
-        setError(t('common.error') || 'Error loading donation history');
+        setError(t('common.error') || 'Error loading data');
       } finally {
         setLoading(false);
       }
     };
-    fetchHistory();
+    fetchData();
   }, [user, t]);
+
+  // Use userDetails if available, otherwise fall back to user from Redux
+  const displayUser = userDetails || user;
+
+  // Calculate total donations and last donation from history
+  const totalDonations = donationHistory.length;
+  const lastDonation = donationHistory.length > 0 ? donationHistory[0]?.date || 'N/A' : 'N/A';
+  const bloodType = donationHistory.length > 0 ? donationHistory[0]?.bloodType || 'N/A' : (displayUser?.bloodType || 'N/A');
 
   return (
     <Box sx={{ bgcolor: '#fff', minHeight: '100vh', py: 6 }}>
@@ -77,17 +90,17 @@ const DonorDashboard = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                   <Avatar
                     sx={{ width: 80, height: 80, bgcolor: 'primary.light', color: 'primary.main', mr: 2, fontWeight: 700 }}
-                    alt={user?.name || ''}
-                    src={user?.avatar}
+                    alt={displayUser?.fullName || ''}
+                    src={displayUser?.avatar}
                   >
-                    {user?.name?.charAt(0) || ''}
+                    {displayUser?.fullName?.charAt(0) || ''}
                   </Avatar>
                   <Box>
                     <Typography variant="h5" gutterBottom sx={{ color: 'primary.main' }}>
-                      {user?.name}
+                      {displayUser?.fullName}
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      {t('donor.bloodType')}: {user?.bloodType}
+                      {t('donor.bloodType')}: {bloodType}
                     </Typography>
                   </Box>
                 </Box>
@@ -95,25 +108,49 @@ const DonorDashboard = () => {
                 <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                   <Cake fontSize="small" color="action" />
                   <Typography variant="body2" color="text.secondary">
-                    {t('donor.dob') || 'Date of Birth'}: <b>{user?.dob}</b>
+                    {t('donor.dob') || 'Date of Birth'}: <b>{displayUser?.dob || 'N/A'}</b>
                   </Typography>
                 </Stack>
                 <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                   <Wc fontSize="small" color="action" />
                   <Typography variant="body2" color="text.secondary">
-                    {t('donor.gender') || 'Gender'}: <b>{user?.gender}</b>
+                    {t('donor.gender') || 'Gender'}: <b>{displayUser?.gender || 'N/A'}</b>
+                  </Typography>
+                </Stack>
+                <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+                  <Phone fontSize="small" color="action" />
+                  <Typography variant="body2" color="text.secondary">
+                    {t('donor.phone') || 'Phone'}: <b>{displayUser?.phone || 'N/A'}</b>
+                  </Typography>
+                </Stack>
+                <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+                  <Email fontSize="small" color="action" />
+                  <Typography variant="body2" color="text.secondary">
+                    {t('donor.email') || 'Email'}: <b>{displayUser?.email || 'N/A'}</b>
+                  </Typography>
+                </Stack>
+                <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+                  <LocationOn fontSize="small" color="action" />
+                  <Typography variant="body2" color="text.secondary">
+                    {t('donor.address') || 'Address'}: <b>{displayUser?.address || 'N/A'}</b>
+                  </Typography>
+                </Stack>
+                <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+                  <Person fontSize="small" color="action" />
+                  <Typography variant="body2" color="text.secondary">
+                    {t('donor.role') || 'Role'}: <b>{displayUser?.role || 'N/A'}</b>
                   </Typography>
                 </Stack>
                 <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                   <History fontSize="small" color="action" />
                   <Typography variant="body2" color="text.secondary">
-                    {t('donor.totalDonations')}: <b>{user?.totalDonations}</b>
+                    {t('donor.totalDonations')}: <b>{totalDonations}</b>
                   </Typography>
                 </Stack>
                 <Stack direction="row" alignItems="center" spacing={1}>
                   <CalendarToday fontSize="small" color="action" />
                   <Typography variant="body2" color="text.secondary">
-                    {t('donor.lastDonation')}: <b>{user?.lastDonation}</b>
+                    {t('donor.lastDonation')}: <b>{lastDonation}</b>
                   </Typography>
                 </Stack>
               </CardContent>
@@ -168,21 +205,47 @@ const DonorDashboard = () => {
                 <Table>
                   <TableHead>
                     <TableRow>
+                      <TableCell>{t('donor.id')}</TableCell>
                       <TableCell>{t('donor.date')}</TableCell>
+                      <TableCell>{t('donor.userId')}</TableCell>
+                      <TableCell>{t('donor.user')}</TableCell>
+                      <TableCell>{t('donor.bloodType')}</TableCell>
+                      <TableCell>{t('donor.lastDonationDate')}</TableCell>
+                      <TableCell>{t('donor.weight')}</TableCell>
+                      <TableCell>{t('donor.height')}</TableCell>
+                      <TableCell>{t('donor.locationId')}</TableCell>
                       <TableCell>{t('donor.location')}</TableCell>
                       <TableCell>{t('donor.units')}</TableCell>
+                      <TableCell>{t('donor.diseaseIds')}</TableCell>
+                      <TableCell>{t('donor.diseases')}</TableCell>
+                      <TableCell>{t('donor.status')}</TableCell>
+                      <TableCell>{t('donor.createdAt')}</TableCell>
+                      <TableCell>{t('donor.updatedAt')}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {donationHistory.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={3} align="center">{t('common.noData') || 'No data'}</TableCell>
+                        <TableCell colSpan={16} align="center">{t('common.noData') || 'No data'}</TableCell>
                       </TableRow>
                     ) : donationHistory.map((donation) => (
                       <TableRow key={donation.id}>
+                        <TableCell>{donation.id}</TableCell>
                         <TableCell>{donation.date}</TableCell>
+                        <TableCell>{donation.user?.id || 'N/A'}</TableCell>
+                        <TableCell>{donation.user?.fullName || 'N/A'}</TableCell>
+                        <TableCell>{donation.bloodType || 'N/A'}</TableCell>
+                        <TableCell>{donation.lastDonationDate || 'N/A'}</TableCell>
+                        <TableCell>{donation.weight || 'N/A'}</TableCell>
+                        <TableCell>{donation.height || 'N/A'}</TableCell>
+                        <TableCell>{donation.location?.id || 'N/A'}</TableCell>
                         <TableCell>{donation.location?.name || donation.location}</TableCell>
                         <TableCell>{donation.units || donation.amount}</TableCell>
+                        <TableCell>{donation.diseases?.map(d => d.id).join(', ') || 'N/A'}</TableCell>
+                        <TableCell>{donation.diseases?.map(d => d.name).join(', ') || 'N/A'}</TableCell>
+                        <TableCell>{donation.status || 'N/A'}</TableCell>
+                        <TableCell>{donation.createdAt || 'N/A'}</TableCell>
+                        <TableCell>{donation.updatedAt || 'N/A'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

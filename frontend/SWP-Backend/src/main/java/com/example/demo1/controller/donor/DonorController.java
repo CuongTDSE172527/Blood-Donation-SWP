@@ -149,6 +149,8 @@ public class DonorController {
         if (updated.getPhone() != null) user.setPhone(updated.getPhone());
         if (updated.getDob() != null) user.setDob(updated.getDob());
         if (updated.getGender() != null) user.setGender(updated.getGender());
+        if (updated.getAddress() != null) user.setAddress(updated.getAddress());
+        if (updated.getBloodType() != null) user.setBloodType(updated.getBloodType());
 
         return ResponseEntity.ok(userRepository.save(user));
     }
@@ -173,5 +175,21 @@ public class DonorController {
         // Save updated user
         User savedUser = userRepository.save(existingUser);
         return ResponseEntity.ok(savedUser);
+    }
+
+    /**
+     * Get all donation locations for registration
+     */
+    @GetMapping("/locations")
+    public ResponseEntity<?> getAllLocations() {
+        return ResponseEntity.ok(locationRepo.findAll());
+    }
+
+    /**
+     * Get all prohibited diseases for registration
+     */
+    @GetMapping("/diseases")
+    public ResponseEntity<?> getAllDiseases() {
+        return ResponseEntity.ok(diseaseRepo.findAll());
     }
 }

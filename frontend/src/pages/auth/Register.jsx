@@ -23,6 +23,10 @@ const Register = () => {
     password: '',
     confirmPassword: '',
     bloodType: '',
+    dob: '',
+    phone: '',
+    address: '',
+    gender: '',
   });
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +45,7 @@ const Register = () => {
     setIsLoading(true);
     
     // Basic validation
-    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword || !formData.bloodType) {
+    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword || !formData.bloodType || !formData.dob || !formData.phone || !formData.address || !formData.gender) {
       setError('Vui lòng điền đầy đủ thông tin');
       setIsLoading(false);
       return;
@@ -83,6 +87,20 @@ const Register = () => {
       return;
     }
     
+    // Phone validation
+    if (!/^\d{9,11}$/.test(formData.phone)) {
+      setError('Số điện thoại không hợp lệ');
+      setIsLoading(false);
+      return;
+    }
+    
+    // Dob validation
+    if (!formData.dob) {
+      setError('Vui lòng nhập ngày sinh');
+      setIsLoading(false);
+      return;
+    }
+    
     try {
       console.log('Attempting to register...');
       
@@ -90,7 +108,11 @@ const Register = () => {
         fullName: formData.fullName,
           email: formData.email,
           password: formData.password,
-          bloodType: formData.bloodType
+          bloodType: formData.bloodType,
+          dob: formData.dob,
+          phone: formData.phone,
+          address: formData.address,
+          gender: formData.gender,
       });
       
       console.log('Registration successful');
@@ -193,6 +215,23 @@ const Register = () => {
                   <option value="AB-">AB-</option>
                   <option value="O+">O+</option>
                   <option value="O-">O-</option>
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField required fullWidth label={t('register.dateOfBirth')} name="dob" type="date" value={formData.dob} onChange={handleChange} disabled={isLoading} InputLabelProps={{ shrink: true }} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField required fullWidth label={t('register.phone')} name="phone" value={formData.phone} onChange={handleChange} disabled={isLoading} />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField required fullWidth label={t('register.address')} name="address" value={formData.address} onChange={handleChange} disabled={isLoading} />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField required fullWidth select label={t('register.gender')} name="gender" value={formData.gender} onChange={handleChange} disabled={isLoading} SelectProps={{ native: true }}>
+                  <option value="">Chọn giới tính</option>
+                  <option value="MALE">Nam</option>
+                  <option value="FEMALE">Nữ</option>
+                  <option value="OTHER">Khác</option>
                 </TextField>
               </Grid>
             </Grid>

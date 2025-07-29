@@ -17,7 +17,20 @@
     "availableDates": "Ngày hiến máu khả dụng",
     "noDates": "Không có ngày nào khả dụng trong khoảng thời gian này.",
     "fromDate": "Từ ngày",
-    "toDate": "Đến ngày"
+    "toDate": "Đến ngày",
+    "bloodDonationSchedules": "lịch hiến máu",
+    "past": "Đã qua",
+    "today": "Hôm nay",
+    "upcoming": "Sắp tới",
+    "registerForDonation": "Đăng ký hiến máu",
+    "selectedSchedule": "Lịch đã chọn",
+    "donorInformation": "Thông tin người hiến máu",
+    "bloodType": "Nhóm máu",
+    "lastDonationDate": "Ngày hiến máu gần nhất",
+    "weight": "Cân nặng (kg)",
+    "height": "Chiều cao (cm)",
+    "amount": "Lượng máu hiến (ml)",
+    "register": "Đăng ký"
   },
   "home": {
     "hero": {
@@ -119,7 +132,7 @@
     "searchRequestsPlaceholder": "Tìm kiếm theo tên, nhóm máu, trung tâm y tế, hoặc ID...",
     "showingResults": "Hiển thị",
     "of": "trong số",
-    "requests": "yêu cầu",
+    "requests": "Yêu cầu",
     "noMatchingRequests": "Không tìm thấy yêu cầu phù hợp",
     "confirmRequestSuccess": "Xác nhận yêu cầu thành công!",
     "completeRequestSuccess": "Hoàn thành yêu cầu thành công!",
@@ -135,7 +148,11 @@
     "editRequestStatus": "Chỉnh sửa trạng thái yêu cầu",
     "currentStatus": "Trạng thái hiện tại",
     "newStatus": "Trạng thái mới",
-    "updateStatus": "Cập nhật trạng thái"
+    "updateStatus": "Cập nhật trạng thái",
+    "male": "Nam",
+    "female": "Nữ",
+    "other": "Khác",
+    "role": "Vai trò"
   },
   "about": {
     "title": "Về Chúng Tôi",
@@ -462,7 +479,31 @@
     "status_waiting": "Chờ xử lý",
     "status_out_of_stock": "Hết hàng",
     "requestManagement": "Quản lý yêu cầu",
-    "age": "Tuổi"
+    "age": "Tuổi",
+    "search": "Tìm kiếm",
+    "searchPlaceholder": "Tìm kiếm theo tên, nhóm máu, lý do, hoặc ID...",
+    "filterByStatus": "Lọc theo trạng thái",
+    "allStatuses": "Tất cả trạng thái",
+    "sortBy": "Sắp xếp theo",
+    "patientName": "Tên bệnh nhân",
+    "amount": "Số lượng",
+    "urgency": "Mức độ khẩn cấp",
+    "bloodRequests": "Yêu cầu máu",
+    "showingResults": "Hiển thị",
+    "of": "trong số",
+    "requests": "Quản lý yêu cầu",
+    "noMatchingRequests": "Không tìm thấy yêu cầu phù hợp",
+    "id": "ID",
+    "gender": "Giới tính",
+    "height": "Chiều cao",
+    "weight": "Cân nặng",
+    "urgency_low": "Thấp",
+    "urgency_medium": "Trung bình",
+    "urgency_high": "Cao",
+    "urgency_critical": "Khẩn cấp",
+    "status_confirm": "Đã xác nhận",
+    "status_priority": "Ưu tiên",
+    "status_cancelled": "Đã hủy"
   },
   "user": {
     "dashboardTitle": "Bảng điều khiển Người dùng",
@@ -568,7 +609,8 @@
     "location": "Địa điểm",
     "prohibitedDiseases": "Bệnh cấm hiến máu",
     "register": "Đăng ký",
-    "submit": "Gửi"
+    "submit": "Gửi",
+    "selectedSchedule": "Lịch đã chọn"
   },
   "status_PENDING": "Chờ xác nhận",
   "status_WAITING": "Đang xử lý",

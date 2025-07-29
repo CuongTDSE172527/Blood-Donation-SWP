@@ -17,7 +17,20 @@
     "availableDates": "Available Donation Dates",
     "noDates": "No available dates in this time range.",
     "fromDate": "From date",
-    "toDate": "To date"
+    "toDate": "To date",
+    "bloodDonationSchedules": "blood donation schedules",
+    "past": "Past",
+    "today": "Today",
+    "upcoming": "Upcoming",
+    "registerForDonation": "Register for Blood Donation",
+    "selectedSchedule": "Selected Schedule",
+    "donorInformation": "Donor Information",
+    "bloodType": "Blood Type",
+    "lastDonationDate": "Last Donation Date",
+    "weight": "Weight (kg)",
+    "height": "Height (cm)",
+    "amount": "Donation Amount (ml)",
+    "register": "Register"
   },
   "home": {
     "hero": {
@@ -119,7 +132,7 @@
     "searchRequestsPlaceholder": "Search by name, blood type, medical center, or ID...",
     "showingResults": "Showing",
     "of": "of",
-    "requests": "requests",
+    "requests": "Requests",
     "noMatchingRequests": "No matching requests found",
     "confirmRequestSuccess": "Request confirmed successfully!",
     "completeRequestSuccess": "Request completed successfully!",
@@ -135,7 +148,11 @@
     "editRequestStatus": "Edit Request Status",
     "currentStatus": "Current Status",
     "newStatus": "New Status",
-    "updateStatus": "Update Status"
+    "updateStatus": "Update Status",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "role": "Role"
   },
   "about": {
     "title": "About Us",
@@ -450,7 +467,30 @@
     "status_urgent": "Urgent",
     "status_waiting": "Waiting",
     "status_out_of_stock": "Out of Stock",
-    "age": "Age"
+    "age": "Age",
+    "search": "Search",
+    "searchPlaceholder": "Search by name, blood type, reason, or ID...",
+    "filterByStatus": "Filter by Status",
+    "allStatuses": "All Statuses",
+    "sortBy": "Sort By",
+    "patientName": "Patient Name",
+    "amount": "Amount",
+    "urgency": "Urgency",
+    "bloodRequests": "Blood Requests",
+    "showingResults": "Showing",
+    "of": "of",
+    "noMatchingRequests": "No matching requests found",
+    "id": "ID",
+    "gender": "Gender",
+    "height": "Height",
+    "weight": "Weight",
+    "urgency_low": "Low",
+    "urgency_medium": "Medium",
+    "urgency_high": "High",
+    "urgency_critical": "Critical",
+    "status_confirm": "Confirmed",
+    "status_priority": "Priority",
+    "status_cancelled": "Cancelled"
   },
   "user": {
     "dashboardTitle": "User Dashboard",
@@ -524,7 +564,11 @@
     "registerButton": "Register",
     "registering": "Registering...",
     "alreadyAccount": "Already have an account?",
-    "loginNow": "Login now"
+    "loginNow": "Login now",
+    "dateOfBirth": "Date of Birth",
+    "phone": "Phone",
+    "address": "Address",
+    "gender": "Gender"
   },
   "profile": {
     "changePassword": "Change Password",
@@ -547,7 +591,8 @@
     "location": "Location",
     "prohibitedDiseases": "Prohibited Diseases",
     "register": "Register",
-    "submit": "Submit"
+    "submit": "Submit",
+    "selectedSchedule": "Selected Schedule"
   },
   "status_PENDING": "Pending",
   "status_WAITING": "Processing",

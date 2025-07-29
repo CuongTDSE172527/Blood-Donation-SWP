@@ -38,4 +38,23 @@ api.interceptors.response.use(
   }
 );
 
+// Helper functions for common data
+export const getLocations = async () => {
+  try {
+    const response = await api.get('/admin/locations');
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+export const getDiseases = async () => {
+  try {
+    const response = await api.get('/admin/diseases');
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
 export default api; 

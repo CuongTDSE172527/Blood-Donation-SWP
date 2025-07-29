@@ -10,6 +10,8 @@ export const authService = {
         password: userData.password,
         phone: userData.phone,
         dob: userData.dob,
+        address: userData.address,
+        gender: userData.gender,
       });
       return response.data;
     } catch (error) {
