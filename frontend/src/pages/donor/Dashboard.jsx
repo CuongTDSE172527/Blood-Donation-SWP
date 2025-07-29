@@ -205,47 +205,25 @@ const DonorDashboard = () => {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>{t('donor.id')}</TableCell>
                       <TableCell>{t('donor.date')}</TableCell>
-                      <TableCell>{t('donor.userId')}</TableCell>
-                      <TableCell>{t('donor.user')}</TableCell>
                       <TableCell>{t('donor.bloodType')}</TableCell>
-                      <TableCell>{t('donor.lastDonationDate')}</TableCell>
-                      <TableCell>{t('donor.weight')}</TableCell>
-                      <TableCell>{t('donor.height')}</TableCell>
-                      <TableCell>{t('donor.locationId')}</TableCell>
                       <TableCell>{t('donor.location')}</TableCell>
                       <TableCell>{t('donor.units')}</TableCell>
-                      <TableCell>{t('donor.diseaseIds')}</TableCell>
-                      <TableCell>{t('donor.diseases')}</TableCell>
                       <TableCell>{t('donor.status')}</TableCell>
-                      <TableCell>{t('donor.createdAt')}</TableCell>
-                      <TableCell>{t('donor.updatedAt')}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {donationHistory.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={16} align="center">{t('common.noData') || 'No data'}</TableCell>
+                        <TableCell colSpan={5} align="center">{t('donor.noDonationRecord') || 'No donation record'}</TableCell>
                       </TableRow>
                     ) : donationHistory.map((donation) => (
                       <TableRow key={donation.id}>
-                        <TableCell>{donation.id}</TableCell>
-                        <TableCell>{donation.date}</TableCell>
-                        <TableCell>{donation.user?.id || 'N/A'}</TableCell>
-                        <TableCell>{donation.user?.fullName || 'N/A'}</TableCell>
+                        <TableCell>{donation.date || donation.createdAt}</TableCell>
                         <TableCell>{donation.bloodType || 'N/A'}</TableCell>
-                        <TableCell>{donation.lastDonationDate || 'N/A'}</TableCell>
-                        <TableCell>{donation.weight || 'N/A'}</TableCell>
-                        <TableCell>{donation.height || 'N/A'}</TableCell>
-                        <TableCell>{donation.location?.id || 'N/A'}</TableCell>
-                        <TableCell>{donation.location?.name || donation.location}</TableCell>
-                        <TableCell>{donation.units || donation.amount}</TableCell>
-                        <TableCell>{donation.diseases?.map(d => d.id).join(', ') || 'N/A'}</TableCell>
-                        <TableCell>{donation.diseases?.map(d => d.name).join(', ') || 'N/A'}</TableCell>
+                        <TableCell>{donation.location?.name || donation.location || 'N/A'}</TableCell>
+                        <TableCell>{donation.units || donation.amount || 'N/A'}</TableCell>
                         <TableCell>{donation.status || 'N/A'}</TableCell>
-                        <TableCell>{donation.createdAt || 'N/A'}</TableCell>
-                        <TableCell>{donation.updatedAt || 'N/A'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

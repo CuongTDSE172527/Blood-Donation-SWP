@@ -176,15 +176,11 @@ export default function Requests() {
         let result;
         let newStatus = form.status;
         
+        // Fix: Use correct API calls for each status
         switch (form.status) {
           case BLOOD_REQUEST_STATUS.WAITING:
             result = await staffService.confirmBloodRequest(editRequest.id);
-            // Logic cập nhật trạng thái dựa trên trạng thái hiện tại
-            if (editRequest.status === 'PENDING' || editRequest.status === 'WAITING') {
-              newStatus = 'CONFIRM';
-            } else {
-              newStatus = 'WAITING';
-            }
+            newStatus = 'WAITING';
             break;
           case BLOOD_REQUEST_STATUS.CONFIRM:
             result = await staffService.confirmBloodRequest(editRequest.id);
@@ -192,15 +188,17 @@ export default function Requests() {
             break;
           case BLOOD_REQUEST_STATUS.PRIORITY:
             result = await staffService.markPriority(editRequest.id);
+            newStatus = 'PRIORITY';
             break;
           case BLOOD_REQUEST_STATUS.OUT_OF_STOCK:
             result = await staffService.markOutOfStock(editRequest.id);
+            newStatus = 'OUT_OF_STOCK';
             break;
           default:
             throw new Error('Invalid status');
         }
 
-        // Update local state
+        // Update local state with the new status
         setRequests(requests.map(req => 
           req.id === editRequest.id 
             ? { ...req, status: newStatus }
@@ -208,7 +206,7 @@ export default function Requests() {
         ));
 
         setSuccess('Request status updated successfully');
-    handleClose();
+        handleClose();
       }
     } catch (err) {
       setError(err.message || 'Failed to update request status');

@@ -551,7 +551,11 @@
     "registerDonationDesc": "Đăng ký hiến máu với thông tin chiều cao, cân nặng và sức khỏe",
     "registerNow": "Đăng ký ngay",
     "dob": "Ngày sinh",
-    "gender": "Giới tính"
+    "gender": "Giới tính",
+    "phone": "Số điện thoại",
+    "email": "Email",
+    "address": "Địa chỉ",
+    "role": "Vai trò"
   },
   "login": {
     "title": "Đăng nhập",

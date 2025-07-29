@@ -53,7 +53,8 @@ export default function Donors() {
     emergencyContact: '',
     medicalHistory: '',
     allergies: '',
-    medications: ''
+    medications: '',
+    password: '' // Add password field for new donors
   });
   
   // Search and filter states
@@ -185,7 +186,8 @@ export default function Donors() {
         emergencyContact: '',
         medicalHistory: '',
         allergies: '',
-        medications: ''
+        medications: '',
+        password: '' // Reset password field for new donor
       });
     }
     setOpen(true);
@@ -517,6 +519,20 @@ export default function Donors() {
                   rows={2}
                 />
               </Grid>
+              {editDonor ? null : (
+                <Grid item xs={12}>
+                  <TextField
+                    margin="dense"
+                    label={t('staff.password') || 'Password'}
+                    name="password"
+                    type="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                  />
+                </Grid>
+              )}
             </Grid>
           </DialogContent>
           <DialogActions>

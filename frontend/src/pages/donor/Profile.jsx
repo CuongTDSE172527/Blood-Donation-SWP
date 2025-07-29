@@ -258,16 +258,7 @@ const DonorProfile = () => {
                   sx={{ mb: 2 }}
                   placeholder="Địa chỉ của bạn"
                 />
-                <Tooltip title="Vai trò không thể thay đổi">
-                  <TextField
-                    fullWidth
-                    label={t('common.role') || 'Role'}
-                    name="role"
-                    value={form.role}
-                    sx={{ mb: 2 }}
-                    disabled
-                  />
-                </Tooltip>
+                {/* Remove Role field - Donors cannot change their role */}
                 <Button
                   type="submit"
                   fullWidth

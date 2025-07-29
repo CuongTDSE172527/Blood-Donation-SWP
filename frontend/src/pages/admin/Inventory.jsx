@@ -21,9 +21,10 @@ import {
   DialogActions, 
   TextField,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Chip
 } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import { Edit, Delete, Warning } from '@mui/icons-material';
 import { adminService } from '../../services/adminService';
 
 export default function Inventory() {
@@ -34,6 +35,10 @@ export default function Inventory() {
   const [open, setOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [form, setForm] = useState({ quantity: 0 });
+
+  // Blood inventory alert thresholds
+  const LOW_STOCK_THRESHOLD = 10;
+  const CRITICAL_STOCK_THRESHOLD = 5;
 
   // Load inventory data
   useEffect(() => {
@@ -81,6 +86,22 @@ export default function Inventory() {
     }
   };
 
+  // Check for low stock alerts
+  const getStockAlert = (quantity) => {
+    if (quantity <= CRITICAL_STOCK_THRESHOLD) {
+      return { severity: 'error', message: 'Critical Low Stock' };
+    } else if (quantity <= LOW_STOCK_THRESHOLD) {
+      return { severity: 'warning', message: 'Low Stock' };
+    }
+    return null;
+  };
+
+  const getStockColor = (quantity) => {
+    if (quantity <= CRITICAL_STOCK_THRESHOLD) return 'error';
+    if (quantity <= LOW_STOCK_THRESHOLD) return 'warning';
+    return 'success';
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 50 }}>
@@ -102,6 +123,22 @@ export default function Inventory() {
           </Alert>
         )}
 
+        {/* Stock Alerts */}
+        {inventory.some(item => item.quantity <= LOW_STOCK_THRESHOLD) && (
+          <Alert 
+            severity="warning" 
+            sx={{ mb: 3 }} 
+            icon={<Warning />}
+          >
+            <Typography variant="body1" fontWeight="bold">
+              Blood Stock Alert
+            </Typography>
+            <Typography variant="body2">
+              Some blood types are running low. Please check the inventory below.
+            </Typography>
+          </Alert>
+        )}
+
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <TableContainer component={Paper}>
@@ -114,34 +151,59 @@ export default function Inventory() {
                     <TableCell sx={{ fontWeight: 'bold' }}>
                       {t('admin.units') || 'Units'}
                     </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>
+                      Status
+                    </TableCell>
                     <TableCell align="right" sx={{ fontWeight: 'bold' }}>
                       {t('admin.actions') || 'Actions'}
                     </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {inventory.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell sx={{ fontWeight: 'medium' }}>
-                        {item.bloodType}
-                      </TableCell>
-                      <TableCell>{item.quantity}</TableCell>
-                      <TableCell align="right">
-                        <IconButton 
-                          onClick={() => handleOpen(item)}
-                          sx={{ color: '#d32f2f' }}
-                        >
-                          <Edit />
-                        </IconButton>
-                        <IconButton 
-                          color="error" 
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          <Delete />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {inventory.map((item) => {
+                    const stockAlert = getStockAlert(item.quantity);
+                    return (
+                      <TableRow key={item.id}>
+                        <TableCell sx={{ fontWeight: 'medium' }}>
+                          {item.bloodType}
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            {item.quantity}
+                            {stockAlert && (
+                              <Chip
+                                icon={<Warning />}
+                                label={stockAlert.message}
+                                color={stockAlert.severity}
+                                size="small"
+                              />
+                            )}
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={item.quantity > LOW_STOCK_THRESHOLD ? 'In Stock' : 'Low Stock'}
+                            color={getStockColor(item.quantity)}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <IconButton 
+                            onClick={() => handleOpen(item)}
+                            sx={{ color: '#d32f2f' }}
+                          >
+                            <Edit />
+                          </IconButton>
+                          <IconButton 
+                            color="error" 
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>

@@ -13,16 +13,19 @@ export const medicalCenterService = {
 
   getReceiverById: async (id) => {
     try {
-      const response = await api.get(`/medical-center/receivers/${id}`);
+      const response = await api.get(`/medicalcenter/recipients/${id}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  createReceiver: async (receiverData) => {
+  createReceiver: async (receiverData, medicalCenterId) => {
     try {
-      const response = await api.post('/medical-center/receivers', receiverData);
+      const response = await api.post('/medicalcenter/recipients', {
+        ...receiverData,
+        medicalCenterId: medicalCenterId
+      });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -31,7 +34,7 @@ export const medicalCenterService = {
 
   updateReceiver: async (id, receiverData) => {
     try {
-      const response = await api.put(`/medical-center/receivers/${id}`, receiverData);
+      const response = await api.put(`/medicalcenter/recipients/${id}`, receiverData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -40,7 +43,7 @@ export const medicalCenterService = {
 
   deleteReceiver: async (id) => {
     try {
-      const response = await api.delete(`/medical-center/receivers/${id}`);
+      const response = await api.delete(`/medicalcenter/recipients/${id}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -59,16 +62,19 @@ export const medicalCenterService = {
 
   getBloodRequestById: async (id) => {
     try {
-      const response = await api.get(`/medical-center/blood-requests/${id}`);
+      const response = await api.get(`/medicalcenter/blood-requests/${id}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  createBloodRequest: async (requestData) => {
+  createBloodRequest: async (requestData, medicalCenterId) => {
     try {
-      const response = await api.post('/medical-center/blood-requests', requestData);
+      const response = await api.post('/medicalcenter/blood-requests', {
+        ...requestData,
+        medicalCenterId: medicalCenterId
+      });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -77,7 +83,7 @@ export const medicalCenterService = {
 
   updateBloodRequest: async (id, requestData) => {
     try {
-      const response = await api.put(`/medical-center/blood-requests/${id}`, requestData);
+      const response = await api.put(`/medicalcenter/blood-requests/${id}`, requestData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -86,7 +92,7 @@ export const medicalCenterService = {
 
   deleteBloodRequest: async (id) => {
     try {
-      const response = await api.delete(`/medical-center/blood-requests/${id}`);
+      const response = await api.delete(`/medicalcenter/blood-requests/${id}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -96,7 +102,7 @@ export const medicalCenterService = {
   // === Dashboard Statistics ===
   getDashboardStats: async () => {
     try {
-      const response = await api.get('/medical-center/dashboard/stats');
+      const response = await api.get('/medicalcenter/dashboard/stats');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -105,7 +111,7 @@ export const medicalCenterService = {
 
   getRecentRequests: async () => {
     try {
-      const response = await api.get('/medical-center/dashboard/recent-requests');
+      const response = await api.get('/medicalcenter/dashboard/recent-requests');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -114,7 +120,7 @@ export const medicalCenterService = {
 
   getRecentDonors: async () => {
     try {
-      const response = await api.get('/medical-center/dashboard/recent-donors');
+      const response = await api.get('/medicalcenter/dashboard/recent-donors');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

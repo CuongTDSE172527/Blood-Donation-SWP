@@ -38,6 +38,7 @@ export default function Requests() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [requests, setRequests] = useState([]);
+  const [receivers, setReceivers] = useState([]); // Add receivers state
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -54,7 +55,8 @@ export default function Requests() {
     contactPhone: '',
     contactEmail: '',
     notes: '',
-    status: BLOOD_REQUEST_STATUS.PENDING
+    status: BLOOD_REQUEST_STATUS.PENDING,
+    receiverId: '' // Add receiverId field
   });
   
   // Search and filter states
@@ -63,10 +65,11 @@ export default function Requests() {
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
 
-  // Load requests data
+  // Load requests and receivers data
   useEffect(() => {
     if (user?.id) {
       loadRequests(user.id);
+      loadReceivers(user.id); // Load receivers
     }
   }, [user]);
 
@@ -84,6 +87,16 @@ export default function Requests() {
       setError(err.message || 'Failed to load requests');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Add loadReceivers function
+  const loadReceivers = async (medicalCenterId) => {
+    try {
+      const data = await medicalCenterService.getAllReceivers(medicalCenterId);
+      setReceivers(data);
+    } catch (err) {
+      console.error('Failed to load receivers:', err);
     }
   };
 
@@ -180,7 +193,8 @@ export default function Requests() {
         contactPhone: request.contactPhone || '',
         contactEmail: request.contactEmail || '',
         notes: request.notes || '',
-        status: request.status || BLOOD_REQUEST_STATUS.PENDING
+        status: request.status || BLOOD_REQUEST_STATUS.PENDING,
+        receiverId: request.receiverId || '' // Set receiverId for editing
       });
     } else {
       setForm({
@@ -194,7 +208,8 @@ export default function Requests() {
         contactPhone: '',
         contactEmail: '',
         notes: '',
-        status: BLOOD_REQUEST_STATUS.PENDING
+        status: BLOOD_REQUEST_STATUS.PENDING,
+        receiverId: '' // Clear receiverId for new request
       });
     }
     setOpen(true);
@@ -543,6 +558,27 @@ export default function Requests() {
                       <MenuItem value={BLOOD_REQUEST_STATUS.OUT_OF_STOCK}>
                         {STATUS_LABELS[BLOOD_REQUEST_STATUS.OUT_OF_STOCK]}
                       </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              )}
+              {/* Add Receiver Selection for New Requests */}
+              {!editRequest && (
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel>{t('medicalCenter.receiver') || 'Receiver'}</InputLabel>
+                    <Select
+                      label={t('medicalCenter.receiver') || 'Receiver'}
+                      name="receiverId"
+                      value={form.receiverId}
+                      onChange={handleChange}
+                      required
+                    >
+                      {receivers.map((receiver) => (
+                        <MenuItem key={receiver.id} value={receiver.id}>
+                          {receiver.name}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </Grid>
