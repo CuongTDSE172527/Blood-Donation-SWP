@@ -275,4 +275,27 @@ export const adminService = {
       throw error.response?.data || error.message;
     }
   },
+
+  // === Blood Compatibility Check ===
+  checkBloodCompatibility: async (bloodType, requestedAmount = 1) => {
+    try {
+      const response = await api.get(`/admin/blood-compatibility/${bloodType}?requestedAmount=${requestedAmount}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // === Confirm Blood Request with Compatibility ===
+  confirmBloodRequestWithCompatibility: async (id, alternativeBloodType = null) => {
+    try {
+      const url = alternativeBloodType 
+        ? `/admin/blood-requests/${id}/confirm-with-compatibility?alternativeBloodType=${alternativeBloodType}`
+        : `/admin/blood-requests/${id}/confirm-with-compatibility`;
+      const response = await api.post(url);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 }; 

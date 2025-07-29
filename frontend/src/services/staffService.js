@@ -233,4 +233,14 @@ export const staffService = {
       throw error.response?.data || error.message;
     }
   },
+
+  // === Blood Compatibility Check ===
+  checkBloodCompatibility: async (bloodType, requestedAmount = 1) => {
+    try {
+      const response = await api.get(`/staff/blood-compatibility/${bloodType}?requestedAmount=${requestedAmount}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 }; 

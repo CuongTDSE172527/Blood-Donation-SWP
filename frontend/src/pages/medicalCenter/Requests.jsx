@@ -29,7 +29,7 @@ import {
   MenuItem,
   Chip
 } from '@mui/material';
-import { Add, Edit, Delete } from '@mui/icons-material';
+import { Add, Edit, Delete, Search, FilterList } from '@mui/icons-material';
 import { medicalCenterService } from '../../services/medicalCenterService';
 import { BLOOD_TYPES, BLOOD_REQUEST_STATUS, STATUS_LABELS } from '../../constants/enums';
 import { useAuth } from '../../hooks/useAuth';
@@ -38,6 +38,7 @@ export default function Requests() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [requests, setRequests] = useState([]);
+  const [filteredRequests, setFilteredRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
@@ -55,6 +56,12 @@ export default function Requests() {
     notes: '',
     status: BLOOD_REQUEST_STATUS.PENDING
   });
+  
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [sortBy, setSortBy] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc');
 
   // Load requests data
   useEffect(() => {
@@ -62,6 +69,11 @@ export default function Requests() {
       loadRequests(user.id);
     }
   }, [user]);
+
+  // Filter and sort requests when data changes
+  useEffect(() => {
+    filterAndSortRequests();
+  }, [requests, searchTerm, statusFilter, sortBy, sortOrder]);
 
   const loadRequests = async (medicalCenterId) => {
     try {
@@ -72,6 +84,85 @@ export default function Requests() {
       setError(err.message || 'Failed to load requests');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const filterAndSortRequests = () => {
+    let filtered = [...requests];
+
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(request => 
+        (request.recipientName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (request.recipientBloodType || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (request.id?.toString() || '').includes(searchTerm) ||
+        (request.medicalReason || '').toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter !== 'ALL') {
+      filtered = filtered.filter(request => request.status === statusFilter);
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy) {
+        case 'date':
+          aValue = new Date(a.requestDate || 0);
+          bValue = new Date(b.requestDate || 0);
+          break;
+        case 'name':
+          aValue = (a.recipientName || '').toLowerCase();
+          bValue = (b.recipientName || '').toLowerCase();
+          break;
+        case 'bloodType':
+          aValue = (a.recipientBloodType || '').toLowerCase();
+          bValue = (b.recipientBloodType || '').toLowerCase();
+          break;
+        case 'amount':
+          aValue = a.requestedAmount || 0;
+          bValue = b.requestedAmount || 0;
+          break;
+        case 'status':
+          aValue = (a.status || '').toLowerCase();
+          bValue = (b.status || '').toLowerCase();
+          break;
+        case 'urgency':
+          aValue = (a.urgencyLevel || '').toLowerCase();
+          bValue = (b.urgencyLevel || '').toLowerCase();
+          break;
+        default:
+          aValue = a.id || 0;
+          bValue = b.id || 0;
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    setFilteredRequests(filtered);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleStatusFilterChange = (event) => {
+    setStatusFilter(event.target.value);
+  };
+
+  const handleSortChange = (field) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
     }
   };
 
@@ -112,28 +203,14 @@ export default function Requests() {
   const handleClose = () => {
     setOpen(false);
     setEditRequest(null);
-    setForm({
-      recipientName: '',
-      recipientBloodType: '',
-      requestedAmount: 0,
-      urgencyLevel: 'NORMAL',
-      medicalReason: '',
-      hospitalName: '',
-      doctorName: '',
-      contactPhone: '',
-      contactEmail: '',
-      notes: '',
-      status: BLOOD_REQUEST_STATUS.PENDING
-    });
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'requestedAmount') {
-      setForm({ ...form, [name]: Math.max(0, parseInt(value) || 0) });
-    } else {
-      setForm({ ...form, [name]: value });
-    }
+    setForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSave = async () => {
@@ -181,6 +258,8 @@ export default function Requests() {
         return 'warning';
       case BLOOD_REQUEST_STATUS.WAITING:
         return 'info';
+      case BLOOD_REQUEST_STATUS.CONFIRM:
+        return 'success';
       case BLOOD_REQUEST_STATUS.PRIORITY:
         return 'error';
       case BLOOD_REQUEST_STATUS.OUT_OF_STOCK:
@@ -204,41 +283,125 @@ export default function Requests() {
         <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>
           {t('medicalCenter.requestManagement') || 'Blood Request Management'}
         </Typography>
-
+        
         {error && (
           <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
 
-        <Card>
+        {/* Search and Filter Section */}
+        <Card sx={{ mb: 3 }}>
           <CardContent>
-            <Button 
-              variant="contained" 
-              startIcon={<Add />} 
-              sx={{ mb: 3, bgcolor: '#d32f2f' }} 
-              onClick={() => handleOpen()}
-            >
-              {t('medicalCenter.addRequest') || 'Add Request'}
-            </Button>
+            <Grid container spacing={3} alignItems="center">
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label={t('medicalCenter.search') || 'Search requests...'}
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  InputProps={{
+                    startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
+                  placeholder={t('medicalCenter.searchPlaceholder') || 'Search by name, blood type, reason, or ID...'}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <FormControl fullWidth>
+                  <InputLabel>{t('medicalCenter.filterByStatus') || 'Filter by Status'}</InputLabel>
+                  <Select
+                    value={statusFilter}
+                    onChange={handleStatusFilterChange}
+                    label={t('medicalCenter.filterByStatus') || 'Filter by Status'}
+                  >
+                    <MenuItem value="ALL">{t('medicalCenter.allStatuses') || 'All Statuses'}</MenuItem>
+                    <MenuItem value="PENDING">{STATUS_LABELS[BLOOD_REQUEST_STATUS.PENDING]}</MenuItem>
+                    <MenuItem value="WAITING">{STATUS_LABELS[BLOOD_REQUEST_STATUS.WAITING]}</MenuItem>
+                    <MenuItem value="CONFIRM">{STATUS_LABELS[BLOOD_REQUEST_STATUS.CONFIRM]}</MenuItem>
+                    <MenuItem value="PRIORITY">{STATUS_LABELS[BLOOD_REQUEST_STATUS.PRIORITY]}</MenuItem>
+                    <MenuItem value="OUT_OF_STOCK">{STATUS_LABELS[BLOOD_REQUEST_STATUS.OUT_OF_STOCK]}</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <FormControl fullWidth>
+                  <InputLabel>{t('medicalCenter.sortBy') || 'Sort By'}</InputLabel>
+                  <Select
+                    value={sortBy}
+                    onChange={(e) => handleSortChange(e.target.value)}
+                    label={t('medicalCenter.sortBy') || 'Sort By'}
+                  >
+                    <MenuItem value="date">{t('medicalCenter.date') || 'Date'}</MenuItem>
+                    <MenuItem value="name">{t('medicalCenter.patientName') || 'Patient Name'}</MenuItem>
+                    <MenuItem value="bloodType">{t('medicalCenter.bloodType') || 'Blood Type'}</MenuItem>
+                    <MenuItem value="amount">{t('medicalCenter.amount') || 'Amount'}</MenuItem>
+                    <MenuItem value="status">{t('medicalCenter.status') || 'Status'}</MenuItem>
+                    <MenuItem value="urgency">{t('medicalCenter.urgency') || 'Urgency'}</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={() => {
+                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+                  }}
+                  startIcon={<FilterList />}
+                >
+                  {sortOrder === 'asc' ? '↑' : '↓'}
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
 
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" sx={{ color: '#d32f2f' }}>
+                {t('medicalCenter.bloodRequests') || 'Blood Requests'}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="body2" color="text.secondary">
+                  {t('medicalCenter.showingResults') || 'Showing'} {filteredRequests.length} {t('medicalCenter.of') || 'of'} {requests.length} {t('medicalCenter.requests') || 'requests'}
+                </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<Add />}
+                  onClick={() => handleOpen()}
+                  sx={{ bgcolor: '#d32f2f' }}
+                >
+                  {t('medicalCenter.addRequest') || 'Add Request'}
+                </Button>
+              </Box>
+            </Box>
+            
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 'bold' }}>ID</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.bloodType') || 'Blood Type'}</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.recipientName') || 'Recipient Name'}</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.requestDate') || 'Request Date'}</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.requestedAmount') || 'Requested Amount'}</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.status') || 'Status'}</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>{t('medicalCenter.urgencyLevel') || 'Urgency Level'}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>{t('medicalCenter.actions') || 'Actions'}</TableCell>
+                    <TableCell>{t('medicalCenter.id') || 'ID'}</TableCell>
+                    <TableCell>{t('medicalCenter.bloodType') || 'Blood Type'}</TableCell>
+                    <TableCell>{t('medicalCenter.patientName') || 'Patient Name'}</TableCell>
+                    <TableCell>{t('medicalCenter.date') || 'Date'}</TableCell>
+                    <TableCell>{t('medicalCenter.amount') || 'Amount'}</TableCell>
+                    <TableCell>{t('medicalCenter.status') || 'Status'}</TableCell>
+                    <TableCell>{t('medicalCenter.urgency') || 'Urgency'}</TableCell>
+                    <TableCell align="right">{t('medicalCenter.actions') || 'Actions'}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {requests
-                    .filter(request => ['PENDING', 'OUT_OF_STOCK', 'WAITING', 'PRIORITY'].includes(request.status))
+                  {filteredRequests.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} align="center">
+                        {searchTerm || statusFilter !== 'ALL' 
+                          ? (t('medicalCenter.noMatchingRequests') || 'No matching requests found') 
+                          : (t('common.noData') || 'No data')}
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredRequests
+                    .filter(request => ['PENDING', 'OUT_OF_STOCK', 'WAITING', 'PRIORITY', 'CONFIRM'].includes(request.status))
                     .map((request) => (
                       <TableRow key={request.id}>
                         <TableCell>{request.id}</TableCell>
@@ -368,6 +531,9 @@ export default function Requests() {
                       </MenuItem>
                       <MenuItem value={BLOOD_REQUEST_STATUS.WAITING}>
                         {STATUS_LABELS[BLOOD_REQUEST_STATUS.WAITING]}
+                      </MenuItem>
+                      <MenuItem value={BLOOD_REQUEST_STATUS.CONFIRM}>
+                        {STATUS_LABELS[BLOOD_REQUEST_STATUS.CONFIRM]}
                       </MenuItem>
                       <MenuItem value={BLOOD_REQUEST_STATUS.PRIORITY}>
                         {STATUS_LABELS[BLOOD_REQUEST_STATUS.PRIORITY]}

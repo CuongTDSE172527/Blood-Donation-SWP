@@ -7,6 +7,7 @@ import com.example.demo1.entity.enums.Role;
 import com.example.demo1.repo.*;
 import com.example.demo1.service.BloodInventoryService;
 import com.example.demo1.service.NotificationService;
+import com.example.demo1.dto.BloodCompatibilityResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -510,7 +511,15 @@ public class AdminController {
         inventory.setQuantity(inventory.getQuantity() - req.getRequestedAmount());
         bloodInventoryService.save(inventory);
 
-        req.setStatus(BloodRequestStatus.WAITING);
+        // Logic cập nhật trạng thái dựa trên trạng thái hiện tại
+        BloodRequestStatus newStatus;
+        if (req.getStatus() == BloodRequestStatus.PENDING || req.getStatus() == BloodRequestStatus.WAITING) {
+            newStatus = BloodRequestStatus.CONFIRM; // Chuyển thành đã xác nhận
+        } else {
+            newStatus = BloodRequestStatus.WAITING; // Giữ logic cũ cho các trạng thái khác
+        }
+        
+        req.setStatus(newStatus);
         bloodRequestRepo.save(req);
 
         notificationService.sendNotification(req.getMedicalCenter().getEmail(), "Yêu cầu nhận máu đã được xác nhận.");
@@ -568,6 +577,67 @@ public class AdminController {
         if (!diseaseRepo.existsById(id)) return ResponseEntity.badRequest().body("Disease not found");
         diseaseRepo.deleteById(id);
         return ResponseEntity.ok("Deleted successfully");
+    }
+
+    // === Blood Compatibility Check ===
+    @GetMapping("/blood-compatibility/{bloodType}")
+    public ResponseEntity<?> checkBloodCompatibility(@PathVariable String bloodType, 
+                                                   @RequestParam(defaultValue = "1") int requestedAmount) {
+        try {
+            BloodCompatibilityResponse response = bloodInventoryService.checkBloodAvailabilityWithCompatibility(bloodType, requestedAmount);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error checking blood compatibility: " + e.getMessage());
+        }
+    }
+
+    // === Confirm Blood Request with Compatibility ===
+    @PostMapping("/blood-requests/{id}/confirm-with-compatibility")
+    public ResponseEntity<?> confirmBloodRequestWithCompatibility(@PathVariable Long id, 
+                                                                @RequestParam(required = false) String alternativeBloodType) {
+        Optional<BloodRequest> opt = bloodRequestRepo.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.badRequest().body("Request not found");
+
+        BloodRequest req = opt.get();
+        String bloodTypeToUse = alternativeBloodType != null ? alternativeBloodType : req.getRecipientBloodType();
+        
+        // Check if the alternative blood type is compatible
+        if (alternativeBloodType != null) {
+            BloodCompatibilityResponse compatibility = bloodInventoryService.checkBloodAvailabilityWithCompatibility(req.getRecipientBloodType(), req.getRequestedAmount());
+            if (!compatibility.getAvailableCompatibleTypes().containsKey(alternativeBloodType)) {
+                return ResponseEntity.badRequest().body("Nhóm máu thay thế không tương thích với nhóm máu yêu cầu");
+            }
+        }
+
+        Optional<BloodInventory> inventoryOpt = bloodInventoryService.findByBloodType(bloodTypeToUse);
+        if (inventoryOpt.isEmpty()) return ResponseEntity.badRequest().body("Không tìm thấy kho máu phù hợp");
+        
+        BloodInventory inventory = inventoryOpt.get();
+        if (inventory.getQuantity() < req.getRequestedAmount()) {
+            return ResponseEntity.badRequest().body("Không đủ lượng máu trong kho");
+        }
+
+        // Deduct from inventory
+        inventory.setQuantity(inventory.getQuantity() - req.getRequestedAmount());
+        bloodInventoryService.save(inventory);
+
+        // Update request status
+        BloodRequestStatus newStatus;
+        if (req.getStatus() == BloodRequestStatus.PENDING || req.getStatus() == BloodRequestStatus.WAITING) {
+            newStatus = BloodRequestStatus.CONFIRM;
+        } else {
+            newStatus = BloodRequestStatus.WAITING;
+        }
+        
+        req.setStatus(newStatus);
+        bloodRequestRepo.save(req);
+
+        String message = alternativeBloodType != null ? 
+            "Yêu cầu nhận máu đã được xác nhận với nhóm máu thay thế: " + alternativeBloodType :
+            "Yêu cầu nhận máu đã được xác nhận";
+            
+        notificationService.sendNotification(req.getMedicalCenter().getEmail(), message);
+        return ResponseEntity.ok("Request confirmed with compatibility");
     }
     @GetMapping("/donors/by-schedule/{scheduleId}")
     public ResponseEntity<?> getDonorsBySchedule(@PathVariable Long scheduleId) {

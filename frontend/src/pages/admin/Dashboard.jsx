@@ -136,9 +136,17 @@ const AdminDashboard = () => {
       // Confirm request and deduct from inventory
       await adminService.confirmBloodRequest(request.id);
       
+      // Logic cập nhật trạng thái dựa trên trạng thái hiện tại
+      let newStatus;
+      if (request.status === 'PENDING' || request.status === 'WAITING') {
+        newStatus = 'CONFIRM';
+      } else {
+        newStatus = 'WAITING';
+      }
+      
       // Update local state
       setRecentRequests(prev => prev.map(r => 
-        r.id === request.id ? { ...r, status: 'WAITING' } : r
+        r.id === request.id ? { ...r, status: newStatus } : r
       ));
       
       // Reload inventory to reflect the deduction

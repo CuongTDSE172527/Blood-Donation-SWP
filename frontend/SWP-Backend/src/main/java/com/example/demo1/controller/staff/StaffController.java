@@ -8,6 +8,7 @@ import com.example.demo1.entity.enums.Role;
 import com.example.demo1.repo.*;
 import com.example.demo1.service.BloodInventoryService;
 import com.example.demo1.service.NotificationService;
+import com.example.demo1.dto.BloodCompatibilityResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -196,7 +197,15 @@ public class StaffController {
         inventory.setQuantity(inventory.getQuantity() - req.getRequestedAmount());
         bloodInventoryService.save(inventory);
 
-        req.setStatus(BloodRequestStatus.WAITING);
+        // Logic cập nhật trạng thái dựa trên trạng thái hiện tại
+        BloodRequestStatus newStatus;
+        if (req.getStatus() == BloodRequestStatus.PENDING || req.getStatus() == BloodRequestStatus.WAITING) {
+            newStatus = BloodRequestStatus.CONFIRM; // Chuyển thành đã xác nhận
+        } else {
+            newStatus = BloodRequestStatus.WAITING; // Giữ logic cũ cho các trạng thái khác
+        }
+        
+        req.setStatus(newStatus);
         bloodRequestRepo.save(req);
 
         notificationService.sendNotification(req.getMedicalCenter().getEmail(), "Yêu cầu nhận máu đã được xác nhận.");
@@ -264,6 +273,18 @@ public class StaffController {
     @GetMapping("/diseases")
     public ResponseEntity<?> getAllDiseases() {
         return ResponseEntity.ok(diseaseRepo.findAll());
+    }
+
+    // === Blood Compatibility Check ===
+    @GetMapping("/blood-compatibility/{bloodType}")
+    public ResponseEntity<?> checkBloodCompatibility(@PathVariable String bloodType, 
+                                                   @RequestParam(defaultValue = "1") int requestedAmount) {
+        try {
+            BloodCompatibilityResponse response = bloodInventoryService.checkBloodAvailabilityWithCompatibility(bloodType, requestedAmount);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error checking blood compatibility: " + e.getMessage());
+        }
     }
 
 

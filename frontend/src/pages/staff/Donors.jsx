@@ -30,7 +30,7 @@ import {
   Alert,
   CircularProgress
 } from '@mui/material';
-import { Add, Edit, Delete } from '@mui/icons-material';
+import { Add, Edit, Delete, Search, FilterList } from '@mui/icons-material';
 import { staffService } from '../../services/staffService';
 import { BLOOD_TYPES } from '../../constants/enums';
 
@@ -38,6 +38,7 @@ export default function Donors() {
   const { t } = useTranslation();
   const { user } = useSelector((state) => state.auth);
   const [donors, setDonors] = useState([]);
+  const [filteredDonors, setFilteredDonors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
@@ -54,11 +55,22 @@ export default function Donors() {
     allergies: '',
     medications: ''
   });
+  
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [bloodTypeFilter, setBloodTypeFilter] = useState('ALL');
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState('asc');
 
   // Load donors data
   useEffect(() => {
     loadDonors();
   }, []);
+
+  // Filter and sort donors when data changes
+  useEffect(() => {
+    filterAndSortDonors();
+  }, [donors, searchTerm, bloodTypeFilter, sortBy, sortOrder]);
 
   const loadDonors = async () => {
     try {
@@ -69,6 +81,81 @@ export default function Donors() {
       setError(err.message || 'Failed to load donors');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const filterAndSortDonors = () => {
+    let filtered = [...donors];
+
+    // Apply blood type filter
+    if (bloodTypeFilter !== 'ALL') {
+      filtered = filtered.filter(donor => donor.bloodType === bloodTypeFilter);
+    }
+
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(donor => 
+        (donor.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (donor.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (donor.phone || '').includes(searchTerm) ||
+        (donor.id?.toString() || '').includes(searchTerm)
+      );
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy) {
+        case 'name':
+          aValue = (a.fullName || '').toLowerCase();
+          bValue = (b.fullName || '').toLowerCase();
+          break;
+        case 'email':
+          aValue = (a.email || '').toLowerCase();
+          bValue = (b.email || '').toLowerCase();
+          break;
+        case 'phone':
+          aValue = (a.phone || '').toLowerCase();
+          bValue = (b.phone || '').toLowerCase();
+          break;
+        case 'bloodType':
+          aValue = (a.bloodType || '').toLowerCase();
+          bValue = (b.bloodType || '').toLowerCase();
+          break;
+        case 'dob':
+          aValue = new Date(a.dob || 0);
+          bValue = new Date(b.dob || 0);
+          break;
+        default:
+          aValue = a.id || 0;
+          bValue = b.id || 0;
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    setFilteredDonors(filtered);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleBloodTypeFilterChange = (event) => {
+    setBloodTypeFilter(event.target.value);
+  };
+
+  const handleSortChange = (field) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
     }
   };
 
@@ -107,18 +194,6 @@ export default function Donors() {
   const handleClose = () => {
     setOpen(false);
     setEditDonor(null);
-    setForm({
-      fullName: '',
-      email: '',
-      phone: '',
-      dob: '',
-      bloodType: '',
-      address: '',
-      emergencyContact: '',
-      medicalHistory: '',
-      allergies: '',
-      medications: ''
-    });
   };
 
   const handleChange = (e) => {
@@ -127,16 +202,14 @@ export default function Donors() {
 
   const handleSave = async () => {
     try {
-    if (editDonor) {
-        // Update existing donor
+      if (editDonor) {
         await staffService.updateDonor(editDonor.id, form);
         setDonors(donors.map(d => d.id === editDonor.id ? { ...d, ...form } : d));
-    } else {
-        // Add new donor
+      } else {
         const newDonor = await staffService.createDonor(form);
         setDonors([...donors, newDonor]);
-    }
-    handleClose();
+      }
+      handleClose();
     } catch (err) {
       setError(err.message || 'Failed to save donor');
     }
@@ -172,48 +245,130 @@ export default function Donors() {
           </Alert>
         )}
 
+        {/* Search and Filter Section */}
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Grid container spacing={3} alignItems="center">
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label={t('staff.search') || 'Search donors...'}
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  InputProps={{
+                    startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
+                  placeholder={t('staff.searchPlaceholder') || 'Search by name, email, phone, or ID...'}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <FormControl fullWidth>
+                  <InputLabel>{t('staff.filterByBloodType') || 'Filter by Blood Type'}</InputLabel>
+                  <Select
+                    value={bloodTypeFilter}
+                    onChange={handleBloodTypeFilterChange}
+                    label={t('staff.filterByBloodType') || 'Filter by Blood Type'}
+                  >
+                    <MenuItem value="ALL">{t('staff.allBloodTypes') || 'All Blood Types'}</MenuItem>
+                    {BLOOD_TYPES.map((type) => (
+                      <MenuItem key={type} value={type}>
+                        {type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <FormControl fullWidth>
+                  <InputLabel>{t('staff.sortBy') || 'Sort By'}</InputLabel>
+                  <Select
+                    value={sortBy}
+                    onChange={(e) => handleSortChange(e.target.value)}
+                    label={t('staff.sortBy') || 'Sort By'}
+                  >
+                    <MenuItem value="name">{t('staff.name') || 'Name'}</MenuItem>
+                    <MenuItem value="email">{t('staff.email') || 'Email'}</MenuItem>
+                    <MenuItem value="phone">{t('staff.phone') || 'Phone'}</MenuItem>
+                    <MenuItem value="bloodType">{t('staff.bloodType') || 'Blood Type'}</MenuItem>
+                    <MenuItem value="dob">{t('staff.dob') || 'Date of Birth'}</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={() => {
+                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+                  }}
+                  startIcon={<FilterList />}
+                >
+                  {sortOrder === 'asc' ? '↑' : '↓'}
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardContent>
-            <Button 
-              variant="contained" 
-              startIcon={<Add />} 
-              sx={{ mb: 3, bgcolor: '#d32f2f' }} 
-              onClick={() => handleOpen()}
-            >
-              {t('staff.addDonor') || 'Add Donor'}
-              </Button>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" sx={{ color: '#d32f2f' }}>
+                {t('staff.donors') || 'Donors'}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="body2" color="text.secondary">
+                  {t('staff.showingResults') || 'Showing'} {filteredDonors.length} {t('staff.of') || 'of'} {donors.length} {t('staff.donors') || 'donors'}
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  startIcon={<Add />} 
+                  sx={{ bgcolor: '#d32f2f' }} 
+                  onClick={() => handleOpen()}
+                >
+                  {t('staff.addDonor') || 'Add Donor'}
+                </Button>
+              </Box>
+            </Box>
 
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('staff.name') || 'Name'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('staff.email') || 'Email'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('staff.phone') || 'Phone'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('staff.dob') || 'Date of Birth'}
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                      {t('staff.actions') || 'Actions'}
-                    </TableCell>
+                    <TableCell>{t('staff.name') || 'Name'}</TableCell>
+                    <TableCell>{t('staff.email') || 'Email'}</TableCell>
+                    <TableCell>{t('staff.phone') || 'Phone'}</TableCell>
+                    <TableCell>{t('staff.bloodType') || 'Blood Type'}</TableCell>
+                    <TableCell>{t('staff.dob') || 'Date of Birth'}</TableCell>
+                    <TableCell align="right">{t('staff.actions') || 'Actions'}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {donors.map((donor) => (
+                  {filteredDonors.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">
+                        {searchTerm || bloodTypeFilter !== 'ALL' 
+                          ? (t('staff.noMatchingDonors') || 'No matching donors found') 
+                          : (t('common.noData') || 'No data')}
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredDonors.map((donor) => (
                     <TableRow key={donor.id}>
                       <TableCell sx={{ fontWeight: 'medium' }}>
                         {donor.fullName}
                       </TableCell>
                       <TableCell>{donor.email}</TableCell>
                       <TableCell>{donor.phone}</TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={donor.bloodType} 
+                          color="primary" 
+                          size="small" 
+                          sx={{ bgcolor: '#d32f2f' }}
+                        />
+                      </TableCell>
                       <TableCell>{donor.dob}</TableCell>
-                        <TableCell align="right">
+                      <TableCell align="right">
                         <IconButton 
                           onClick={() => handleOpen(donor)}
                           sx={{ color: '#d32f2f' }}
@@ -226,7 +381,7 @@ export default function Donors() {
                         >
                           <Delete />
                         </IconButton>
-                        </TableCell>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

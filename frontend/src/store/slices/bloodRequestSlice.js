@@ -140,11 +140,21 @@ const bloodRequestSlice = createSlice({
         const { id } = action.payload;
         const request = state.requests.find(req => req.id === id);
         if (request) {
-          request.status = 'WAITING';
+          // Logic cập nhật trạng thái dựa trên trạng thái hiện tại
+          if (request.status === 'PENDING' || request.status === 'WAITING') {
+            request.status = 'CONFIRM';
+          } else {
+            request.status = 'WAITING';
+          }
         }
         const mcRequest = state.medicalCenterRequests.find(req => req.id === id);
         if (mcRequest) {
-          mcRequest.status = 'WAITING';
+          // Logic cập nhật trạng thái dựa trên trạng thái hiện tại
+          if (mcRequest.status === 'PENDING' || mcRequest.status === 'WAITING') {
+            mcRequest.status = 'CONFIRM';
+          } else {
+            mcRequest.status = 'WAITING';
+          }
         }
       })
       // Mark priority

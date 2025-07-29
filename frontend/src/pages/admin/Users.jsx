@@ -30,13 +30,14 @@ import {
   Alert,
   CircularProgress
 } from '@mui/material';
-import { Add, Edit, Delete, ArrowDropDown } from '@mui/icons-material';
+import { Add, Edit, Delete, ArrowDropDown, Search, FilterList } from '@mui/icons-material';
 import { adminService } from '../../services/adminService';
 import { ROLE } from '../../constants/enums';
 
 export default function Users() {
   const { t } = useTranslation();
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
@@ -52,11 +53,21 @@ export default function Users() {
   });
   const [roleFilter, setRoleFilter] = useState('all');
   const [anchorEl, setAnchorEl] = useState(null);
+  
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState('asc');
 
   // Load users data
   useEffect(() => {
     loadUsers();
   }, []);
+
+  // Filter and sort users when data changes
+  useEffect(() => {
+    filterAndSortUsers();
+  }, [users, searchTerm, roleFilter, sortBy, sortOrder]);
 
   const loadUsers = async () => {
     try {
@@ -67,6 +78,78 @@ export default function Users() {
       setError(err.message || 'Failed to load users');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const filterAndSortUsers = () => {
+    // Filter out medical center accounts from general user management
+    let filtered = users.filter(u => u.role !== 'MEDICALCENTER');
+
+    // Apply role filter
+    if (roleFilter !== 'all') {
+      filtered = filtered.filter(u => u.role === roleFilter);
+    }
+
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(user => 
+        (user.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (user.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (user.phone || '').includes(searchTerm) ||
+        (user.id?.toString() || '').includes(searchTerm)
+      );
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy) {
+        case 'name':
+          aValue = (a.fullName || '').toLowerCase();
+          bValue = (b.fullName || '').toLowerCase();
+          break;
+        case 'email':
+          aValue = (a.email || '').toLowerCase();
+          bValue = (b.email || '').toLowerCase();
+          break;
+        case 'phone':
+          aValue = (a.phone || '').toLowerCase();
+          bValue = (b.phone || '').toLowerCase();
+          break;
+        case 'role':
+          aValue = (a.role || '').toLowerCase();
+          bValue = (b.role || '').toLowerCase();
+          break;
+        case 'dob':
+          aValue = new Date(a.dob || 0);
+          bValue = new Date(b.dob || 0);
+          break;
+        default:
+          aValue = a.id || 0;
+          bValue = b.id || 0;
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    setFilteredUsers(filtered);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleSortChange = (field) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
     }
   };
 
@@ -99,15 +182,6 @@ export default function Users() {
   const handleClose = () => {
     setOpen(false);
     setEditUser(null);
-    setForm({
-      fullName: '',
-      email: '',
-      phone: '',
-      dob: '',
-      address: '',
-              role: 'DONOR',
-      password: ''
-    });
   };
 
   const handleChange = (e) => {
@@ -116,17 +190,14 @@ export default function Users() {
 
   const handleSave = async () => {
     try {
-    if (editUser) {
-        // Update existing user (without password)
-        const { password, ...updateData } = form;
-        await adminService.updateUser(editUser.id, updateData);
-        setUsers(users.map(u => u.id === editUser.id ? { ...u, ...updateData } : u));
-    } else {
-        // Create new user with password
+      if (editUser) {
+        await adminService.updateUser(editUser.id, form);
+        setUsers(users.map(u => u.id === editUser.id ? { ...u, ...form } : u));
+      } else {
         const newUser = await adminService.createUser(form);
         setUsers([...users, newUser]);
-    }
-    handleClose();
+      }
+      handleClose();
     } catch (err) {
       setError(err.message || 'Failed to save user');
     }
@@ -153,10 +224,6 @@ export default function Users() {
     setRoleFilter(role);
     handleMenuClose();
   };
-
-  // Filter out medical center accounts from general user management
-  const nonMedicalCenterUsers = users.filter(u => u.role !== 'MEDICALCENTER');
-  const filteredUsers = roleFilter === 'all' ? nonMedicalCenterUsers : nonMedicalCenterUsers.filter(u => u.role === roleFilter);
 
   const getRoleColor = (role) => {
     switch (role) {
@@ -192,56 +259,111 @@ export default function Users() {
           </Alert>
         )}
 
+        {/* Search and Filter Section */}
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Grid container spacing={3} alignItems="center">
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label={t('admin.search') || 'Search users...'}
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  InputProps={{
+                    startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
+                  placeholder={t('admin.searchPlaceholder') || 'Search by name, email, phone, or ID...'}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <FormControl fullWidth>
+                  <InputLabel>{t('admin.filterByRole') || 'Filter by Role'}</InputLabel>
+                  <Select
+                    value={roleFilter}
+                    onChange={(e) => handleRoleFilter(e.target.value)}
+                    label={t('admin.filterByRole') || 'Filter by Role'}
+                  >
+                    <MenuItem value="all">{t('admin.allRoles') || 'All Roles'}</MenuItem>
+                    <MenuItem value="ADMIN">{t('admin.admin') || 'Admin'}</MenuItem>
+                    <MenuItem value="STAFF">{t('admin.staff') || 'Staff'}</MenuItem>
+                    <MenuItem value="DONOR">{t('admin.donor') || 'Donor'}</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <FormControl fullWidth>
+                  <InputLabel>{t('admin.sortBy') || 'Sort By'}</InputLabel>
+                  <Select
+                    value={sortBy}
+                    onChange={(e) => handleSortChange(e.target.value)}
+                    label={t('admin.sortBy') || 'Sort By'}
+                  >
+                    <MenuItem value="name">{t('admin.name') || 'Name'}</MenuItem>
+                    <MenuItem value="email">{t('admin.email') || 'Email'}</MenuItem>
+                    <MenuItem value="phone">{t('admin.phone') || 'Phone'}</MenuItem>
+                    <MenuItem value="role">{t('admin.role') || 'Role'}</MenuItem>
+                    <MenuItem value="dob">{t('admin.dob') || 'Date of Birth'}</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={() => {
+                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+                  }}
+                  startIcon={<FilterList />}
+                >
+                  {sortOrder === 'asc' ? '↑' : '↓'}
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardContent>
-            <Button 
-              variant="contained" 
-              startIcon={<Add />} 
-              sx={{ mb: 3, bgcolor: '#d32f2f' }} 
-              onClick={() => handleOpen()}
-            >
-              {t('admin.addUser') || 'Add User'}
-            </Button>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" sx={{ color: '#d32f2f' }}>
+                {t('admin.users') || 'Users'}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="body2" color="text.secondary">
+                  {t('admin.showingResults') || 'Showing'} {filteredUsers.length} {t('admin.of') || 'of'} {users.filter(u => u.role !== 'MEDICALCENTER').length} {t('admin.users') || 'users'}
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  startIcon={<Add />} 
+                  sx={{ bgcolor: '#d32f2f' }} 
+                  onClick={() => handleOpen()}
+                >
+                  {t('admin.addUser') || 'Add User'}
+                </Button>
+              </Box>
+            </Box>
 
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('admin.name') || 'Name'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('admin.email') || 'Email'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('admin.phone') || 'Phone'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      <Button onClick={handleMenuOpen} endIcon={<ArrowDropDown />} sx={{ color: '#d32f2f', fontWeight: 600 }}>
-                        {t('admin.role') || 'Role'}
-                      </Button>
-                      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                        <MenuItem selected={roleFilter === 'all'} onClick={() => handleRoleFilter('all')}>
-                          {t('admin.all') || 'All'}
-                        </MenuItem>
-                        <MenuItem selected={roleFilter === 'ADMIN'} onClick={() => handleRoleFilter('ADMIN')}>
-                          {t('admin.admin') || 'Admin'}
-                        </MenuItem>
-                        <MenuItem selected={roleFilter === 'STAFF'} onClick={() => handleRoleFilter('STAFF')}>
-                          {t('admin.staff') || 'Staff'}
-                        </MenuItem>
-                        <MenuItem selected={roleFilter === 'DONOR'} onClick={() => handleRoleFilter('DONOR')}>
-                          {t('admin.donor') || 'Donor'}
-                        </MenuItem>
-                      </Menu>
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                      {t('admin.actions') || 'Actions'}
-                    </TableCell>
+                    <TableCell>{t('admin.name') || 'Name'}</TableCell>
+                    <TableCell>{t('admin.email') || 'Email'}</TableCell>
+                    <TableCell>{t('admin.phone') || 'Phone'}</TableCell>
+                    <TableCell>{t('admin.role') || 'Role'}</TableCell>
+                    <TableCell align="right">{t('admin.actions') || 'Actions'}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredUsers.map((user) => (
+                  {filteredUsers.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        {searchTerm || roleFilter !== 'all' 
+                          ? (t('admin.noMatchingUsers') || 'No matching users found') 
+                          : (t('common.noData') || 'No data')}
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell sx={{ fontWeight: 'medium' }}>
                         {user.fullName}
