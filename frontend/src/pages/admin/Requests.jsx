@@ -24,13 +24,20 @@ export default function AdminRequests() {
     try {
       setLoading(true);
       setError(null);
+      console.log('Loading blood requests and inventory...');
+      
       const [requestsRes, inventoryRes] = await Promise.all([
         adminService.getAllBloodRequests(),
         adminService.getBloodInventory()
       ]);
+      
+      console.log('Blood requests loaded:', requestsRes);
+      console.log('Inventory loaded:', inventoryRes);
+      
       setRequests(requestsRes);
       setInventory(inventoryRes);
     } catch (err) {
+      console.error('Error loading data:', err);
       setError(err.message || 'Failed to load data');
     } finally {
       setLoading(false);
@@ -89,13 +96,16 @@ export default function AdminRequests() {
 
   const handleComplete = async (request) => {
     try {
-      await adminService.updateBloodRequest(request.id, { status: 'COMPLETED' });
+      await adminService.confirmBloodRequest(request.id);
       setRequests(requests.map(r => 
-        r.id === request.id ? { ...r, status: 'COMPLETED' } : r
+        r.id === request.id ? { ...r, status: 'WAITING' } : r
       ));
-      setSnackbar({ open: true, message: t('admin.completeRequestSuccess') || 'Request completed successfully!', severity: 'success' });
+      // Reload inventory to reflect the deduction
+      const updatedInventory = await adminService.getBloodInventory();
+      setInventory(updatedInventory);
+      setSnackbar({ open: true, message: t('admin.confirmRequestSuccess') || 'Request confirmed successfully!', severity: 'success' });
     } catch (err) {
-      setSnackbar({ open: true, message: err.message || 'Failed to complete request', severity: 'error' });
+      setSnackbar({ open: true, message: err.message || 'Failed to confirm request', severity: 'error' });
     }
   };
 
@@ -145,7 +155,7 @@ export default function AdminRequests() {
                       <TableCell>
                         <Chip 
                           label={t(`status_${(request.status || '').toUpperCase()}`)} 
-                          color={request.status === 'WAITING' ? 'success' : request.status === 'COMPLETED' ? 'default' : 'warning'} 
+                          color={request.status === 'WAITING' ? 'success' : request.status === 'CONFIRM' ? 'default' : 'warning'} 
                           size="small" 
                         />
                       </TableCell>
@@ -154,7 +164,7 @@ export default function AdminRequests() {
                         <IconButton onClick={() => handleOpen(request)}><Edit /></IconButton>
                         <IconButton color="error" onClick={() => handleDelete(request.id)}><Delete /></IconButton>
                         {(request.status === 'WAITING' || request.status === 'PENDING') && (
-                          <IconButton color="success" onClick={() => handleComplete(request)} title={t('admin.complete')}>
+                          <IconButton color="success" onClick={() => handleComplete(request)} title={t('admin.confirm')}>
                             <CheckCircle />
                           </IconButton>
                         )}
@@ -207,7 +217,7 @@ export default function AdminRequests() {
               >
                 <MenuItem value="PENDING">{t('status_PENDING')}</MenuItem>
                 <MenuItem value="WAITING">{t('status_WAITING')}</MenuItem>
-                <MenuItem value="COMPLETED">{t('status_COMPLETED')}</MenuItem>
+                <MenuItem value="CONFIRM">{t('status_CONFIRM')}</MenuItem>
               </Select>
             </FormControl>
             <TextField margin="dense" label={t('admin.date')} name="date" value={form.date} onChange={handleChange} fullWidth />

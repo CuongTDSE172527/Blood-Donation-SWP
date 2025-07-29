@@ -206,9 +206,13 @@ export const adminService = {
   // === Blood Inventory Management ===
   getBloodInventory: async () => {
     try {
+      console.log('Fetching blood inventory from:', '/admin/inventory');
       const response = await api.get('/admin/inventory');
+      console.log('Blood inventory response:', response.data);
       return response.data;
     } catch (error) {
+      console.error('Blood inventory error:', error);
+      console.error('Error response:', error.response);
       throw error.response?.data || error.message;
     }
   },
@@ -234,7 +238,20 @@ export const adminService = {
   // === Blood Request Management ===
   getAllBloodRequests: async () => {
     try {
+      console.log('Fetching blood requests from:', '/admin/blood-requests');
       const response = await api.get('/admin/blood-requests');
+      console.log('Blood requests response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Blood requests error:', error);
+      console.error('Error response:', error.response);
+      throw error.response?.data || error.message;
+    }
+  },
+
+  confirmBloodRequest: async (id) => {
+    try {
+      const response = await api.post(`/admin/blood-requests/${id}/confirm`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

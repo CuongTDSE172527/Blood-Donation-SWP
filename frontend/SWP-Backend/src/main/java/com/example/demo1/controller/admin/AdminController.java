@@ -5,6 +5,7 @@ import com.example.demo1.entity.enums.BloodRequestStatus;
 import com.example.demo1.entity.enums.RegistrationStatus;
 import com.example.demo1.entity.enums.Role;
 import com.example.demo1.repo.*;
+import com.example.demo1.service.BloodInventoryService;
 import com.example.demo1.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -95,16 +96,64 @@ public class AdminController {
     // Lấy danh sách tài khoản MEDICALCENTER
     @GetMapping("/users/medicalcenters")
     public ResponseEntity<List<User>> getMedicalCenters() {
-        return ResponseEntity.ok(userRepository.findByRole(Role.MEDICALCENTER));
+        List<User> medicalCenters = userRepository.findByRole(Role.MEDICALCENTER);
+        
+        // Get all donation locations to match with medical centers
+        List<DonationLocation> locations = locationRepo.findAll();
+        
+        // Try to match medical centers with locations by name
+        for (User center : medicalCenters) {
+            for (DonationLocation location : locations) {
+                if (location.getName() != null && center.getFullName() != null) {
+                    // Try exact match first
+                    if (location.getName().equalsIgnoreCase(center.getFullName())) {
+                        center.setAddress(location.getAddress());
+                        break;
+                    }
+                    // Try partial match (in case of encoding issues)
+                    if (location.getName().toLowerCase().contains(center.getFullName().toLowerCase()) ||
+                        center.getFullName().toLowerCase().contains(location.getName().toLowerCase())) {
+                        center.setAddress(location.getAddress());
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return ResponseEntity.ok(medicalCenters);
     }
 
     // Lấy chi tiết tài khoản MEDICALCENTER theo ID
     @GetMapping("/users/medicalcenters/{id}")
     public ResponseEntity<?> getMedicalCenterById(@PathVariable Long id) {
-        return userRepository.findById(id)
-                .filter(user -> user.getRole() == Role.MEDICALCENTER)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().body("Medical center not found"));
+        Optional<User> userOpt = userRepository.findById(id)
+                .filter(user -> user.getRole() == Role.MEDICALCENTER);
+        
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Medical center not found");
+        }
+        
+        User user = userOpt.get();
+        
+        // Try to find matching location by name
+        List<DonationLocation> locations = locationRepo.findAll();
+        for (DonationLocation location : locations) {
+            if (location.getName() != null && user.getFullName() != null) {
+                // Try exact match first
+                if (location.getName().equalsIgnoreCase(user.getFullName())) {
+                    user.setAddress(location.getAddress());
+                    break;
+                }
+                // Try partial match (in case of encoding issues)
+                if (location.getName().toLowerCase().contains(user.getFullName().toLowerCase()) ||
+                    user.getFullName().toLowerCase().contains(location.getName().toLowerCase())) {
+                    user.setAddress(location.getAddress());
+                    break;
+                }
+            }
+        }
+        
+        return ResponseEntity.ok(user);
     }
 
     // ==== QUẢN LÝ LỊCH HIẾN MÁU ====
@@ -181,6 +230,7 @@ public class AdminController {
         if (updatedUser.getFullName() != null) user.setFullName(updatedUser.getFullName());
         if (updatedUser.getEmail() != null) user.setEmail(updatedUser.getEmail());
         if (updatedUser.getPhone() != null) user.setPhone(updatedUser.getPhone());
+        if (updatedUser.getAddress() != null) user.setAddress(updatedUser.getAddress());
 
         return ResponseEntity.ok(userRepository.save(user));
     }
@@ -216,6 +266,10 @@ public class AdminController {
             user.setPhone(updatedUser.getPhone());
         }
 
+        if (updatedUser.getAddress() != null) {
+            user.setAddress(updatedUser.getAddress());
+        }
+
         return ResponseEntity.ok(userRepository.save(user));
     }
 
@@ -246,10 +300,21 @@ public class AdminController {
     }
     @Autowired
     private BloodInventoryRepository bloodInventoryRepo;
+    
+    @Autowired
+    private BloodInventoryService bloodInventoryService;
 
     @GetMapping("/inventory")
     public ResponseEntity<?> getAllBloodInventory() {
-        return ResponseEntity.ok(bloodInventoryRepo.findAll());
+        try {
+            List<BloodInventory> inventory = bloodInventoryRepo.findAll();
+            System.out.println("Found " + inventory.size() + " inventory items");
+            return ResponseEntity.ok(inventory);
+        } catch (Exception e) {
+            System.err.println("Error fetching blood inventory: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error fetching blood inventory: " + e.getMessage());
+        }
     }
     @PutMapping("/inventory/{id}")
     public ResponseEntity<?> updateBloodInventory(@PathVariable Long id, @RequestBody BloodInventory updated) {
@@ -278,7 +343,15 @@ public class AdminController {
 
     @GetMapping("/blood-requests")
     public ResponseEntity<?> getAllBloodRequests() {
-        return ResponseEntity.ok(bloodRequestRepo.findAll());
+        try {
+            List<BloodRequest> requests = bloodRequestRepo.findAll();
+            System.out.println("Found " + requests.size() + " blood requests");
+            return ResponseEntity.ok(requests);
+        } catch (Exception e) {
+            System.err.println("Error fetching blood requests: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error fetching blood requests: " + e.getMessage());
+        }
     }
     @PutMapping("/blood-requests/{id}/confirm")
     public ResponseEntity<?> confirmBloodRequest(@PathVariable Long id) {
@@ -392,18 +465,18 @@ public class AdminController {
         reg.setStatus(RegistrationStatus.CONFIRMED);
         registrationRepo.save(reg);
 
-        bloodInventoryRepo.findByBloodType(reg.getBloodType()).ifPresentOrElse(
+        bloodInventoryService.findByBloodType(reg.getBloodType()).ifPresentOrElse(
                 inv -> {
                     inv.setQuantity(inv.getQuantity() + reg.getAmount());
                     inv.setUpdatedBy(admin);
-                    bloodInventoryRepo.save(inv);
+                    bloodInventoryService.save(inv);
                 },
                 () -> {
                     BloodInventory newInv = new BloodInventory();
                     newInv.setBloodType(reg.getBloodType());
                     newInv.setQuantity(reg.getAmount());
                     newInv.setUpdatedBy(admin);
-                    bloodInventoryRepo.save(newInv);
+                    bloodInventoryService.save(newInv);
                 }
         );
 
@@ -426,7 +499,7 @@ public class AdminController {
         if (opt.isEmpty()) return ResponseEntity.badRequest().body("Request not found");
 
         BloodRequest req = opt.get();
-        Optional<BloodInventory> inventoryOpt = bloodInventoryRepo.findByBloodType(req.getRecipientBloodType());
+        Optional<BloodInventory> inventoryOpt = bloodInventoryService.findByBloodType(req.getRecipientBloodType());
 
         if (inventoryOpt.isEmpty()) return ResponseEntity.badRequest().body("Không tìm thấy kho máu phù hợp");
         BloodInventory inventory = inventoryOpt.get();
@@ -435,7 +508,7 @@ public class AdminController {
             return ResponseEntity.badRequest().body("Không đủ lượng máu trong kho");
 
         inventory.setQuantity(inventory.getQuantity() - req.getRequestedAmount());
-        bloodInventoryRepo.save(inventory);
+        bloodInventoryService.save(inventory);
 
         req.setStatus(BloodRequestStatus.WAITING);
         bloodRequestRepo.save(req);

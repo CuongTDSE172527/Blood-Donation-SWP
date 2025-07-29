@@ -60,6 +60,7 @@ const AdminDashboard = () => {
     totalStaff: 0,
     totalMedicalCenters: 0,
     totalRequests: 0,
+    totalSchedules: 0,
     pendingRequests: 0,
     totalInventory: 0,
     lowStock: 0,
@@ -76,18 +77,31 @@ const AdminDashboard = () => {
       setLoading(true);
       setError('');
       try {
+        console.log('Loading dashboard data...');
         // Fetch all data in parallel
-        const [usersRes, donorsRes, staffRes, medicalCentersRes, requestsRes, inventoryRes] = await Promise.all([
+        const [usersRes, donorsRes, staffRes, medicalCentersRes, requestsRes, inventoryRes, schedulesRes] = await Promise.all([
           adminService.getAllUsers(),
           adminService.getDonors(),
           adminService.getStaffs(),
           adminService.getMedicalCenters(),
           adminService.getAllBloodRequests(),
-          adminService.getBloodInventory()
+          adminService.getBloodInventory(),
+          adminService.getAllSchedules()
         ]);
+        
+        console.log('Dashboard data loaded:', {
+          users: usersRes.length,
+          donors: donorsRes.length,
+          staff: staffRes.length,
+          medicalCenters: medicalCentersRes.length,
+          requests: requestsRes.length,
+          inventory: inventoryRes.length,
+          schedules: schedulesRes.length
+        });
 
         // Calculate stats
         const totalRequests = requestsRes.length;
+        const totalSchedules = schedulesRes.length;
         const pendingRequests = requestsRes.filter(r => r.status === 'PENDING').length;
         const totalInventory = inventoryRes.reduce((sum, item) => sum + (item.quantity || 0), 0);
         const lowStock = inventoryRes.filter(item => item.quantity < 10).length;
@@ -98,6 +112,7 @@ const AdminDashboard = () => {
           totalStaff: staffRes.length,
           totalMedicalCenters: medicalCentersRes.length,
           totalRequests,
+          totalSchedules,
           pendingRequests,
           totalInventory,
           lowStock,
@@ -107,7 +122,8 @@ const AdminDashboard = () => {
         setRecentRequests(requestsRes.slice(0, 5));
         setInventory(inventoryRes.slice(0, 5));
       } catch (err) {
-        setError(t('common.error') || 'Error loading dashboard data');
+        console.error('Dashboard error:', err);
+        setError(err.message || t('common.error') || 'Error loading dashboard data');
       } finally {
         setLoading(false);
       }
@@ -117,23 +133,27 @@ const AdminDashboard = () => {
 
   const handleComplete = async (request) => {
     try {
-      // Update request status to completed
-      await adminService.updateBloodRequest(request.id, { status: 'COMPLETED' });
+      // Confirm request and deduct from inventory
+      await adminService.confirmBloodRequest(request.id);
       
       // Update local state
       setRecentRequests(prev => prev.map(r => 
-        r.id === request.id ? { ...r, status: 'COMPLETED' } : r
+        r.id === request.id ? { ...r, status: 'WAITING' } : r
       ));
+      
+      // Reload inventory to reflect the deduction
+      const updatedInventory = await adminService.getBloodInventory();
+      setInventory(updatedInventory.slice(0, 5));
       
       setSnackbar({ 
         open: true, 
-        message: t('admin.completeRequestSuccess') || 'Request completed successfully!', 
+        message: t('admin.completeRequestSuccess') || 'Request confirmed successfully!', 
         severity: 'success' 
       });
     } catch (err) {
       setSnackbar({ 
         open: true, 
-        message: err.message || 'Failed to complete request', 
+        message: err.message || 'Failed to confirm request', 
         severity: 'error' 
       });
     }
@@ -172,7 +192,7 @@ const AdminDashboard = () => {
 
         {/* Stats Overview */}
         <Grid container spacing={4} sx={{ mb: 4 }}>
-          {/* Lặp qua các stats, dùng card gradient và hover */}
+          {/* First row: Users, Donors, Staff, Medical Centers */}
           {[
             { icon: <People sx={{ color: '#fff', mr: 1, fontSize: 32, transition: 'transform 0.2s' }} />, label: t('admin.totalUsers'), value: stats.totalUsers },
             { icon: <Bloodtype sx={{ color: '#fff', mr: 1, fontSize: 32, transition: 'transform 0.2s' }} />, label: t('admin.totalDonors'), value: stats.totalDonors },
@@ -204,6 +224,39 @@ const AdminDashboard = () => {
             </Grid>
           ))}
         </Grid>
+        
+        {/* Second row: Requests and Schedules (centered) */}
+        <Grid container spacing={4} sx={{ mb: 4, justifyContent: 'center' }}>
+          {[
+            { icon: <Assignment sx={{ color: '#fff', mr: 1, fontSize: 32, transition: 'transform 0.2s' }} />, label: t('admin.totalRequests'), value: stats.totalRequests },
+            { icon: <CalendarToday sx={{ color: '#fff', mr: 1, fontSize: 32, transition: 'transform 0.2s' }} />, label: t('admin.totalSchedules') || 'Total Schedules', value: stats.totalSchedules },
+          ].map((stat, idx) => (
+            <Grid item xs={12} sm={6} md={3} key={`center-${idx}`}>
+              <Card
+                sx={{
+                  borderRadius: cardRadius,
+                  boxShadow: cardShadow,
+                  background: cardGradient,
+                  color: '#fff',
+                  cursor: 'pointer',
+                  transition: 'all 0.25s cubic-bezier(.4,2,.6,1)',
+                  '&:hover': cardHover,
+                }}
+              >
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    {stat.icon}
+                    <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>{stat.label}</Typography>
+                  </Box>
+                  <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
+                    {stat.value}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+        
         {/* Quick Actions */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {/* Lặp qua các quick actions, dùng card gradient và hover */}
@@ -263,30 +316,6 @@ const AdminDashboard = () => {
               </Card>
             </Grid>
           ))}
-          {/* Card Tổng số yêu cầu */}
-          <Grid item xs={12} sm={6} md={3}>
-            <Card
-              sx={{
-                borderRadius: cardRadius,
-                boxShadow: cardShadow,
-                background: cardGradient,
-                color: '#fff',
-                cursor: 'pointer',
-                transition: 'all 0.25s cubic-bezier(.4,2,.6,1)',
-                '&:hover': cardHover,
-              }}
-            >
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Assignment sx={{ color: '#fff', mr: 1, fontSize: 32 }} />
-                  <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>{t('admin.totalRequests')}</Typography>
-                </Box>
-                <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
-                  {stats.totalRequests}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
         </Grid>
 
         {/* Recent Users */}

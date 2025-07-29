@@ -20,68 +20,53 @@ import {
   DialogContent, 
   DialogActions, 
   TextField,
-  Chip,
   Grid,
   Alert,
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
+  CircularProgress
 } from '@mui/material';
-import { Add, Edit, Delete, Phone, Email, LocationOn } from '@mui/icons-material';
+import { Add, Edit, Delete, LocationOn } from '@mui/icons-material';
 import { adminService } from '../../services/adminService';
-import { ROLE } from '../../constants/enums';
 
-const MedicalCenter = () => {
+const Locations = () => {
   const { t } = useTranslation();
-  const [medicalCenters, setMedicalCenters] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
-  const [editCenter, setEditCenter] = useState(null);
+  const [editLocation, setEditLocation] = useState(null);
   const [form, setForm] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    address: '',
-    password: ''
+    name: '',
+    address: ''
   });
 
-  // Load medical centers data
+  // Load locations data
   useEffect(() => {
-    loadMedicalCenters();
+    loadLocations();
   }, []);
 
-  const loadMedicalCenters = async () => {
+  const loadLocations = async () => {
     try {
       setLoading(true);
-      const data = await adminService.getMedicalCenters();
-      setMedicalCenters(data);
+      const data = await adminService.getAllLocations();
+      setLocations(data);
     } catch (err) {
-      setError(err.message || 'Failed to load medical centers');
+      setError(err.message || 'Failed to load locations');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpen = (center = null) => {
-    setEditCenter(center);
-    if (center) {
+  const handleOpen = (location = null) => {
+    setEditLocation(location);
+    if (location) {
       setForm({
-        fullName: center.fullName || '',
-        email: center.email || '',
-        phone: center.phone || '',
-        address: center.address || '',
-        password: ''
+        name: location.name || '',
+        address: location.address || ''
       });
     } else {
       setForm({
-        fullName: '',
-        email: '',
-        phone: '',
-        address: '',
-        password: ''
+        name: '',
+        address: ''
       });
     }
     setOpen(true);
@@ -89,13 +74,10 @@ const MedicalCenter = () => {
 
   const handleClose = () => {
     setOpen(false);
-    setEditCenter(null);
+    setEditLocation(null);
     setForm({
-      fullName: '',
-      email: '',
-      phone: '',
-      address: '',
-      password: ''
+      name: '',
+      address: ''
     });
   };
 
@@ -108,28 +90,28 @@ const MedicalCenter = () => {
 
   const handleSubmit = async () => {
     try {
-      if (editCenter) {
-        // Update existing medical center
-        await adminService.updateMedicalCenter(editCenter.id, form);
-        setMedicalCenters(medicalCenters.map(c => c.id === editCenter.id ? { ...c, ...form } : c));
+      if (editLocation) {
+        // Update existing location
+        await adminService.updateLocation(editLocation.id, form);
+        setLocations(locations.map(l => l.id === editLocation.id ? { ...l, ...form } : l));
       } else {
-        // Create new medical center
-        const newCenter = await adminService.createMedicalCenter(form);
-        setMedicalCenters([...medicalCenters, newCenter]);
+        // Create new location
+        const newLocation = await adminService.createLocation(form);
+        setLocations([...locations, newLocation]);
       }
       handleClose();
     } catch (err) {
-      setError(err.message || 'Failed to save medical center');
+      setError(err.message || 'Failed to save location');
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm(t('admin.confirmDelete') || 'Are you sure you want to delete this medical center?')) {
+    if (window.confirm(t('admin.confirmDelete') || 'Are you sure you want to delete this location?')) {
       try {
-        await adminService.deleteMedicalCenter(id);
-        setMedicalCenters(medicalCenters.filter(c => c.id !== id));
+        await adminService.deleteLocation(id);
+        setLocations(locations.filter(l => l.id !== id));
       } catch (err) {
-        setError(err.message || 'Failed to delete medical center');
+        setError(err.message || 'Failed to delete location');
       }
     }
   };
@@ -146,7 +128,7 @@ const MedicalCenter = () => {
     <Box sx={{ bgcolor: '#fff5f5', minHeight: '100vh', py: 6 }}>
       <Container maxWidth="lg">
         <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>
-          {t('admin.medicalCenterManagement') || 'Medical Center Management'}
+          {t('admin.locationManagement') || 'Location Management'}
         </Typography>
 
         {error && (
@@ -163,7 +145,7 @@ const MedicalCenter = () => {
               sx={{ mb: 2, bgcolor: '#d32f2f' }} 
               onClick={() => handleOpen()}
             >
-              {t('admin.addMedicalCenter') || 'Add Medical Center'}
+              {t('admin.addLocation') || 'Add Location'}
             </Button>
             
             <TableContainer component={Paper}>
@@ -171,13 +153,7 @@ const MedicalCenter = () => {
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#f5f5f5' }}>
                     <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('admin.centerName') || 'Center Name'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('admin.email') || 'Email'}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
-                      {t('admin.phone') || 'Phone'}
+                      {t('admin.locationName') || 'Location Name'}
                     </TableCell>
                     <TableCell sx={{ fontWeight: 'bold' }}>
                       {t('admin.address') || 'Address'}
@@ -188,48 +164,32 @@ const MedicalCenter = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {medicalCenters.length === 0 ? (
+                  {locations.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} align="center">
-                        {t('common.noData') || 'No medical centers found'}
+                      <TableCell colSpan={3} align="center">
+                        {t('common.noData') || 'No locations found'}
                       </TableCell>
                     </TableRow>
                   ) : (
-                    medicalCenters.map((center) => (
-                      <TableRow key={center.id} hover>
+                    locations.map((location) => (
+                      <TableRow key={location.id} hover>
                         <TableCell>
                           <Typography variant="subtitle1" fontWeight="bold">
-                            {center.fullName}
+                            {location.name}
                           </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Email sx={{ fontSize: 16, color: '#666', mr: 1 }} />
-                            <Typography variant="body2">
-                              {center.email || t('common.noEmail') || 'No email'}
-                            </Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Phone sx={{ fontSize: 16, color: '#666', mr: 1 }} />
-                            <Typography variant="body2">
-                              {center.phone || t('common.noPhone') || 'No phone'}
-                            </Typography>
-                          </Box>
                         </TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <LocationOn sx={{ fontSize: 16, color: '#666', mr: 1 }} />
                             <Typography variant="body2" color="text.secondary">
-                              {center.address || t('common.noAddress') || 'No address'}
+                              {location.address}
                             </Typography>
                           </Box>
                         </TableCell>
                         <TableCell>
                           <IconButton 
                             color="primary" 
-                            onClick={() => handleOpen(center)}
+                            onClick={() => handleOpen(location)}
                             size="small"
                             sx={{ color: '#d32f2f' }}
                           >
@@ -237,7 +197,7 @@ const MedicalCenter = () => {
                           </IconButton>
                           <IconButton 
                             color="error" 
-                            onClick={() => handleDelete(center.id)}
+                            onClick={() => handleDelete(location.id)}
                             size="small"
                           >
                             <Delete />
@@ -254,60 +214,24 @@ const MedicalCenter = () => {
 
         <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
           <DialogTitle>
-            {editCenter ? t('admin.editMedicalCenter') || 'Edit Medical Center' : t('admin.addMedicalCenter') || 'Add Medical Center'}
+            {editLocation ? t('admin.editLocation') || 'Edit Location' : t('admin.addLocation') || 'Add Location'}
           </DialogTitle>
           <DialogContent>
             <Grid container spacing={2} sx={{ mt: 1 }}>
               <Grid item xs={12}>
                 <Typography variant="h6" sx={{ mb: 2, color: '#d32f2f' }}>
-                  {t('admin.medicalCenterInformation') || 'Medical Center Information'}
+                  {t('admin.locationInformation') || 'Location Information'}
                 </Typography>
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
                 <TextField
                   margin="dense"
-                  label={t('admin.centerName') || 'Center Name'}
-                  name="fullName"
-                  value={form.fullName}
+                  label={t('admin.locationName') || 'Location Name'}
+                  name="name"
+                  value={form.name}
                   onChange={handleChange}
                   fullWidth
                   required
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  margin="dense"
-                  label={t('admin.email') || 'Email'}
-                  name="email"
-                  type="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  fullWidth
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  margin="dense"
-                  label={t('admin.phone') || 'Phone'}
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  fullWidth
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  margin="dense"
-                  label={t('admin.password') || 'Password'}
-                  name="password"
-                  type="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  fullWidth
-                  required={!editCenter}
-                  helperText={editCenter ? t('admin.passwordOptional') || 'Leave blank to keep current password' : ''}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -334,7 +258,7 @@ const MedicalCenter = () => {
               variant="contained" 
               sx={{ bgcolor: '#d32f2f' }}
             >
-              {editCenter ? t('admin.update') || 'Update' : t('admin.add') || 'Add'}
+              {editLocation ? t('admin.update') || 'Update' : t('admin.add') || 'Add'}
             </Button>
           </DialogActions>
         </Dialog>
@@ -343,4 +267,4 @@ const MedicalCenter = () => {
   );
 };
 
-export default MedicalCenter; 
+export default Locations; 

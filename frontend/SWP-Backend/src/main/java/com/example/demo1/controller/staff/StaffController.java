@@ -6,6 +6,7 @@ import com.example.demo1.entity.enums.BloodRequestStatus;
 import com.example.demo1.entity.enums.RegistrationStatus;
 import com.example.demo1.entity.enums.Role;
 import com.example.demo1.repo.*;
+import com.example.demo1.service.BloodInventoryService;
 import com.example.demo1.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,9 @@ public class StaffController {
 
     @Autowired
     private BloodInventoryRepository bloodInventoryRepo;
+    
+    @Autowired
+    private BloodInventoryService bloodInventoryService;
 
     @Autowired
     private UserRepository userRepository;
@@ -105,18 +109,18 @@ public class StaffController {
         reg.setStatus(RegistrationStatus.CONFIRMED);
         registrationRepo.save(reg);
 
-        bloodInventoryRepo.findByBloodType(reg.getBloodType()).ifPresentOrElse(
+        bloodInventoryService.findByBloodType(reg.getBloodType()).ifPresentOrElse(
                 inv -> {
                     inv.setQuantity(inv.getQuantity() + reg.getAmount());
                     inv.setUpdatedBy(staff);
-                    bloodInventoryRepo.save(inv);
+                    bloodInventoryService.save(inv);
                 },
                 () -> {
                     BloodInventory newInv = new BloodInventory();
                     newInv.setBloodType(reg.getBloodType());
                     newInv.setQuantity(reg.getAmount());
                     newInv.setUpdatedBy(staff);
-                    bloodInventoryRepo.save(newInv);
+                    bloodInventoryService.save(newInv);
                 }
         );
 
@@ -182,7 +186,7 @@ public class StaffController {
         if (opt.isEmpty()) return ResponseEntity.badRequest().body("Request not found");
 
         BloodRequest req = opt.get();
-        Optional<BloodInventory> inventoryOpt = bloodInventoryRepo.findByBloodType(req.getRecipientBloodType());
+        Optional<BloodInventory> inventoryOpt = bloodInventoryService.findByBloodType(req.getRecipientBloodType());
 
         if (inventoryOpt.isEmpty()) return ResponseEntity.badRequest().body("Không tìm thấy kho máu phù hợp");
         BloodInventory inventory = inventoryOpt.get();
@@ -190,7 +194,7 @@ public class StaffController {
         if (inventory.getQuantity() < req.getRequestedAmount()) return ResponseEntity.badRequest().body("Không đủ lượng máu trong kho");
 
         inventory.setQuantity(inventory.getQuantity() - req.getRequestedAmount());
-        bloodInventoryRepo.save(inventory);
+        bloodInventoryService.save(inventory);
 
         req.setStatus(BloodRequestStatus.WAITING);
         bloodRequestRepo.save(req);

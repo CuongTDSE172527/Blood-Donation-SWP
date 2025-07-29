@@ -47,7 +47,7 @@ export default function Users() {
     phone: '',
     dob: '',
     address: '',
-    role: ROLE.DONOR,
+    role: 'DONOR',
     password: ''
   });
   const [roleFilter, setRoleFilter] = useState('all');
@@ -79,7 +79,7 @@ export default function Users() {
         phone: user.phone || '',
         dob: user.dob || '',
         address: user.address || '',
-        role: user.role || ROLE.DONOR,
+        role: user.role || 'DONOR',
         password: ''
       });
     } else {
@@ -89,7 +89,7 @@ export default function Users() {
         phone: '',
         dob: '',
         address: '',
-        role: ROLE.DONOR,
+        role: 'DONOR',
         password: ''
       });
     }
@@ -105,7 +105,7 @@ export default function Users() {
       phone: '',
       dob: '',
       address: '',
-      role: ROLE.DONOR,
+              role: 'DONOR',
       password: ''
     });
   };
@@ -154,17 +154,17 @@ export default function Users() {
     handleMenuClose();
   };
 
-  const filteredUsers = roleFilter === 'all' ? users : users.filter(u => u.role === roleFilter);
+  // Filter out medical center accounts from general user management
+  const nonMedicalCenterUsers = users.filter(u => u.role !== 'MEDICALCENTER');
+  const filteredUsers = roleFilter === 'all' ? nonMedicalCenterUsers : nonMedicalCenterUsers.filter(u => u.role === roleFilter);
 
   const getRoleColor = (role) => {
     switch (role) {
-      case ROLE.ADMIN:
+      case 'ADMIN':
         return 'error';
-      case ROLE.STAFF:
+      case 'STAFF':
         return 'warning';
-      case ROLE.MEDICAL_CENTER:
-        return 'info';
-      case ROLE.DONOR:
+      case 'DONOR':
         return 'default';
       default:
         return 'default';
@@ -224,16 +224,13 @@ export default function Users() {
                         <MenuItem selected={roleFilter === 'all'} onClick={() => handleRoleFilter('all')}>
                           {t('admin.all') || 'All'}
                         </MenuItem>
-                        <MenuItem selected={roleFilter === ROLE.ADMIN} onClick={() => handleRoleFilter(ROLE.ADMIN)}>
+                        <MenuItem selected={roleFilter === 'ADMIN'} onClick={() => handleRoleFilter('ADMIN')}>
                           {t('admin.admin') || 'Admin'}
                         </MenuItem>
-                        <MenuItem selected={roleFilter === ROLE.STAFF} onClick={() => handleRoleFilter(ROLE.STAFF)}>
+                        <MenuItem selected={roleFilter === 'STAFF'} onClick={() => handleRoleFilter('STAFF')}>
                           {t('admin.staff') || 'Staff'}
                         </MenuItem>
-                        <MenuItem selected={roleFilter === ROLE.MEDICAL_CENTER} onClick={() => handleRoleFilter(ROLE.MEDICAL_CENTER)}>
-                          {t('admin.medicalCenter') || 'Medical Center'}
-                        </MenuItem>
-                        <MenuItem selected={roleFilter === ROLE.DONOR} onClick={() => handleRoleFilter(ROLE.DONOR)}>
+                        <MenuItem selected={roleFilter === 'DONOR'} onClick={() => handleRoleFilter('DONOR')}>
                           {t('admin.donor') || 'Donor'}
                         </MenuItem>
                       </Menu>
@@ -353,10 +350,9 @@ export default function Users() {
                 value={form.role}
                 onChange={handleChange}
               >
-                    <MenuItem value={ROLE.ADMIN}>{t('admin.admin') || 'Admin'}</MenuItem>
-                    <MenuItem value={ROLE.STAFF}>{t('admin.staff') || 'Staff'}</MenuItem>
-                    <MenuItem value={ROLE.MEDICAL_CENTER}>{t('admin.medicalCenter') || 'Medical Center'}</MenuItem>
-                    <MenuItem value={ROLE.DONOR}>{t('admin.donor') || 'Donor'}</MenuItem>
+                    <MenuItem value="ADMIN">{t('admin.admin') || 'Admin'}</MenuItem>
+                    <MenuItem value="STAFF">{t('admin.staff') || 'Staff'}</MenuItem>
+                    <MenuItem value="DONOR">{t('admin.donor') || 'Donor'}</MenuItem>
               </Select>
             </FormControl>
               </Grid>

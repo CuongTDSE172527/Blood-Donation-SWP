@@ -97,7 +97,10 @@
     "saving": "Đang lưu...",
     "cancel": "Hủy",
     "noData": "Không có dữ liệu",
-    "select": "Chọn"
+    "select": "Chọn",
+    "noAddress": "Không có địa chỉ",
+    "noEmail": "Không có email",
+    "noPhone": "Không có số điện thoại"
   },
   "about": {
     "title": "Về Chúng Tôi",
@@ -117,6 +120,7 @@
     "contact": "Có câu hỏi hoặc cần hỗ trợ? Liên hệ với chúng tôi qua support@blooddonation.org."
   },
   "admin": {
+    "editSchedule": "Chỉnh sửa lịch hiến máu",
     "phone": "Điện thoại",
     "managerName": "Tên quản lý",
     "dashboardTitle": "Bảng điều khiển Quản trị",
@@ -160,7 +164,7 @@
     "units": "Đơn vị",
     "status": "Trạng thái",
     "date": "Ngày",
-    "status_completed": "Đã hoàn thành",
+    "status_COMFIRM": "Đã hoàn thành",
     "requestManagement": "Quản lý yêu cầu",
     "actions": "Thao tác",
     "complete": "Hoàn thành",
@@ -209,9 +213,21 @@
     "scheduleManagement": "Quản lý lịch hiến máu",
     "time": "Thời gian",
     "location": "Địa điểm",
-    "createSchedule": "Tạo lịch hiến máu"
+    "createSchedule": "Tạo lịch hiến máu",
+    "confirmDelete": "Bạn có chắc chắn muốn xóa mục này?",
+    "medicalCenterInformation": "Thông tin Trung tâm Y tế",
+    "locationManagement": "Quản lý Địa điểm",
+    "addLocation": "Thêm Địa điểm",
+    "editLocation": "Chỉnh sửa Địa điểm",
+    "locationName": "Tên Địa điểm",
+    "locationInformation": "Thông tin Địa điểm"
   },
   "staff": {
+    "scheduleManagement": "Quản lý lịch hiến máu",
+    "createSchedule": "Tạo lịch hiến máu",
+    "time": "Thời gian",
+    "location": "Địa điểm",
+    "editSchedule": "Chỉnh sửa lịch hiến máu",
     "dashboardTitle": "Bảng điều khiển Nhân viên",
     "totalDonors": "Tổng số người hiến máu",
     "totalRequests": "Tổng số yêu cầu",
@@ -242,7 +258,7 @@
     "date": "Ngày",
     "status_pending": "Chờ duyệt",
     "status_approved": "Đã duyệt",
-    "status_completed": "Đã hoàn thành",
+    "status_CONFIRM": "Đã hoàn thành",
     "actions": "Thao tác",
     "complete": "Hoàn thành",
     "addDonor": "Thêm người hiến máu",
@@ -459,6 +475,6 @@
   "status_WAITING": "Đang xử lý",
   "status_PRIORITY": "Ưu tiên",
   "status_OUT_OF_STOCK": "Hết hàng",
-  "status_CONFIRMED": "Đã xác nhận",
+  "status_CONFIRM": "Đã xác nhận",
   "status_CANCELLED": "Đã hủy"
 }

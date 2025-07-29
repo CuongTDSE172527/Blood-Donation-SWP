@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface BloodInventoryRepository extends JpaRepository<BloodInventory, Long> {
     Optional<BloodInventory> findByBloodType(String bloodType);
     List<BloodInventory> findByUpdatedBy(User user);
+    List<BloodInventory> findAllByBloodType(String bloodType);
 }

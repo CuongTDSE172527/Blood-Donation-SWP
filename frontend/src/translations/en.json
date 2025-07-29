@@ -98,7 +98,12 @@
     "cancel": "Cancel",
     "noData": "No data",
     "select": "Select",
-    "error": "Error"
+    "error": "Error",
+    "create": "Create",
+    "update": "Update",
+    "noAddress": "No address",
+    "noEmail": "No email",
+    "noPhone": "No phone"
   },
   "about": {
     "title": "About Us",
@@ -118,6 +123,10 @@
     "contact": "Have questions or need support? Reach out to us at support@blooddonation.org."
   },
   "admin": {
+    "password": "Password",
+    "totalSchedules": "Total Schedules",
+    "scheduleManagementDesc": "View and manage blood donation schedules",
+    "manageSchedules": "Manage Schedules",
     "phone": "Phone",
     "managerName": "Manager Name",
     "dashboardTitle": "Admin Dashboard",
@@ -212,9 +221,22 @@
     "scheduleManagement": "Schedule Management",
     "time": "Time",
     "location": "Location",
-    "createSchedule": "Create Schedule"
+    "createSchedule": "Create Schedule",
+    "confirmRequestSuccess": "Request confirmed successfully!",
+    "confirmDelete": "Are you sure you want to delete this item?",
+    "medicalCenterInformation": "Medical Center Information",
+    "locationManagement": "Location Management",
+    "addLocation": "Add Location",
+    "editLocation": "Edit Location",
+    "locationName": "Location Name",
+    "locationInformation": "Location Information"
   },
   "staff": {
+    "scheduleManagement": "Schedule Management",
+    "createSchedule": "Create Schedule",
+    "time": "Time",
+    "location": "Location",
+    "editSchedule": "Edit Schedule",
     "dashboardTitle": "Staff Dashboard",
     "totalDonors": "Total Donors",
     "totalRequests": "Total Requests",
@@ -479,6 +501,6 @@
   "status_WAITING": "Processing",
   "status_PRIORITY": "Priority",
   "status_OUT_OF_STOCK": "Out of stock",
-  "status_CONFIRMED": "Confirmed",
+  "status_CONFIRM": "Confirmed",
   "status_CANCELLED": "Cancelled"
 } 

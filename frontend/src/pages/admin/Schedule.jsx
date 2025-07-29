@@ -50,7 +50,7 @@ const ScheduleManagement = () => {
   const [formData, setFormData] = useState({
     date: '',
     time: '',
-    locationId: '',
+    location: null,
   });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
@@ -86,14 +86,14 @@ const ScheduleManagement = () => {
       setFormData({
         date: schedule.date || '',
         time: schedule.time || '',
-        locationId: schedule.location?.id || '',
+        location: schedule.location || null,
       });
     } else {
       setEditingSchedule(null);
       setFormData({
         date: '',
         time: '',
-        locationId: '',
+        location: null,
       });
     }
     setOpenDialog(true);
@@ -105,7 +105,7 @@ const ScheduleManagement = () => {
     setFormData({
       date: '',
       time: '',
-      locationId: '',
+      location: null,
     });
   };
 
@@ -274,13 +274,16 @@ const ScheduleManagement = () => {
               <FormControl fullWidth>
                 <InputLabel>{t('admin.location') || 'Location'}</InputLabel>
                 <Select
-                  value={formData.locationId}
-                  onChange={(e) => setFormData({ ...formData, locationId: e.target.value })}
+                  value={formData.location?.id || ''}
+                  onChange={(e) => {
+                    const selectedLocation = locations.find(loc => loc.id === e.target.value);
+                    setFormData({ ...formData, location: selectedLocation });
+                  }}
                   label={t('admin.location') || 'Location'}
                 >
                   {locations.map((location) => (
                     <MenuItem key={location.id} value={location.id}>
-                      {location.name}
+                      {location.name} - {location.address}
                     </MenuItem>
                   ))}
                 </Select>
