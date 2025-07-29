@@ -11,6 +11,7 @@ import com.example.demo1.repo.ProhibitedDiseaseRepository;
 import com.example.demo1.repo.UserRepository;
 import com.example.demo1.service.DonationRegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -123,36 +124,105 @@ public class DonorController {
      * Donor xem thông tin cá nhân
      */
     @GetMapping("/profile")
-    public ResponseEntity<?> getProfile(Principal principal) {
-        String email = principal.getName();
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("User not found");
+    public ResponseEntity<?> getProfile(@RequestParam(required = false) String email) {
+        try {
+            // Email is required
+            if (email == null || email.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Email is required");
+            }
+            
+            String userEmail = email.trim();
+            Optional<User> userOpt = userRepository.findByEmail(userEmail);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("User not found with email: " + userEmail);
+            }
+            return ResponseEntity.ok(userOpt.get());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error fetching profile: " + e.getMessage());
         }
-        return ResponseEntity.ok(userOpt.get());
     }
 
     /**
      * Donor cập nhật thông tin cá nhân
      */
     @PutMapping("/profile")
-    public ResponseEntity<?> updateProfile(Principal principal, @RequestBody User updated) {
-        String email = principal.getName();
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("User not found");
+    public ResponseEntity<?> updateProfile(@RequestBody User updated) {
+        try {
+            // Email is required
+            if (updated.getEmail() == null || updated.getEmail().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Email is required");
+            }
+            
+            String userEmail = updated.getEmail().trim();
+            Optional<User> userOpt = userRepository.findByEmail(userEmail);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("User not found with email: " + userEmail);
+            }
+
+            User user = userOpt.get();
+
+            // Update fields except password and email
+            if (updated.getFullName() != null && !updated.getFullName().trim().isEmpty()) {
+                user.setFullName(updated.getFullName().trim());
+            }
+            if (updated.getPhone() != null) {
+                user.setPhone(updated.getPhone());
+            }
+            if (updated.getDob() != null) {
+                user.setDob(updated.getDob());
+            }
+            if (updated.getGender() != null) {
+                user.setGender(updated.getGender());
+            }
+            if (updated.getAddress() != null) {
+                user.setAddress(updated.getAddress());
+            }
+            if (updated.getBloodType() != null) {
+                user.setBloodType(updated.getBloodType());
+            }
+
+            User savedUser = userRepository.save(user);
+            return ResponseEntity.ok(savedUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error updating profile: " + e.getMessage());
         }
+    }
 
-        User user = userOpt.get();
+    /**
+     * Donor cập nhật mật khẩu
+     */
+    @PutMapping("/password")
+    public ResponseEntity<?> updatePassword(@RequestBody Map<String, String> passwordData) {
+        try {
+            // Get email from request body
+            String userEmail = passwordData.get("email");
+            if (userEmail == null || userEmail.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Email is required");
+            }
+            
+            userEmail = userEmail.trim();
+            Optional<User> userOpt = userRepository.findByEmail(userEmail);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("User not found with email: " + userEmail);
+            }
 
-        if (updated.getFullName() != null) user.setFullName(updated.getFullName());
-        if (updated.getPhone() != null) user.setPhone(updated.getPhone());
-        if (updated.getDob() != null) user.setDob(updated.getDob());
-        if (updated.getGender() != null) user.setGender(updated.getGender());
-        if (updated.getAddress() != null) user.setAddress(updated.getAddress());
-        if (updated.getBloodType() != null) user.setBloodType(updated.getBloodType());
+            User user = userOpt.get();
+            String currentPassword = passwordData.get("currentPassword");
+            String newPassword = passwordData.get("newPassword");
 
-        return ResponseEntity.ok(userRepository.save(user));
+            // Validate current password (you might want to add password hashing here)
+            if (!user.getPassword().equals(currentPassword)) {
+                return ResponseEntity.badRequest().body("Current password is incorrect");
+            }
+
+            // Update password
+            user.setPassword(newPassword);
+            userRepository.save(user);
+
+            return ResponseEntity.ok("Password updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error updating password: " + e.getMessage());
+        }
     }
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
@@ -175,6 +245,51 @@ public class DonorController {
         // Save updated user
         User savedUser = userRepository.save(existingUser);
         return ResponseEntity.ok(savedUser);
+    }
+
+    /**
+     * Create test donor user - DISABLED FOR PRODUCTION
+     */
+    /*
+    @PostMapping("/create-test-user")
+    public ResponseEntity<?> createTestUser() {
+        try {
+            // Check if test user already exists
+            Optional<User> existingUser = userRepository.findByEmail("donor@example.com");
+            if (existingUser.isPresent()) {
+                return ResponseEntity.ok("Test user already exists: " + existingUser.get());
+            }
+
+            // Create test user
+            User testUser = new User();
+            testUser.setFullName("Test Donor");
+            testUser.setEmail("donor@example.com");
+            testUser.setPassword("password123");
+            testUser.setPhone("0123456789");
+            testUser.setBloodType("A+");
+            testUser.setDob(java.time.LocalDate.of(1990, 1, 1));
+            testUser.setGender(com.example.demo1.entity.enums.Gender.MALE);
+            testUser.setAddress("123 Test Street, Test City");
+            testUser.setRole(com.example.demo1.entity.enums.Role.DONOR);
+
+            User savedUser = userRepository.save(testUser);
+            return ResponseEntity.ok("Test user created: " + savedUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error creating test user: " + e.getMessage());
+        }
+    }
+    */
+
+    /**
+     * Get all users (for testing)
+     */
+    @GetMapping("/users")
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            return ResponseEntity.ok(userRepository.findAll());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error fetching users: " + e.getMessage());
+        }
     }
 
     /**

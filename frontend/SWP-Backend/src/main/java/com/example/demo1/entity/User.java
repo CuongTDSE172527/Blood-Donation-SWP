@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @NoArgsConstructor
@@ -20,7 +21,10 @@ public class User {
     private Long id;
 
     private String fullName;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dob;
+    
     private String phone;
     private String email;
     private String password;
