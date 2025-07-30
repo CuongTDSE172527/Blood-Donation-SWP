@@ -28,6 +28,14 @@ import {
   Alert,
   Snackbar,
   CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
+  Avatar,
+  Divider,
+  Badge,
+  Tooltip,
 } from '@mui/material';
 import {
   Add,
@@ -36,6 +44,12 @@ import {
   CalendarToday,
   LocationOn,
   Schedule,
+  People,
+  Visibility,
+  Person,
+  Email,
+  Phone,
+  Bloodtype,
 } from '@mui/icons-material';
 import { staffService } from '../../services/staffService';
 
@@ -46,7 +60,11 @@ const ScheduleManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
+  const [openRegistrationsDialog, setOpenRegistrationsDialog] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState(null);
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
+  const [registrations, setRegistrations] = useState([]);
+  const [loadingRegistrations, setLoadingRegistrations] = useState(false);
   const [formData, setFormData] = useState({
     date: '',
     time: '',
@@ -61,7 +79,9 @@ const ScheduleManagement = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      console.log('Fetching schedules...');
       const schedulesRes = await staffService.getAllSchedules();
+      console.log('Schedules response:', schedulesRes);
       setSchedules(schedulesRes);
       
       // Try to get locations, but don't fail if it doesn't work
@@ -109,6 +129,37 @@ const ScheduleManagement = () => {
     });
   };
 
+  const handleViewRegistrations = async (schedule) => {
+    try {
+      if (!schedule || !schedule.id) {
+        throw new Error('Invalid schedule data');
+      }
+      
+      setSelectedSchedule(schedule);
+      setLoadingRegistrations(true);
+      setOpenRegistrationsDialog(true);
+      
+      const registrationsData = await staffService.getDonorsBySchedule(schedule.id);
+      setRegistrations(registrationsData);
+    } catch (err) {
+      console.error('Error loading registrations:', err);
+      setSnackbar({ 
+        open: true, 
+        message: err.message || 'Error loading registrations', 
+        severity: 'error' 
+      });
+      setRegistrations([]);
+    } finally {
+      setLoadingRegistrations(false);
+    }
+  };
+
+  const handleCloseRegistrationsDialog = () => {
+    setOpenRegistrationsDialog(false);
+    setSelectedSchedule(null);
+    setRegistrations([]);
+  };
+
   const handleSubmit = async () => {
     try {
       if (editingSchedule) {
@@ -138,6 +189,19 @@ const ScheduleManagement = () => {
   };
 
   const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
+
+  const getRegistrationStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'confirmed':
+        return 'success';
+      case 'pending':
+        return 'warning';
+      case 'cancelled':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
 
   if (loading) {
     return (
@@ -192,13 +256,14 @@ const ScheduleManagement = () => {
                     <TableCell sx={{ fontWeight: 600 }}>{t('staff.date') || 'Date'}</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>{t('staff.time') || 'Time'}</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>{t('staff.location') || 'Location'}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>{t('staff.registrations') || 'Registrations'}</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>{t('staff.actions') || 'Actions'}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {schedules.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
+                      <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                         {t('common.noData') || 'No schedules found'}
                       </TableCell>
                     </TableRow>
@@ -222,6 +287,19 @@ const ScheduleManagement = () => {
                             <LocationOn sx={{ mr: 1, color: '#d32f2f' }} />
                             {schedule.location?.name || 'N/A'}
                           </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip title="View registrations">
+                            <IconButton
+                              color="primary"
+                              onClick={() => handleViewRegistrations(schedule)}
+                              size="small"
+                            >
+                              <Badge badgeContent={schedule.registrationCount || 0} color="secondary">
+                                <People />
+                              </Badge>
+                            </IconButton>
+                          </Tooltip>
                         </TableCell>
                         <TableCell>
                           <IconButton
@@ -300,6 +378,95 @@ const ScheduleManagement = () => {
               sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
             >
               {editingSchedule ? t('common.update') || 'Update' : t('common.create') || 'Create'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Registrations Dialog */}
+        <Dialog 
+          open={openRegistrationsDialog} 
+          onClose={handleCloseRegistrationsDialog} 
+          maxWidth="md" 
+          fullWidth
+        >
+          <DialogTitle>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <People sx={{ color: '#d32f2f' }} />
+              <Typography variant="h6">
+                Registrations for {selectedSchedule && new Date(selectedSchedule.date).toLocaleDateString()} at {selectedSchedule?.time}
+              </Typography>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            {loadingRegistrations ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress />
+              </Box>
+            ) : registrations.length === 0 ? (
+              <Alert severity="info" sx={{ mt: 2 }}>
+                No registrations found for this schedule.
+              </Alert>
+            ) : (
+              <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+                {registrations.map((registration, index) => (
+                  <Box key={registration.id || index}>
+                    <ListItem alignItems="flex-start">
+                      <ListItemAvatar>
+                        <Avatar sx={{ bgcolor: '#d32f2f' }}>
+                          <Person />
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Typography variant="subtitle1" component="span">
+                              {registration.user?.fullName || registration.donorName || 'Unknown'}
+                            </Typography>
+                            <Chip 
+                              label={registration.status || 'Pending'} 
+                              color={getRegistrationStatusColor(registration.status)}
+                              size="small"
+                            />
+                          </Box>
+                        }
+                        secondary={
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Email sx={{ fontSize: 16, color: 'text.secondary' }} />
+                              <Typography variant="body2" color="text.secondary">
+                                {registration.user?.email || registration.email || 'No email'}
+                              </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Phone sx={{ fontSize: 16, color: 'text.secondary' }} />
+                              <Typography variant="body2" color="text.secondary">
+                                {registration.user?.phone || registration.phone || 'No phone'}
+                              </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Bloodtype sx={{ fontSize: 16, color: 'text.secondary' }} />
+                              <Typography variant="body2" color="text.secondary">
+                                Blood Type: {registration.user?.bloodType || registration.bloodType || 'Unknown'}
+                              </Typography>
+                            </Box>
+                            {registration.registrationDate && (
+                              <Typography variant="body2" color="text.secondary">
+                                Registered: {new Date(registration.registrationDate).toLocaleDateString()}
+                              </Typography>
+                            )}
+                          </Box>
+                        }
+                      />
+                    </ListItem>
+                    {index < registrations.length - 1 && <Divider variant="inset" component="li" />}
+                  </Box>
+                ))}
+              </List>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseRegistrationsDialog}>
+              {t('common.close') || 'Close'}
             </Button>
           </DialogActions>
         </Dialog>

@@ -286,6 +286,16 @@ export const adminService = {
     }
   },
 
+  // === Donor Management by Schedule ===
+  getDonorsBySchedule: async (scheduleId) => {
+    try {
+      const response = await api.get(`/admin/donors/by-schedule/${scheduleId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   // === Confirm Blood Request with Compatibility ===
   confirmBloodRequestWithCompatibility: async (id, alternativeBloodType = null) => {
     try {

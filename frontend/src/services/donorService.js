@@ -34,6 +34,9 @@ export const donorService = {
   // Get donor profile
   getProfile: async (email) => {
     try {
+      if (!email) {
+        throw new Error('Email is required to fetch profile');
+      }
       console.log('Fetching donor profile for email:', email);
       const response = await api.get(`/donor/profile?email=${email}`);
       console.log('Profile response:', response.data);

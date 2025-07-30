@@ -120,6 +120,19 @@ const DonationRegistration = () => {
       return;
     }
 
+    // Check for prohibited diseases
+    if (formData.diseaseIds && formData.diseaseIds.length > 0) {
+      const selectedDiseases = diseases.filter(disease => 
+        formData.diseaseIds.includes(disease.id)
+      );
+      
+      if (selectedDiseases.length > 0) {
+        const diseaseNames = selectedDiseases.map(disease => disease.name).join(', ');
+        setError(`You cannot donate blood if you have the following conditions: ${diseaseNames}. Please consult with a healthcare provider.`);
+        return;
+      }
+    }
+
     setLoading(true);
     setError('');
 

@@ -49,7 +49,7 @@ const DonorDashboard = () => {
       try {
         const [historyData, profileData] = await Promise.all([
           donorService.getDonationHistory(user.id),
-          donorService.getProfile()
+          donorService.getProfile(user.email)
         ]);
         setDonationHistory(historyData);
         setUserDetails(profileData);

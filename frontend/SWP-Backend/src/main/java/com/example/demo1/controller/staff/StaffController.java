@@ -15,6 +15,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.util.HashSet;
 
 @RestController
 @RequestMapping("/api/staff")
@@ -48,7 +54,16 @@ public class StaffController {
 
     @PostMapping("/locations")
     public ResponseEntity<?> createLocation(@RequestBody DonationLocation location) {
-        return ResponseEntity.ok(locationRepo.save(location));
+        try {
+            System.out.println("Creating location: " + location);
+            DonationLocation savedLocation = locationRepo.save(location);
+            System.out.println("Location created with ID: " + savedLocation.getId());
+            return ResponseEntity.ok(savedLocation);
+        } catch (Exception e) {
+            System.err.println("Error creating location: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error creating location: " + e.getMessage());
+        }
     }
 
     @GetMapping("/locations")
@@ -60,7 +75,16 @@ public class StaffController {
 
     @PostMapping("/schedules")
     public ResponseEntity<?> createSchedule(@RequestBody DonationSchedule schedule) {
-        return ResponseEntity.ok(scheduleRepo.save(schedule));
+        try {
+            System.out.println("Creating schedule: " + schedule);
+            DonationSchedule savedSchedule = scheduleRepo.save(schedule);
+            System.out.println("Schedule created with ID: " + savedSchedule.getId());
+            return ResponseEntity.ok(savedSchedule);
+        } catch (Exception e) {
+            System.err.println("Error creating schedule: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error creating schedule: " + e.getMessage());
+        }
     }
 
     @PutMapping("/schedules/{id}")
@@ -86,7 +110,44 @@ public class StaffController {
 
     @GetMapping("/schedules")
     public ResponseEntity<?> getAllSchedules() {
-        return ResponseEntity.ok(scheduleRepo.findAll());
+        try {
+            List<DonationSchedule> schedules = scheduleRepo.findAll();
+            System.out.println("Found " + schedules.size() + " schedules");
+            
+            if (schedules.isEmpty()) {
+                System.out.println("No schedules found in database");
+                return ResponseEntity.ok(new ArrayList<>());
+            }
+            
+            // Add registration count for each schedule
+            List<Map<String, Object>> result = schedules.stream()
+                    .map(schedule -> {
+                        Map<String, Object> scheduleInfo = new HashMap<>();
+                        scheduleInfo.put("id", schedule.getId());
+                        scheduleInfo.put("date", schedule.getDate());
+                        scheduleInfo.put("time", schedule.getTime());
+                        scheduleInfo.put("location", schedule.getLocation());
+                        
+                        // Count registrations for this schedule's location
+                        if (schedule.getLocation() != null) {
+                            Long locationId = schedule.getLocation().getId();
+                            List<DonationRegistration> registrations = registrationRepo.findByLocationId(locationId);
+                            scheduleInfo.put("registrationCount", registrations.size());
+                        } else {
+                            scheduleInfo.put("registrationCount", 0);
+                        }
+                        
+                        return scheduleInfo;
+                    })
+                    .toList();
+            
+            System.out.println("Returning " + result.size() + " schedules with registration counts");
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            System.err.println("Error in getAllSchedules: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error loading schedules: " + e.getMessage());
+        }
     }
 
     // === Đăng ký hiến máu ===
@@ -94,6 +155,71 @@ public class StaffController {
     @GetMapping("/registrations/pending")
     public ResponseEntity<?> getPendingRegistrations() {
         return ResponseEntity.ok(registrationRepo.findByStatus(RegistrationStatus.PENDING));
+    }
+
+    @PostMapping("/registrations")
+    public ResponseEntity<?> createRegistration(@RequestBody Map<String, Object> body) {
+        try {
+            // Check for prohibited diseases first
+            if (body.containsKey("diseaseIds")) {
+                List<Long> diseaseIds = ((List<?>) body.get("diseaseIds")).stream()
+                        .map(id -> Long.parseLong(id.toString()))
+                        .collect(Collectors.toList());
+                
+                if (!diseaseIds.isEmpty()) {
+                    List<ProhibitedDisease> selectedDiseases = diseaseRepo.findAllById(diseaseIds);
+                    if (!selectedDiseases.isEmpty()) {
+                        String diseaseNames = selectedDiseases.stream()
+                                .map(ProhibitedDisease::getName)
+                                .collect(Collectors.joining(", "));
+                        return ResponseEntity.badRequest().body(
+                            "You cannot donate blood if you have the following conditions: " + diseaseNames + 
+                            ". Please consult with a healthcare provider."
+                        );
+                    }
+                }
+            }
+
+            // Create registration
+            DonationRegistration reg = new DonationRegistration();
+            reg.setBloodType((String) body.get("bloodType"));
+            reg.setLastDonationDate(LocalDate.parse((String) body.get("lastDonationDate")));
+            reg.setWeight(Double.parseDouble(body.get("weight").toString()));
+            reg.setHeight(Double.parseDouble(body.get("height").toString()));
+            reg.setAmount(Integer.parseInt(body.get("amount").toString()));
+
+            // Set location
+            if (body.containsKey("locationId")) {
+                Long locationId = Long.parseLong(body.get("locationId").toString());
+                Optional<DonationLocation> locOpt = locationRepo.findById(locationId);
+                if (locOpt.isEmpty()) {
+                    return ResponseEntity.badRequest().body("Location not found");
+                }
+                reg.setLocation(locOpt.get());
+            } else {
+                return ResponseEntity.badRequest().body("Location is required");
+            }
+
+            // Set user
+            if (body.containsKey("userId")) {
+                Long userId = Long.parseLong(body.get("userId").toString());
+                Optional<User> userOpt = userRepository.findById(userId);
+                if (userOpt.isEmpty()) {
+                    return ResponseEntity.badRequest().body("User not found");
+                }
+                reg.setUser(userOpt.get());
+            } else {
+                return ResponseEntity.badRequest().body("User ID is required");
+            }
+
+            // Set empty diseases set since validation passed
+            reg.setDiseases(new HashSet<>());
+            reg.setStatus(RegistrationStatus.PENDING);
+
+            return ResponseEntity.ok(registrationRepo.save(reg));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error creating registration: " + e.getMessage());
+        }
     }
 
     @PostMapping("/registrations/{id}/confirm")
@@ -179,6 +305,84 @@ public class StaffController {
     @GetMapping("/users/donors")
     public ResponseEntity<?> getAllDonors() {
         return ResponseEntity.ok(userRepository.findByRole(Role.DONOR));
+    }
+
+    @PostMapping("/users/donors")
+    public ResponseEntity<?> createDonor(@RequestBody User donor) {
+        try {
+            // Set role to DONOR
+            donor.setRole(Role.DONOR);
+            
+            // Check if email already exists
+            if (userRepository.findByEmail(donor.getEmail()).isPresent()) {
+                return ResponseEntity.badRequest().body("Email already exists");
+            }
+            
+            User savedDonor = userRepository.save(donor);
+            return ResponseEntity.ok(savedDonor);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error creating donor: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/users/donors/{id}")
+    public ResponseEntity<?> updateDonor(@PathVariable Long id, @RequestBody User updatedDonor) {
+        try {
+            Optional<User> existingDonorOpt = userRepository.findById(id);
+            if (existingDonorOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("Donor not found");
+            }
+
+            User existingDonor = existingDonorOpt.get();
+            
+            // Update fields except role and email
+            if (updatedDonor.getFullName() != null) {
+                existingDonor.setFullName(updatedDonor.getFullName());
+            }
+            if (updatedDonor.getPhone() != null) {
+                existingDonor.setPhone(updatedDonor.getPhone());
+            }
+            if (updatedDonor.getDob() != null) {
+                existingDonor.setDob(updatedDonor.getDob());
+            }
+            if (updatedDonor.getGender() != null) {
+                existingDonor.setGender(updatedDonor.getGender());
+            }
+            if (updatedDonor.getAddress() != null) {
+                existingDonor.setAddress(updatedDonor.getAddress());
+            }
+            if (updatedDonor.getBloodType() != null) {
+                existingDonor.setBloodType(updatedDonor.getBloodType());
+            }
+            if (updatedDonor.getPassword() != null && !updatedDonor.getPassword().trim().isEmpty()) {
+                existingDonor.setPassword(updatedDonor.getPassword());
+            }
+
+            User savedDonor = userRepository.save(existingDonor);
+            return ResponseEntity.ok(savedDonor);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error updating donor: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/users/donors/{id}")
+    public ResponseEntity<?> deleteDonor(@PathVariable Long id) {
+        try {
+            Optional<User> donorOpt = userRepository.findById(id);
+            if (donorOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("Donor not found");
+            }
+
+            User donor = donorOpt.get();
+            if (donor.getRole() != Role.DONOR) {
+                return ResponseEntity.badRequest().body("User is not a donor");
+            }
+
+            userRepository.deleteById(id);
+            return ResponseEntity.ok("Donor deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error deleting donor: " + e.getMessage());
+        }
     }
 
     @GetMapping("/users/medicalcenters")
@@ -326,13 +530,26 @@ public class StaffController {
         Long locationId = scheduleOpt.get().getLocation().getId();
         List<DonationRegistration> registrations = registrationRepo.findByLocationId(locationId);
 
-        // Lấy danh sách User (Donor) từ các đăng ký
-        List<User> donors = registrations.stream()
-                .map(DonationRegistration::getUser)
-                .distinct()
+        // Tạo danh sách kết quả với thông tin đầy đủ
+        List<Map<String, Object>> result = registrations.stream()
+                .map(registration -> {
+                    Map<String, Object> donorInfo = new HashMap<>();
+                    User user = registration.getUser();
+                    
+                    donorInfo.put("id", registration.getId());
+                    donorInfo.put("user", user);
+                    donorInfo.put("status", registration.getStatus());
+                    donorInfo.put("registrationDate", registration.getRegisteredAt());
+                    donorInfo.put("donorName", user.getFullName());
+                    donorInfo.put("email", user.getEmail());
+                    donorInfo.put("phone", user.getPhone());
+                    donorInfo.put("bloodType", user.getBloodType());
+                    
+                    return donorInfo;
+                })
                 .toList();
 
-        return ResponseEntity.ok(donors);
+        return ResponseEntity.ok(result);
     }
 
 }

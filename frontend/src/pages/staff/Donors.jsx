@@ -50,10 +50,7 @@ export default function Donors() {
     dob: '',
     bloodType: '',
     address: '',
-    emergencyContact: '',
-    medicalHistory: '',
-    allergies: '',
-    medications: '',
+    gender: '',
     password: '' // Add password field for new donors
   });
   
@@ -170,10 +167,7 @@ export default function Donors() {
         dob: donor.dob || '',
         bloodType: donor.bloodType || '',
         address: donor.address || '',
-        emergencyContact: donor.emergencyContact || '',
-        medicalHistory: donor.medicalHistory || '',
-        allergies: donor.allergies || '',
-        medications: donor.medications || ''
+        gender: donor.gender || ''
       });
     } else {
       setForm({
@@ -183,10 +177,7 @@ export default function Donors() {
         dob: '',
         bloodType: '',
         address: '',
-        emergencyContact: '',
-        medicalHistory: '',
-        allergies: '',
-        medications: '',
+        gender: '',
         password: '' // Reset password field for new donor
       });
     }
@@ -337,10 +328,11 @@ export default function Donors() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>{t('staff.name') || 'Name'}</TableCell>
+                    <TableCell>{t('staff.fullName') || 'Full Name'}</TableCell>
                     <TableCell>{t('staff.email') || 'Email'}</TableCell>
                     <TableCell>{t('staff.phone') || 'Phone'}</TableCell>
                     <TableCell>{t('staff.bloodType') || 'Blood Type'}</TableCell>
+                    <TableCell>{t('staff.gender') || 'Gender'}</TableCell>
                     <TableCell>{t('staff.dob') || 'Date of Birth'}</TableCell>
                     <TableCell align="right">{t('staff.actions') || 'Actions'}</TableCell>
                   </TableRow>
@@ -348,7 +340,7 @@ export default function Donors() {
                 <TableBody>
                   {filteredDonors.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} align="center">
+                      <TableCell colSpan={7} align="center">
                         {searchTerm || bloodTypeFilter !== 'ALL' 
                           ? (t('staff.noMatchingDonors') || 'No matching donors found') 
                           : (t('common.noData') || 'No data')}
@@ -369,6 +361,7 @@ export default function Donors() {
                           sx={{ bgcolor: '#d32f2f' }}
                         />
                       </TableCell>
+                      <TableCell>{donor.gender || 'N/A'}</TableCell>
                       <TableCell>{donor.dob}</TableCell>
                       <TableCell align="right">
                         <IconButton 
@@ -445,31 +438,36 @@ export default function Donors() {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-            <FormControl fullWidth margin="dense">
+                <FormControl fullWidth margin="dense">
                   <InputLabel>{t('staff.bloodType') || 'Blood Type'}</InputLabel>
-              <Select
+                  <Select
                     label={t('staff.bloodType') || 'Blood Type'}
-                name="bloodType"
-                value={form.bloodType}
-                onChange={handleChange}
-              >
+                    name="bloodType"
+                    value={form.bloodType}
+                    onChange={handleChange}
+                  >
                     {BLOOD_TYPES.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                      <MenuItem key={type} value={type}>
+                        {type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  margin="dense"
-                  label={t('staff.emergencyContact') || 'Emergency Contact'}
-                  name="emergencyContact"
-                  value={form.emergencyContact}
-                  onChange={handleChange}
-                  fullWidth
-                />
+                <FormControl fullWidth margin="dense">
+                  <InputLabel>{t('staff.gender') || 'Gender'}</InputLabel>
+                  <Select
+                    label={t('staff.gender') || 'Gender'}
+                    name="gender"
+                    value={form.gender}
+                    onChange={handleChange}
+                  >
+                    <MenuItem value="MALE">Male</MenuItem>
+                    <MenuItem value="FEMALE">Female</MenuItem>
+                    <MenuItem value="OTHER">Other</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -483,43 +481,7 @@ export default function Donors() {
                   rows={2}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  margin="dense"
-                  label={t('staff.medicalHistory') || 'Medical History'}
-                  name="medicalHistory"
-                  value={form.medicalHistory}
-                  onChange={handleChange}
-                  fullWidth
-                  multiline
-                  rows={3}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-            <TextField 
-              margin="dense" 
-                  label={t('staff.allergies') || 'Allergies'}
-                  name="allergies"
-                  value={form.allergies}
-              onChange={handleChange} 
-              fullWidth 
-                  multiline
-                  rows={2}
-            />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  margin="dense"
-                  label={t('staff.medications') || 'Current Medications'}
-                  name="medications"
-                  value={form.medications}
-                onChange={handleChange}
-                  fullWidth
-                  multiline
-                  rows={2}
-                />
-              </Grid>
-              {editDonor ? null : (
+              {!editDonor && (
                 <Grid item xs={12}>
                   <TextField
                     margin="dense"

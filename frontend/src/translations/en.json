@@ -270,6 +270,7 @@
     "save": "Save Changes",
     "cancel": "Cancel",
     "role_admin": "Admin",
+    "registrations": "Registrations",
     "role_medicalcenter": "Medical Center",
     "medicalCenter": "Medical Center",
     "scheduleManagement": "Schedule Management",
@@ -387,6 +388,7 @@
     "cancel": "Cancel",
     "manageInventory": "Manage Inventory",
     "dob": "Date of Birth",
+    "gender": "Gender",
     "allBloodRequests": "All Blood Requests",
     "recipientName": "Recipient Name",
     "requestedAmount": "Requested Amount",
@@ -398,6 +400,8 @@
     "status_out_of_stock": "Out of Stock",
     "status_waiting": "Waiting",
     "status_priority": "Priority",
+    "registrations": "Registrations",
+    "close": "Close",
     "editRequestStatus": "Edit Request Status",
     "currentStatus": "Current Status",
     "newStatus": "New Status",
@@ -538,7 +542,12 @@
     "registerDonationDesc": "Register for your next blood donation with height, weight, and health information",
     "registerNow": "Register Now",
     "dob": "Date of Birth",
-    "gender": "Gender"
+    "gender": "Gender",
+    "phone": "Phone",
+    "address": "Address",
+    "email": "Email",
+    "role": "Role",
+    "status": "Status"
   },
   "login": {
     "title": "Login",

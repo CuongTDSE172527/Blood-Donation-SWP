@@ -150,6 +150,33 @@ export const staffService = {
     }
   },
 
+  createDonor: async (donorData) => {
+    try {
+      const response = await api.post('/staff/users/donors', donorData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  updateDonor: async (id, donorData) => {
+    try {
+      const response = await api.put(`/staff/users/donors/${id}`, donorData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  deleteDonor: async (id) => {
+    try {
+      const response = await api.delete(`/staff/users/donors/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   getAllMedicalCenters: async () => {
     try {
       const response = await api.get('/staff/users/medicalcenters');

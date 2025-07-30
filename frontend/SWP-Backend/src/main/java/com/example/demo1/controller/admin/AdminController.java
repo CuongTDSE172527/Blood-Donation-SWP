@@ -14,6 +14,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.util.HashSet;
 
 @RestController
 @RequestMapping("/api/admin") // Tiền tố URL cho tất cả API trong controller này
@@ -194,7 +200,44 @@ public class AdminController {
     // Lấy danh sách tất cả các lịch hiến máu
     @GetMapping("/schedules")
     public ResponseEntity<?> getAllSchedules() {
-        return ResponseEntity.ok(scheduleRepo.findAll());
+        try {
+            List<DonationSchedule> schedules = scheduleRepo.findAll();
+            System.out.println("Admin: Found " + schedules.size() + " schedules");
+            
+            if (schedules.isEmpty()) {
+                System.out.println("Admin: No schedules found in database");
+                return ResponseEntity.ok(new ArrayList<>());
+            }
+            
+            // Add registration count for each schedule
+            List<Map<String, Object>> result = schedules.stream()
+                    .map(schedule -> {
+                        Map<String, Object> scheduleInfo = new HashMap<>();
+                        scheduleInfo.put("id", schedule.getId());
+                        scheduleInfo.put("date", schedule.getDate());
+                        scheduleInfo.put("time", schedule.getTime());
+                        scheduleInfo.put("location", schedule.getLocation());
+                        
+                        // Count registrations for this schedule's location
+                        if (schedule.getLocation() != null) {
+                            Long locationId = schedule.getLocation().getId();
+                            List<DonationRegistration> registrations = registrationRepo.findByLocationId(locationId);
+                            scheduleInfo.put("registrationCount", registrations.size());
+                        } else {
+                            scheduleInfo.put("registrationCount", 0);
+                        }
+                        
+                        return scheduleInfo;
+                    })
+                    .toList();
+            
+            System.out.println("Admin: Returning " + result.size() + " schedules with registration counts");
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            System.err.println("Admin: Error in getAllSchedules: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error loading schedules: " + e.getMessage());
+        }
     }
 
     // Xóa lịch hiến máu theo ID
@@ -641,12 +684,34 @@ public class AdminController {
     }
     @GetMapping("/donors/by-schedule/{scheduleId}")
     public ResponseEntity<?> getDonorsBySchedule(@PathVariable Long scheduleId) {
-        List<DonationRegistration> regs = registrationRepo.findByLocation_Id(scheduleId);
-        List<User> donors = regs.stream()
-                .map(DonationRegistration::getUser)
-                .distinct()
+        Optional<DonationSchedule> scheduleOpt = scheduleRepo.findById(scheduleId);
+        if (scheduleOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Schedule not found");
+        }
+
+        Long locationId = scheduleOpt.get().getLocation().getId();
+        List<DonationRegistration> registrations = registrationRepo.findByLocationId(locationId);
+
+        // Tạo danh sách kết quả với thông tin đầy đủ
+        List<Map<String, Object>> result = registrations.stream()
+                .map(registration -> {
+                    Map<String, Object> donorInfo = new HashMap<>();
+                    User user = registration.getUser();
+                    
+                    donorInfo.put("id", registration.getId());
+                    donorInfo.put("user", user);
+                    donorInfo.put("status", registration.getStatus());
+                    donorInfo.put("registrationDate", registration.getRegisteredAt());
+                    donorInfo.put("donorName", user.getFullName());
+                    donorInfo.put("email", user.getEmail());
+                    donorInfo.put("phone", user.getPhone());
+                    donorInfo.put("bloodType", user.getBloodType());
+                    
+                    return donorInfo;
+                })
                 .toList();
-        return ResponseEntity.ok(donors);
+
+        return ResponseEntity.ok(result);
     }
 
 }

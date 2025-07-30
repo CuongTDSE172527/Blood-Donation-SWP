@@ -50,6 +50,26 @@ public class DonorController {
             return ResponseEntity.badRequest().body("User not found");
         }
 
+        // Check for prohibited diseases first
+        if (body.containsKey("diseaseIds")) {
+            List<Long> diseaseIds = ((List<?>) body.get("diseaseIds")).stream()
+                    .map(id -> Long.parseLong(id.toString()))
+                    .collect(Collectors.toList());
+            
+            if (!diseaseIds.isEmpty()) {
+                List<ProhibitedDisease> selectedDiseases = diseaseRepo.findAllById(diseaseIds);
+                if (!selectedDiseases.isEmpty()) {
+                    String diseaseNames = selectedDiseases.stream()
+                            .map(ProhibitedDisease::getName)
+                            .collect(Collectors.joining(", "));
+                    return ResponseEntity.badRequest().body(
+                        "You cannot donate blood if you have the following conditions: " + diseaseNames + 
+                        ". Please consult with a healthcare provider."
+                    );
+                }
+            }
+        }
+
         DonationRegistration reg = new DonationRegistration();
         reg.setBloodType((String) body.get("bloodType"));
         reg.setLastDonationDate(LocalDate.parse((String) body.get("lastDonationDate")));
@@ -68,13 +88,8 @@ public class DonorController {
             return ResponseEntity.badRequest().body("Location is required");
         }
 
-        if (body.containsKey("diseaseIds")) {
-            List<Long> diseaseIds = ((List<?>) body.get("diseaseIds")).stream()
-                    .map(id -> Long.parseLong(id.toString()))
-                    .collect(Collectors.toList());
-            Set<ProhibitedDisease> diseases = new HashSet<>(diseaseRepo.findAllById(diseaseIds));
-            reg.setDiseases(diseases);
-        }
+        // Set empty diseases set since validation passed
+        reg.setDiseases(new HashSet<>());
 
         return ResponseEntity.ok(registrationService.register(reg, userOpt.get()));
     }
@@ -91,8 +106,20 @@ public class DonorController {
             return ResponseEntity.badRequest().body("User not found");
         }
 
+        // Check for prohibited diseases
+        if (registration.getDiseases() != null && !registration.getDiseases().isEmpty()) {
+            String diseaseNames = registration.getDiseases().stream()
+                    .map(ProhibitedDisease::getName)
+                    .collect(Collectors.joining(", "));
+            return ResponseEntity.badRequest().body(
+                "You cannot donate blood if you have the following conditions: " + diseaseNames + 
+                ". Please consult with a healthcare provider."
+            );
+        }
+
         registration.setUser(userOpt.get());
         registration.setStatus(RegistrationStatus.PENDING);
+        registration.setDiseases(new HashSet<>()); // Ensure empty set
 
         return ResponseEntity.ok(registrationRepository.save(registration));
     }
