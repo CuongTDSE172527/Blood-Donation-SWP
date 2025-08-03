@@ -21,7 +21,7 @@ public class DonationNotificationService {
         String message = buildConfirmationMessage(registration);
         
         // Send email notification
-        notificationService.sendNotification(user.getId(), subject, message);
+        notificationService.sendNotification(user.getEmail(), subject + "\n\n" + message);
         
         // You can add SMS notification here if needed
     }
@@ -32,7 +32,7 @@ public class DonationNotificationService {
         String subject = "Blood Donation Reminder - Tomorrow";
         String message = buildReminderMessage(registration, schedule);
         
-        notificationService.sendNotification(user.getId(), subject, message);
+        notificationService.sendNotification(user.getEmail(), subject + "\n\n" + message);
     }
     
     public void sendEligibilityResult(DonationRegistration registration, boolean eligible, String reason) {
@@ -41,12 +41,12 @@ public class DonationNotificationService {
         String subject = eligible ? "Blood Donation - Approved" : "Blood Donation - Additional Review Required";
         String message = buildEligibilityMessage(registration, eligible, reason);
         
-        notificationService.sendNotification(user.getId(), subject, message);
+        notificationService.sendNotification(user.getEmail(), subject + "\n\n" + message);
     }
     
     private String buildConfirmationMessage(DonationRegistration registration) {
         StringBuilder message = new StringBuilder();
-        message.append("Dear ").append(registration.getUser().getName()).append(",\\n\\n");
+        message.append("Dear ").append(registration.getUser().getFullName()).append(",\\n\\n");
         message.append("Thank you for registering to donate blood! We have received your registration.\\n\\n");
         
         message.append("REGISTRATION DETAILS:\\n");
@@ -65,7 +65,7 @@ public class DonationNotificationService {
         message.append("\\nCONTACT INFORMATION:\\n");
         message.append("Location: ").append(registration.getLocation().getName()).append("\\n");
         message.append("Address: ").append(registration.getLocation().getAddress()).append("\\n");
-        message.append("Phone: ").append(registration.getLocation().getContact()).append("\\n");
+        message.append("Phone: Contact the donation center for details\\n");
         
         message.append("\\nIf you need to cancel or reschedule, please contact us at least 24 hours in advance.\\n\\n");
         message.append("Thank you for your generosity in helping save lives!\\n\\n");
@@ -77,7 +77,7 @@ public class DonationNotificationService {
     
     private String buildReminderMessage(DonationRegistration registration, DonationSchedule schedule) {
         StringBuilder message = new StringBuilder();
-        message.append("Dear ").append(registration.getUser().getName()).append(",\\n\\n");
+        message.append("Dear ").append(registration.getUser().getFullName()).append(",\\n\\n");
         message.append("This is a friendly reminder about your blood donation appointment tomorrow.\\n\\n");
         
         message.append("APPOINTMENT DETAILS:\\n");
@@ -100,7 +100,7 @@ public class DonationNotificationService {
         message.append("• Rest and refreshments: 10-15 minutes\\n");
         message.append("• Total time: approximately 45-60 minutes\\n");
         
-        message.append("\\nNeed to reschedule? Contact us at: ").append(schedule.getLocation().getContact()).append("\\n\\n");
+        message.append("\\nNeed to reschedule? Contact the donation center for details\\n\\n");
         message.append("Thank you for your commitment to saving lives!\\n\\n");
         message.append("Best regards,\\n");
         message.append("Blood Donation Team");
@@ -110,10 +110,33 @@ public class DonationNotificationService {
     
     private String buildEligibilityMessage(DonationRegistration registration, boolean eligible, String reason) {
         StringBuilder message = new StringBuilder();
-        message.append("Dear ").append(registration.getUser().getName()).append(",\\n\\n");
+        message.append("Dear ").append(registration.getUser().getFullName()).append(",\\n\\n");
         
         if (eligible) {
             message.append("Great news! Your blood donation registration has been approved.\\n\\n");
             message.append("You are eligible to donate blood and your appointment is confirmed.\\n");
             
-            if (reason != null && !reason.trim().isEmpty()) {\n                message.append("\\nSpecial Notes: ").append(reason).append("\\n");\n            }\n            \n            message.append("\\nWe look forward to seeing you at your scheduled appointment.\\n");\n        } else {\n            message.append("Thank you for your interest in donating blood.\\n\\n");\n            message.append("After reviewing your health screening, we need additional time to evaluate your eligibility.\\n\\n");\n            \n            if (reason != null && !reason.trim().isEmpty()) {\n                message.append("Reason: ").append(reason).append("\\n\\n");\n            }\n            \n            message.append("This does not necessarily mean you cannot donate. Our medical team will review your information and contact you within 2-3 business days.\\n");\n            message.append("\\nIf you have any questions, please contact our medical team at the donation center.\\n");\n        }\n        \n        message.append("\\nThank you for your willingness to help save lives!\\n\\n");\n        message.append("Best regards,\\n");\n        message.append("Blood Donation Medical Team");\n        \n        return message.toString();\n    }\n}"
+            if (reason != null && !reason.trim().isEmpty()) {
+                message.append("\\nSpecial Notes: ").append(reason).append("\\n");
+            }
+            
+            message.append("\\nWe look forward to seeing you at your scheduled appointment.\\n");
+        } else {
+            message.append("Thank you for your interest in donating blood.\\n\\n");
+            message.append("After reviewing your health screening, we need additional time to evaluate your eligibility.\\n\\n");
+            
+            if (reason != null && !reason.trim().isEmpty()) {
+                message.append("Reason: ").append(reason).append("\\n\\n");
+            }
+            
+            message.append("This does not necessarily mean you cannot donate. Our medical team will review your information and contact you within 2-3 business days.\\n");
+            message.append("\\nIf you have any questions, please contact our medical team at the donation center.\\n");
+        }
+        
+        message.append("\\nThank you for your willingness to help save lives!\\n\\n");
+        message.append("Best regards,\\n");
+        message.append("Blood Donation Medical Team");
+        
+        return message.toString();
+    }
+}
