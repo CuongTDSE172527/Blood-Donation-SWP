@@ -21,7 +21,7 @@ import {
   Divider,
   Stack,
 } from '@mui/material';
-import { Edit, CalendarToday, History, Favorite, Wc, Cake, Phone, Email, LocationOn, Person } from '@mui/icons-material';
+import { Edit, CalendarToday, History, Favorite, Wc, Cake, Phone, Email, LocationOn, Person, Bloodtype } from '@mui/icons-material';
 import { donorService } from '../../services/donorService';
 
 const cardRadius = 3;
@@ -67,8 +67,18 @@ const DonorDashboard = () => {
 
   // Calculate total donations and last donation from history
   const totalDonations = donationHistory.length;
-  const lastDonation = donationHistory.length > 0 ? donationHistory[0]?.date || 'N/A' : 'N/A';
+  const lastDonation = donationHistory.length > 0 ? 
+    (donationHistory[0]?.registeredAt ? 
+      new Date(donationHistory[0].registeredAt).toLocaleDateString('vi-VN') : 
+      donationHistory[0]?.date || 'N/A'
+    ) : 'N/A';
   const bloodType = donationHistory.length > 0 ? donationHistory[0]?.bloodType || 'N/A' : (displayUser?.bloodType || 'N/A');
+  
+  // Calculate total blood donated in ml
+  const totalBloodDonated = donationHistory.reduce((total, donation) => {
+    const amount = donation.amount || donation.units || 0;
+    return total + amount;
+  }, 0);
 
   return (
     <Box sx={{ bgcolor: '#fff', minHeight: '100vh', py: 6 }}>
@@ -114,7 +124,12 @@ const DonorDashboard = () => {
                 <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                   <Wc fontSize="small" color="action" />
                   <Typography variant="body2" color="text.secondary">
-                    {t('donor.gender') || 'Gender'}: <b>{displayUser?.gender || 'N/A'}</b>
+                    {t('donor.gender') || 'Gender'}: <b>
+                      {displayUser?.gender === 'MALE' ? t('common.male') || 'Male' :
+                       displayUser?.gender === 'FEMALE' ? t('common.female') || 'Female' :
+                       displayUser?.gender === 'OTHER' ? t('common.other') || 'Other' :
+                       displayUser?.gender || 'N/A'}
+                    </b>
                   </Typography>
                 </Stack>
                 <Stack direction="row" alignItems="center" spacing={1} mb={1}>
@@ -138,7 +153,13 @@ const DonorDashboard = () => {
                 <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                   <Person fontSize="small" color="action" />
                   <Typography variant="body2" color="text.secondary">
-                    {t('donor.role') || 'Role'}: <b>{displayUser?.role || 'N/A'}</b>
+                    {t('donor.role') || 'Role'}: <b>
+                      {displayUser?.role === 'DONOR' ? t('common.role_donor') || 'Donor' :
+                       displayUser?.role === 'STAFF' ? t('common.role_staff') || 'Staff' :
+                       displayUser?.role === 'ADMIN' ? t('common.role_admin') || 'Admin' :
+                       displayUser?.role === 'MEDICALCENTER' ? t('common.role_medicalcenter') || 'Medical Center' :
+                       displayUser?.role || 'N/A'}
+                    </b>
                   </Typography>
                 </Stack>
                 <Stack direction="row" alignItems="center" spacing={1} mb={1}>
@@ -166,23 +187,40 @@ const DonorDashboard = () => {
             </Card>
           </Grid>
           <Grid item xs={12} md={6}>
-            {/* Quick Action Card */}
-            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow, bgcolor: '#f5f6fa', color: 'primary.main', cursor: 'pointer', transition: 'all 0.25s cubic-bezier(.4,2,.6,1)', '&:hover': cardHover }}>
+            {/* Total Blood Donated Card */}
+            <Card sx={{ borderRadius: cardRadius, boxShadow: cardShadow, bgcolor: '#fff5f5', color: 'primary.main', transition: 'all 0.25s cubic-bezier(.4,2,.6,1)', '&:hover': cardHover }}>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Favorite sx={{ color: 'primary.main', mr: 1 }} />
-                  <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 600 }}>{t('donor.registerDonation')}</Typography>
+                  <Bloodtype sx={{ color: 'primary.main', mr: 1, fontSize: 32 }} />
+                  <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 600 }}>{t('donor.totalBloodDonated')}</Typography>
                 </Box>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  {t('donor.registerDonationDesc')}
+                <Typography variant="h3" sx={{ color: 'primary.main', fontWeight: 700, textAlign: 'center', mb: 1 }}>
+                  {totalBloodDonated} ml
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+                  {t('donor.totalDonations')}: {totalDonations}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+                  {t('donor.lastDonation')}: {lastDonation}
                 </Typography>
               </CardContent>
               <CardActions>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   fullWidth
                   onClick={() => navigate('/donation-registration')}
-                  sx={{ bgcolor: 'primary.main', color: '#fff', fontWeight: 700, borderRadius: 2, px: 3, boxShadow: 'none', '&:hover': { bgcolor: 'primary.dark' } }}
+                  sx={{ 
+                    borderColor: 'primary.main', 
+                    color: 'primary.main', 
+                    fontWeight: 600, 
+                    borderRadius: 2, 
+                    px: 3, 
+                    '&:hover': { 
+                      bgcolor: 'primary.main', 
+                      color: '#fff',
+                      borderColor: 'primary.main'
+                    } 
+                  }}
                 >
                   {t('donor.registerNow')}
                 </Button>
@@ -219,11 +257,21 @@ const DonorDashboard = () => {
                       </TableRow>
                     ) : donationHistory.map((donation) => (
                       <TableRow key={donation.id}>
-                        <TableCell>{donation.date || donation.createdAt}</TableCell>
+                        <TableCell>
+                          {donation.registeredAt ? 
+                            new Date(donation.registeredAt).toLocaleDateString('vi-VN') : 
+                            donation.date || donation.createdAt || 'N/A'
+                          }
+                        </TableCell>
                         <TableCell>{donation.bloodType || 'N/A'}</TableCell>
                         <TableCell>{donation.location?.name || donation.location || 'N/A'}</TableCell>
-                        <TableCell>{donation.units || donation.amount || 'N/A'}</TableCell>
-                        <TableCell>{donation.status || 'N/A'}</TableCell>
+                        <TableCell>{donation.amount || donation.units || 'N/A'} ml</TableCell>
+                        <TableCell>
+                          {donation.status ? 
+                            t(`donor.status_${donation.status.toLowerCase()}`) || donation.status : 
+                            'N/A'
+                          }
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

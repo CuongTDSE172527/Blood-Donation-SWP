@@ -39,6 +39,7 @@ export default function Donors() {
   const { user } = useSelector((state) => state.auth);
   const [donors, setDonors] = useState([]);
   const [filteredDonors, setFilteredDonors] = useState([]);
+  const [donorStats, setDonorStats] = useState({}); // Store total blood donated for each donor
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
@@ -75,6 +76,22 @@ export default function Donors() {
       setLoading(true);
       const data = await staffService.getAllDonors();
       setDonors(data);
+      
+      // Load donation history for each donor to calculate total blood donated
+      const stats = {};
+      for (const donor of data) {
+        try {
+          const history = await staffService.getDonorHistory(donor.id);
+          const totalBlood = history.reduce((sum, donation) => {
+            return sum + (donation.amount || donation.units || 0);
+          }, 0);
+          stats[donor.id] = totalBlood;
+        } catch (err) {
+          console.error(`Failed to load history for donor ${donor.id}:`, err);
+          stats[donor.id] = 0;
+        }
+      }
+      setDonorStats(stats);
     } catch (err) {
       setError(err.message || 'Failed to load donors');
     } finally {
@@ -332,6 +349,7 @@ export default function Donors() {
                     <TableCell>{t('staff.email') || 'Email'}</TableCell>
                     <TableCell>{t('staff.phone') || 'Phone'}</TableCell>
                     <TableCell>{t('staff.bloodType') || 'Blood Type'}</TableCell>
+                    <TableCell>{t('staff.totalBloodDonated') || 'Total Blood Donated'}</TableCell>
                     <TableCell>{t('staff.gender') || 'Gender'}</TableCell>
                     <TableCell>{t('staff.dob') || 'Date of Birth'}</TableCell>
                     <TableCell align="right">{t('staff.actions') || 'Actions'}</TableCell>
@@ -340,7 +358,7 @@ export default function Donors() {
                 <TableBody>
                   {filteredDonors.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} align="center">
+                      <TableCell colSpan={8} align="center">
                         {searchTerm || bloodTypeFilter !== 'ALL' 
                           ? (t('staff.noMatchingDonors') || 'No matching donors found') 
                           : (t('common.noData') || 'No data')}
@@ -359,6 +377,14 @@ export default function Donors() {
                           color="primary" 
                           size="small" 
                           sx={{ bgcolor: '#d32f2f' }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={`${donorStats[donor.id] || 0} ml`}
+                          color="success" 
+                          size="small"
+                          variant="outlined"
                         />
                       </TableCell>
                       <TableCell>{donor.gender || 'N/A'}</TableCell>

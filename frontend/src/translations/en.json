@@ -152,7 +152,13 @@
     "male": "Male",
     "female": "Female",
     "other": "Other",
-    "role": "Role"
+    "role": "Role",
+    "role_donor": "Donor",
+    "role_staff": "Staff",
+    "role_admin": "Admin",
+    "role_medicalcenter": "Medical Center",
+    "previous": "Previous",
+    "next": "Next"
   },
   "about": {
     "title": "About Us",
@@ -326,6 +332,7 @@
     "name": "Name",
     "bloodType": "Blood Type",
     "lastDonation": "Last Donation",
+    "totalBloodDonated": "Total Blood Donated",
     "status": "Status",
     "status_eligible": "Eligible",
     "status_noteligible": "Not Eligible",
@@ -533,6 +540,7 @@
     "bloodType": "Blood Type",
     "totalDonations": "Total Donations",
     "lastDonation": "Last Donation",
+    "totalBloodDonated": "Total Blood Donated",
     "editProfile": "Edit Profile",
     "donationHistory": "Donation History",
     "date": "Date",
@@ -547,7 +555,18 @@
     "address": "Address",
     "email": "Email",
     "role": "Role",
-    "status": "Status"
+    "status": "Status",
+    "noDonationRecord": "No donation record",
+    "status_pending": "Pending",
+    "status_completed": "Completed",
+    "status_cancelled": "Cancelled",
+    "status_approved": "Approved",
+    "status_rejected": "Rejected",
+    "status_processing": "Processing",
+    "status_waiting": "Waiting",
+    "status_confirm": "Confirmed",
+    "status_priority": "Priority",
+    "status_out_of_stock": "Out of Stock"
   },
   "login": {
     "title": "Login",
@@ -592,13 +611,18 @@
     "updateError": "Profile update failed"
   },
   "donation": {
+    "title": "Blood Donation Registration",
+    "subtitle": "Complete the comprehensive health screening for safe blood donation",
     "bloodType": "Blood Type",
     "lastDonationDate": "Last Donation Date",
     "weight": "Weight",
     "height": "Height",
-    "amount": "Amount",
+    "amount": "Donation Amount",
     "location": "Location",
     "prohibitedDiseases": "Medical History",
+    "prohibitedDiseasesQuestion": "Do you have any of the following diseases?",
+    "prohibitedDiseasesYes": "Yes, I have one or more of these diseases",
+    "prohibitedDiseasesNo": "No, I don't have any of these diseases",
     "register": "Register",
     "submit": "Submit",
     "selectedSchedule": "Selected Schedule",
@@ -640,14 +664,35 @@
       "dataProcessing": "I consent to the processing of my personal data in accordance with privacy policies"
     },
     "steps": {
+      "diseaseScreening": "Disease Screening",
       "basicInfo": "Basic Information",
-      "healthScreening": "Health Screening",
       "riskAssessment": "Risk Assessment",
+      "scheduleSelection": "Schedule Selection",
       "consent": "Consent & Agreement"
     },
+    "diseaseScreening": {
+      "title": "Health Screening - First Step",
+      "subtitle": "Please answer this important question before proceeding",
+      "notEligible": "Not Eligible for Blood Donation",
+      "backToHome": "Back to Home",
+      "note": "This screening helps ensure the safety of both donors and recipients."
+    },
+    "submitting": "Submitting...",
+    "completeRegistration": "Complete Registration",
+    "scheduleSelection": {
+      "title": "Select Donation Schedule",
+      "subtitle": "Choose a convenient time and location for your blood donation",
+      "selectSchedule": "Select Schedule",
+      "note": "Please arrive 15 minutes before your scheduled time. You can change or cancel your appointment up to 24 hours before the scheduled time."
+    },
     "validation": {
+      "bloodTypeRequired": "Blood type is required",
       "weightMin": "Minimum weight: 45kg",
       "heightMin": "Minimum height: 140cm",
+      "amountRange": "Standard range: 250-450 ml (350 ml recommended)",
+      "locationRequired": "Location is required",
+      "diseaseQuestionRequired": "Please answer the disease question",
+      "prohibitedDiseasesNotEligible": "You cannot donate blood if you have any of these diseases. Please consult a healthcare provider.",
       "bpRange": "Normal range: 90-180/50-100 mmHg",
       "hrRange": "Normal range: 50-100 bpm",
       "tempRange": "Normal range: 36-37.5°C",
@@ -657,7 +702,20 @@
       "tattooWait": "Must wait 6 months after getting a tattoo",
       "piercingWait": "Must wait 6 months after getting a piercing",
       "pregnancyRestriction": "Pregnant women cannot donate blood",
-      "breastfeedingRestriction": "Breastfeeding mothers must wait 6 months after delivery"
+      "breastfeedingRestriction": "Breastfeeding mothers must wait 6 months after delivery",
+      "weightRange": "Realistic range: 30-300 kg (minimum for donation: 45 kg)",
+      "heightRange": "Realistic range: 100-250 cm (minimum for donation: 140 cm)",
+      "weightTooLow": "Weight is too low. Please enter a realistic value (minimum 30 kg)",
+      "weightTooHigh": "Weight is too high. Please enter a realistic value (maximum 300 kg)",
+      "heightTooLow": "Height is too low. Please enter a realistic value (minimum 100 cm)",
+      "heightTooHigh": "Height is too high. Please enter a realistic value (maximum 250 cm)",
+      "bmiTooLow": "BMI is unrealistically low. Please check your weight and height values",
+      "bmiTooHigh": "BMI is unrealistically high. Please check your weight and height values",
+      "unrealisticCombination": "The combination of weight and height seems unrealistic. Please verify your measurements",
+      "scheduleRequired": "Please select a donation schedule",
+      "healthDeclarationRequired": "Health declaration is required",
+      "consentFormRequired": "Consent form must be accepted",
+      "dataProcessingRequired": "Data processing consent is required"
     }
   },
   "status_PENDING": "Pending",

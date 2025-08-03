@@ -20,6 +20,15 @@ export const adminService = {
     }
   },
 
+  getDonorHistory: async (donorId) => {
+    try {
+      const response = await api.get(`/admin/users/donors/${donorId}/history`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   getStaffs: async () => {
     try {
       const response = await api.get('/admin/users/staff');

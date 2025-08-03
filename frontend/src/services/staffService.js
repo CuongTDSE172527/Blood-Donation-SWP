@@ -195,6 +195,15 @@ export const staffService = {
     }
   },
 
+  getDonorHistory: async (donorId) => {
+    try {
+      const response = await api.get(`/staff/users/donors/${donorId}/history`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   getMedicalCenterById: async (id) => {
     try {
       const response = await api.get(`/staff/users/medicalcenters/${id}`);

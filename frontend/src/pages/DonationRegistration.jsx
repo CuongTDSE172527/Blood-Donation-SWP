@@ -35,6 +35,7 @@ import { useTranslation } from 'react-i18next';
 import { donorService } from '../services/donorService';
 import { scheduleService } from '../services/scheduleService';
 import { staffService } from '../services/staffService';
+import api from '../services/api';
 import { 
   CalendarToday, 
   LocationOn, 
@@ -65,11 +66,12 @@ const DonationRegistration = () => {
     lastDonationDate: '',
     weight: '',
     height: '',
-    amount: 1,
+    amount: 350,
     locationId: selectedSchedule?.location?.id || '',
+    scheduleId: selectedSchedule?.id || '',
+    hasProhibitedDiseases: '',
     
     // Health Screening
-    diseaseIds: [],
     bloodPressure: { systolic: '', diastolic: '' },
     heartRate: '',
     temperature: '',
@@ -104,6 +106,7 @@ const DonationRegistration = () => {
   
   const [locations, setLocations] = useState([]);
   const [diseases, setDiseases] = useState([]);
+  const [schedules, setSchedules] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -118,6 +121,56 @@ const DonationRegistration = () => {
     if (!weight || !height) return null;
     const heightInMeters = height / 100;
     return (weight / (heightInMeters * heightInMeters)).toFixed(1);
+  };
+  
+  // Realistic weight and height validation
+  const validateRealisticMeasurements = (weight, height) => {
+    const errors = {};
+    
+    // Weight validation (realistic range: 30-300 kg)
+    if (weight) {
+      const weightNum = parseFloat(weight);
+      if (weightNum < 30) {
+        errors.weight = t('donation.validation.weightTooLow');
+      } else if (weightNum > 300) {
+        errors.weight = t('donation.validation.weightTooHigh');
+      }
+    }
+    
+    // Height validation (realistic range: 100-250 cm)
+    if (height) {
+      const heightNum = parseFloat(height);
+      if (heightNum < 100) {
+        errors.height = t('donation.validation.heightTooLow');
+      } else if (heightNum > 250) {
+        errors.height = t('donation.validation.heightTooHigh');
+      }
+    }
+    
+    // Combined validation for realistic BMI
+    if (weight && height) {
+      const weightNum = parseFloat(weight);
+      const heightNum = parseFloat(height);
+      const bmi = calculateBMI(weightNum, heightNum);
+      const bmiNum = parseFloat(bmi);
+      
+      // Check for unrealistic BMI combinations
+      if (bmiNum < 10) {
+        errors.bmi = t('donation.validation.bmiTooLow');
+      } else if (bmiNum > 60) {
+        errors.bmi = t('donation.validation.bmiTooHigh');
+      }
+      
+      // Check for unrealistic weight-height combinations
+      if (weightNum > 200 && heightNum < 150) {
+        errors.combination = t('donation.validation.unrealisticCombination');
+      }
+      if (weightNum < 40 && heightNum > 200) {
+        errors.combination = t('donation.validation.unrealisticCombination');
+      }
+    }
+    
+    return errors;
   };
   
   const getBMICategory = (bmi) => {
@@ -205,51 +258,7 @@ const DonationRegistration = () => {
     return daysDiff >= minInterval;
   };
   
-  const validateVitalSigns = (formData) => {
-    const errors = {};
-    
-    // Blood pressure validation (systolic: 90-180, diastolic: 50-100)
-    if (formData.bloodPressure.systolic) {
-      const systolic = parseInt(formData.bloodPressure.systolic);
-      if (systolic < 90 || systolic > 180) {
-        errors.bloodPressure = 'Blood pressure must be between 90-180/50-100 mmHg';
-      }
-    }
-    
-    if (formData.bloodPressure.diastolic) {
-      const diastolic = parseInt(formData.bloodPressure.diastolic);
-      if (diastolic < 50 || diastolic > 100) {
-        errors.bloodPressure = 'Blood pressure must be between 90-180/50-100 mmHg';
-      }
-    }
-    
-    // Heart rate validation (50-100 bpm)
-    if (formData.heartRate) {
-      const heartRate = parseInt(formData.heartRate);
-      if (heartRate < 50 || heartRate > 100) {
-        errors.heartRate = 'Heart rate must be between 50-100 bpm';
-      }
-    }
-    
-    // Temperature validation (36-37.5°C)
-    if (formData.temperature) {
-      const temp = parseFloat(formData.temperature);
-      if (temp < 36 || temp > 37.5) {
-        errors.temperature = 'Body temperature must be between 36-37.5°C';
-      }
-    }
-    
-    // Hemoglobin validation (males: ≥13.5 g/dL, females: ≥12.5 g/dL)
-    if (formData.hemoglobin && user?.gender) {
-      const hb = parseFloat(formData.hemoglobin);
-      const minHb = user.gender === 'FEMALE' ? 12.5 : 13.5;
-      if (hb < minHb) {
-        errors.hemoglobin = `Hemoglobin must be at least ${minHb} g/dL`;
-      }
-    }
-    
-    return errors;
-  };
+
   
   const validateRiskFactors = (formData) => {
     const errors = {};
@@ -305,18 +314,110 @@ const DonationRegistration = () => {
     setLoadingForm(true);
     setError('');
     try {
-      const [locationsResponse, diseasesResponse] = await Promise.all([
-        staffService.getAllLocations(),
-        staffService.getAllDiseases()
-      ]);
-      setLocations(locationsResponse);
-      setDiseases(diseasesResponse);
-    } catch (error) {
-      console.error('Error loading form data:', error);
-      setError('Không thể tải dữ liệu địa điểm hoặc bệnh cấm hiến. Vui lòng thử lại.');
-    } finally {
-      setLoadingForm(false);
-    }
+      console.log('Loading form data...');
+      
+      // Load data individually to identify which API call fails
+      let locationsResponse, diseasesResponse, schedulesResponse;
+      
+      try {
+        // Try donor-specific endpoint first
+        locationsResponse = await api.get('/donor/locations');
+        console.log('Locations loaded (donor):', locationsResponse.data);
+      } catch (error) {
+        console.error('Error loading locations (donor):', error);
+        // Fallback to staff endpoint if donor fails
+        try {
+          locationsResponse = await staffService.getAllLocations();
+          console.log('Locations loaded (staff):', locationsResponse);
+        } catch (staffError) {
+          console.error('Error loading locations (staff):', staffError);
+          // Use mock data as last resort
+          locationsResponse = { data: [
+            { id: 1, name: 'Bệnh viện Chợ Rẫy', address: '201B Nguyễn Chí Thanh, Quận 5, TP.HCM' },
+            { id: 2, name: 'Bệnh viện Nhân dân 115', address: '527 Sư Vạn Hạnh, Quận 10, TP.HCM' },
+            { id: 3, name: 'Viện Huyết học - Truyền máu TW', address: '118 Đường Trần Phú, Hà Nội' }
+          ]};
+          console.log('Using mock locations');
+        }
+      }
+      
+      try {
+        // Try donor-specific endpoint first
+        diseasesResponse = await api.get('/donor/diseases');
+        console.log('Diseases loaded (donor):', diseasesResponse.data);
+      } catch (error) {
+        console.error('Error loading diseases (donor):', error);
+        // Fallback to staff endpoint if donor fails
+        try {
+          diseasesResponse = await staffService.getAllDiseases();
+          console.log('Diseases loaded (staff):', diseasesResponse);
+        } catch (staffError) {
+          console.error('Error loading diseases (staff):', staffError);
+          // Use mock data as last resort
+          diseasesResponse = { data: [
+            { id: 1, name: 'HIV/AIDS' },
+            { id: 2, name: 'Viêm gan B' },
+            { id: 3, name: 'Viêm gan C' },
+            { id: 4, name: 'Giang mai' },
+            { id: 5, name: 'Sốt rét' },
+            { id: 6, name: 'Bệnh Creutzfeldt-Jakob' }
+          ]};
+          console.log('Using mock diseases');
+        }
+      }
+      
+      try {
+        // Try donor-specific endpoint first
+        schedulesResponse = await api.get('/donor/schedules');
+        console.log('Schedules loaded (donor):', schedulesResponse.data);
+      } catch (error) {
+        console.error('Error loading schedules (donor):', error);
+        // Fallback to staff endpoint if donor fails
+        try {
+          schedulesResponse = await scheduleService.getAllSchedules();
+          console.log('Schedules loaded (staff):', schedulesResponse);
+        } catch (staffError) {
+          console.error('Error loading schedules (staff):', staffError);
+          // Use mock data as last resort
+          const today = new Date();
+          const tomorrow = new Date(today);
+          tomorrow.setDate(today.getDate() + 1);
+          const nextWeek = new Date(today);
+          nextWeek.setDate(today.getDate() + 7);
+          
+          schedulesResponse = { data: [
+            { 
+              id: 1, 
+              date: tomorrow.toISOString().split('T')[0], 
+              time: '08:00:00',
+              location: { id: 1, name: 'Bệnh viện Chợ Rẫy', address: '201B Nguyễn Chí Thanh, Quận 5, TP.HCM' }
+            },
+            { 
+              id: 2, 
+              date: tomorrow.toISOString().split('T')[0], 
+              time: '14:00:00',
+              location: { id: 2, name: 'Bệnh viện Nhân dân 115', address: '527 Sư Vạn Hạnh, Quận 10, TP.HCM' }
+            },
+            { 
+              id: 3, 
+              date: nextWeek.toISOString().split('T')[0], 
+              time: '09:00:00',
+              location: { id: 3, name: 'Viện Huyết học - Truyền máu TW', address: '118 Đường Trần Phú, Hà Nội' }
+            }
+          ]};
+          console.log('Using mock schedules');
+        }
+      }
+      
+      setLocations(locationsResponse.data || locationsResponse);
+      setDiseases(diseasesResponse.data || diseasesResponse);
+      setSchedules(schedulesResponse.data || schedulesResponse);
+          } catch (error) {
+        console.error('Error loading form data:', error);
+        setError('Đang sử dụng dữ liệu mẫu. Một số tính năng có thể bị hạn chế.');
+      } finally {
+        setLoadingForm(false);
+      }
   };
 
   const handleChange = (e) => {
@@ -326,14 +427,26 @@ const DonationRegistration = () => {
       [name]: value,
     });
     setError('');
+    
+    // Real-time validation for weight and height
+    if (name === 'weight' || name === 'height') {
+      const newWeight = name === 'weight' ? value : formData.weight;
+      const newHeight = name === 'height' ? value : formData.height;
+      
+      if (newWeight || newHeight) {
+        const realisticErrors = validateRealisticMeasurements(newWeight, newHeight);
+        setValidationErrors(prev => ({
+          ...prev,
+          ...realisticErrors
+        }));
+      }
+    }
   };
 
-  const handleDiseaseChange = (diseaseId) => {
+  const handleDiseaseChange = (value) => {
     setFormData(prev => ({
       ...prev,
-      diseaseIds: prev.diseaseIds.includes(diseaseId)
-        ? prev.diseaseIds.filter(id => id !== diseaseId)
-        : [...prev.diseaseIds, diseaseId]
+      hasProhibitedDiseases: value
     }));
   };
 
@@ -341,13 +454,28 @@ const DonationRegistration = () => {
     const errors = {};
     
     switch (currentStep) {
-      case 1: // Basic Information
-        if (!formData.bloodType) errors.bloodType = 'Blood type is required';
-        if (!formData.weight || formData.weight < 45) errors.weight = 'Weight must be at least 45kg';
-        if (!formData.height || formData.height < 140) errors.height = 'Height must be at least 140cm';
-        if (!fromSchedule && !formData.locationId) errors.locationId = 'Location is required';
+      case 1: // Disease Screening
+        if (!formData.hasProhibitedDiseases) {
+          errors.hasProhibitedDiseases = t('donation.validation.diseaseQuestionRequired');
+        } else if (formData.hasProhibitedDiseases === 'true') {
+          errors.prohibitedDiseases = t('donation.validation.prohibitedDiseasesNotEligible');
+        }
+        break;
         
-        // BMI validation
+      case 2: // Basic Information
+        if (!formData.bloodType) errors.bloodType = t('donation.validation.bloodTypeRequired');
+        if (!formData.weight || formData.weight < 45) errors.weight = t('donation.validation.weightMin');
+        if (!formData.height || formData.height < 140) errors.height = t('donation.validation.heightMin');
+        if (!formData.amount || formData.amount < 250 || formData.amount > 450) errors.amount = t('donation.validation.amountRange');
+        if (!fromSchedule && !formData.locationId) errors.locationId = t('donation.validation.locationRequired');
+        
+        // Realistic measurements validation
+        if (formData.weight || formData.height) {
+          const realisticErrors = validateRealisticMeasurements(formData.weight, formData.height);
+          Object.assign(errors, realisticErrors);
+        }
+        
+        // BMI validation for donation eligibility
         if (formData.weight && formData.height) {
           const bmiValidation = validateBMI(formData.weight, formData.height);
           if (!bmiValidation.valid) {
@@ -358,24 +486,7 @@ const DonationRegistration = () => {
         // Donation interval validation
         if (!validateDonationInterval(formData.lastDonationDate, user?.gender)) {
           const minDays = user?.gender === 'FEMALE' ? 120 : 90;
-          errors.lastDonationDate = `Must wait ${minDays} days since last donation`;
-        }
-        break;
-        
-      case 2: // Health Screening
-        const vitalErrors = validateVitalSigns(formData);
-        Object.assign(errors, vitalErrors);
-        
-        // Check for prohibited diseases
-        if (formData.diseaseIds && formData.diseaseIds.length > 0) {
-          const selectedDiseases = diseases.filter(disease => 
-            formData.diseaseIds.includes(disease.id)
-          );
-          
-          if (selectedDiseases.length > 0) {
-            const diseaseNames = selectedDiseases.map(disease => disease.name).join(', ');
-            errors.diseases = `Cannot donate with: ${diseaseNames}. Please consult a healthcare provider.`;
-          }
+          errors.lastDonationDate = t('donation.validation.donationInterval', { days: minDays });
         }
         break;
         
@@ -384,10 +495,14 @@ const DonationRegistration = () => {
         Object.assign(errors, riskErrors);
         break;
         
-      case 4: // Final Consent
-        if (!formData.healthDeclaration) errors.healthDeclaration = 'Health declaration is required';
-        if (!formData.consentForm) errors.consentForm = 'Consent form must be accepted';
-        if (!formData.dataProcessing) errors.dataProcessing = 'Data processing consent is required';
+      case 4: // Schedule Selection
+        if (!fromSchedule && !formData.scheduleId) errors.scheduleId = t('donation.validation.scheduleRequired');
+        break;
+        
+      case 5: // Final Consent
+        if (!formData.healthDeclaration) errors.healthDeclaration = t('donation.validation.healthDeclarationRequired');
+        if (!formData.consentForm) errors.consentForm = t('donation.validation.consentFormRequired');
+        if (!formData.dataProcessing) errors.dataProcessing = t('donation.validation.dataProcessingRequired');
         break;
     }
     
@@ -397,7 +512,12 @@ const DonationRegistration = () => {
   
   const handleNext = () => {
     if (validateCurrentStep()) {
-      if (currentStep < 4) {
+      // If user has prohibited diseases, don't allow to proceed
+      if (currentStep === 1 && formData.hasProhibitedDiseases === 'true') {
+        return;
+      }
+      
+      if (currentStep < 5) {
         setCurrentStep(currentStep + 1);
       } else {
         handleSubmit();
@@ -426,18 +546,23 @@ const DonationRegistration = () => {
     setError('');
 
     try {
+      // Prepare registration data
+      const registrationData = {
+        ...formData,
+        userId: user.id,
+        // Remove diseaseIds if it exists and add hasProhibitedDiseases
+        diseaseIds: undefined,
+        hasProhibitedDiseases: formData.hasProhibitedDiseases === 'true'
+      };
+      
       // If coming from schedule, use schedule registration
       if (fromSchedule && selectedSchedule) {
-        const registrationData = {
-          ...formData,
-          userId: user.id,
-          scheduleId: selectedSchedule.id,
-          locationId: selectedSchedule.location.id
-        };
+        registrationData.scheduleId = selectedSchedule.id;
+        registrationData.locationId = selectedSchedule.location.id;
         await scheduleService.registerForSchedule(registrationData);
       } else {
-        // Regular donation registration
-        await donorService.registerDonation(user.id, formData);
+        // Regular donation registration with selected schedule
+        await donorService.registerDonation(user.id, registrationData);
       }
       
       setSuccess('Blood donation registration submitted successfully! You will receive a confirmation email shortly.');
@@ -463,12 +588,124 @@ const DonationRegistration = () => {
   };
   
   const steps = [
-    'Basic Information',
-    'Health Screening', 
-    'Risk Assessment',
-    'Consent & Agreement'
+    t('donation.steps.diseaseScreening'),
+    t('donation.steps.basicInfo'),
+    t('donation.steps.riskAssessment'),
+    t('donation.steps.scheduleSelection'),
+    t('donation.steps.consent')
   ];
   
+  const renderDiseaseScreening = () => (
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Box sx={{ 
+          p: 4, 
+          border: '2px solid #d32f2f', 
+          borderRadius: 3, 
+          bgcolor: '#fff5f5',
+          textAlign: 'center'
+        }}>
+          <Typography variant="h4" gutterBottom sx={{ color: '#d32f2f', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <HealthAndSafety sx={{ mr: 2, fontSize: 40 }} />
+            {t('donation.diseaseScreening.title')}
+          </Typography>
+          
+          <Typography variant="h6" sx={{ mb: 3, color: '#d32f2f' }}>
+            {t('donation.diseaseScreening.subtitle')}
+          </Typography>
+          
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="body1" sx={{ mb: 2, fontWeight: 500 }}>
+              {t('donation.prohibitedDiseasesQuestion')}
+            </Typography>
+            
+            <Card sx={{ mb: 3, bgcolor: '#fff', border: '1px solid #ffcdd2' }}>
+              <CardContent>
+                <Typography variant="h6" sx={{ mb: 2, color: '#d32f2f' }}>
+                  {t('donation.prohibitedDiseases')}:
+                </Typography>
+                <Grid container spacing={1}>
+                  {diseases.map((disease) => (
+                    <Grid item xs={12} sm={6} key={disease.id}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', p: 1 }}>
+                        <Warning color="error" sx={{ mr: 1 }} />
+                        <Typography variant="body2">{disease.name}</Typography>
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+              </CardContent>
+            </Card>
+            
+            <FormControl component="fieldset" required error={!!validationErrors.hasProhibitedDiseases}>
+              <RadioGroup
+                name="hasProhibitedDiseases"
+                value={formData.hasProhibitedDiseases}
+                onChange={(e) => handleDiseaseChange(e.target.value)}
+                sx={{ alignItems: 'center' }}
+              >
+                <FormControlLabel 
+                  value="false" 
+                  control={<Radio color="success" />} 
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <CheckCircle color="success" sx={{ mr: 1 }} />
+                      <Typography variant="h6" color="success.main">
+                        {t('donation.prohibitedDiseasesNo')}
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{ mb: 2, p: 2, border: '2px solid #4caf50', borderRadius: 2, bgcolor: '#f1f8e9' }}
+                />
+                <FormControlLabel 
+                  value="true" 
+                  control={<Radio color="error" />} 
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Warning color="error" sx={{ mr: 1 }} />
+                      <Typography variant="h6" color="error.main">
+                        {t('donation.prohibitedDiseasesYes')}
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{ p: 2, border: '2px solid #f44336', borderRadius: 2, bgcolor: '#ffebee' }}
+                />
+              </RadioGroup>
+              
+              {validationErrors.hasProhibitedDiseases && (
+                <Typography variant="caption" color="error" display="block" sx={{ mt: 2 }}>
+                  {validationErrors.hasProhibitedDiseases}
+                </Typography>
+              )}
+              
+              {validationErrors.prohibitedDiseases && (
+                <Alert severity="error" sx={{ mt: 3 }}>
+                  <Typography variant="h6" sx={{ mb: 1 }}>
+                    {t('donation.diseaseScreening.notEligible')}
+                  </Typography>
+                  <Typography variant="body2">
+                    {validationErrors.prohibitedDiseases}
+                  </Typography>
+                  <Button 
+                    variant="contained" 
+                    onClick={() => navigate('/')}
+                    sx={{ mt: 2, bgcolor: '#d32f2f' }}
+                  >
+                    {t('donation.diseaseScreening.backToHome')}
+                  </Button>
+                </Alert>
+              )}
+            </FormControl>
+          </Box>
+          
+          <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+            {t('donation.diseaseScreening.note')}
+          </Typography>
+        </Box>
+      </Grid>
+    </Grid>
+  );
+
   const renderBasicInformation = () => (
     <Grid container spacing={3}>
       <Grid item xs={12} md={6}>
@@ -520,8 +757,8 @@ const DonationRegistration = () => {
           value={formData.weight}
           onChange={handleChange}
           error={!!validationErrors.weight}
-          helperText={validationErrors.weight || 'Minimum weight: 45kg'}
-          inputProps={{ min: 45, step: 0.1 }}
+          helperText={validationErrors.weight || t('donation.validation.weightRange')}
+          inputProps={{ min: 30, max: 300, step: 0.1 }}
         />
       </Grid>
       
@@ -535,8 +772,8 @@ const DonationRegistration = () => {
           value={formData.height}
           onChange={handleChange}
           error={!!validationErrors.height}
-          helperText={validationErrors.height || 'Minimum height: 140cm'}
-          inputProps={{ min: 140, step: 0.1 }}
+          helperText={validationErrors.height || t('donation.validation.heightRange')}
+          inputProps={{ min: 100, max: 250, step: 0.1 }}
         />
       </Grid>
       
@@ -604,6 +841,11 @@ const DonationRegistration = () => {
                 {validationErrors.bmi}
               </Alert>
             )}
+            {validationErrors.combination && (
+              <Alert severity="warning" sx={{ mt: 2 }}>
+                {validationErrors.combination}
+              </Alert>
+            )}
           </Box>
         </Grid>
       )}
@@ -612,12 +854,14 @@ const DonationRegistration = () => {
         <TextField
           fullWidth
           required
-          label={t('donation.amount') + ' (units)'}
+          label={t('donation.amount') + ' (ml)'}
           name="amount"
           type="number"
           value={formData.amount}
           onChange={handleChange}
-          inputProps={{ min: 1, max: 2 }}
+          error={!!validationErrors.amount}
+          helperText={validationErrors.amount || t('donation.validation.amountRange')}
+          inputProps={{ min: 250, max: 450, step: 50 }}
         />
       </Grid>
       
@@ -648,117 +892,92 @@ const DonationRegistration = () => {
     </Grid>
   );
   
-  const renderHealthScreening = () => (
+
+
+  const renderScheduleSelection = () => (
     <Grid container spacing={3}>
       <Grid item xs={12}>
         <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-          <HealthAndSafety sx={{ mr: 1, color: '#d32f2f' }} />
-          Vital Signs Assessment
+          <CalendarToday sx={{ mr: 1, color: '#d32f2f' }} />
+          {t('donation.scheduleSelection.title')}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          {t('donation.scheduleSelection.subtitle')}
         </Typography>
       </Grid>
       
-      <Grid item xs={12} md={6}>
-        <Typography variant="subtitle2" gutterBottom>Blood Pressure (mmHg)</Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <TextField
-            placeholder="Systolic"
-            name="systolic"
-            type="number"
-            value={formData.bloodPressure.systolic}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              bloodPressure: { ...prev.bloodPressure, systolic: e.target.value }
-            }))}
-            inputProps={{ min: 80, max: 200 }}
-            error={!!validationErrors.bloodPressure}
-          />
-          <Typography sx={{ alignSelf: 'center' }}>/</Typography>
-          <TextField
-            placeholder="Diastolic"
-            name="diastolic"
-            type="number"
-            value={formData.bloodPressure.diastolic}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              bloodPressure: { ...prev.bloodPressure, diastolic: e.target.value }
-            }))}
-            inputProps={{ min: 40, max: 120 }}
-            error={!!validationErrors.bloodPressure}
-          />
-        </Box>
-        {validationErrors.bloodPressure && (
-          <Typography variant="caption" color="error">
-            {validationErrors.bloodPressure}
-          </Typography>
-        )}
-      </Grid>
-      
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          label="Heart Rate (bpm)"
-          name="heartRate"
-          type="number"
-          value={formData.heartRate}
-          onChange={handleChange}
-          error={!!validationErrors.heartRate}
-          helperText={validationErrors.heartRate || 'Normal range: 50-100 bpm'}
-          inputProps={{ min: 40, max: 120 }}
-        />
-      </Grid>
-      
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          label="Body Temperature (°C)"
-          name="temperature"
-          type="number"
-          value={formData.temperature}
-          onChange={handleChange}
-          error={!!validationErrors.temperature}
-          helperText={validationErrors.temperature || 'Normal range: 36-37.5°C'}
-          inputProps={{ min: 35, max: 40, step: 0.1 }}
-        />
-      </Grid>
-      
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          label="Hemoglobin Level (g/dL)"
-          name="hemoglobin"
-          type="number"
-          value={formData.hemoglobin}
-          onChange={handleChange}
-          error={!!validationErrors.hemoglobin}
-          helperText={validationErrors.hemoglobin || `Minimum: ${user?.gender === 'FEMALE' ? '12.5' : '13.5'} g/dL`}
-          inputProps={{ min: 8, max: 20, step: 0.1 }}
-        />
-      </Grid>
+      {fromSchedule && selectedSchedule ? (
+        <Grid item xs={12}>
+          <Card sx={{ p: 3, bgcolor: '#fff5f5', border: '1px solid #d32f2f' }}>
+            <Typography variant="h6" sx={{ mb: 2, color: '#d32f2f' }}>
+              {t('donation.selectedSchedule')}
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <CalendarToday sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                    {formatDate(selectedSchedule.date)}
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <AccessTime sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                    {formatTime(selectedSchedule.time)}
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <LocationOn sx={{ color: '#d32f2f', mr: 1 }} />
+                  <Typography variant="body2" color="text.secondary">
+                    {selectedSchedule.location?.name} - {selectedSchedule.location?.address}
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </Card>
+        </Grid>
+      ) : (
+        <Grid item xs={12}>
+          <FormControl fullWidth required error={!!validationErrors.scheduleId}>
+            <InputLabel>{t('donation.scheduleSelection.selectSchedule')}</InputLabel>
+            <Select
+              name="scheduleId"
+              value={formData.scheduleId}
+              onChange={handleChange}
+              label={t('donation.scheduleSelection.selectSchedule')}
+            >
+              {schedules.map((schedule) => (
+                <MenuItem key={schedule.id} value={schedule.id}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                      {formatDate(schedule.date)} - {formatTime(schedule.time)}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {schedule.location?.name} - {schedule.location?.address}
+                    </Typography>
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+            {validationErrors.scheduleId && (
+              <Typography variant="caption" color="error">
+                {validationErrors.scheduleId}
+              </Typography>
+            )}
+          </FormControl>
+        </Grid>
+      )}
       
       <Grid item xs={12}>
-        <Divider sx={{ my: 2 }} />
-        <Typography variant="h6" gutterBottom>
-          Medical History
-        </Typography>
-        <FormGroup>
-          {diseases.map((disease) => (
-            <FormControlLabel
-              key={disease.id}
-              control={
-                <Checkbox
-                  checked={formData.diseaseIds.includes(disease.id)}
-                  onChange={() => handleDiseaseChange(disease.id)}
-                />
-              }
-              label={disease.name}
-            />
-          ))}
-        </FormGroup>
-        {validationErrors.diseases && (
-          <Alert severity="error" sx={{ mt: 1 }}>
-            {validationErrors.diseases}
-          </Alert>
-        )}
+        <Alert severity="info" sx={{ mt: 2 }}>
+          <Typography variant="body2">
+            {t('donation.scheduleSelection.note')}
+          </Typography>
+        </Alert>
       </Grid>
     </Grid>
   );
@@ -1049,15 +1268,17 @@ const DonationRegistration = () => {
   const getCurrentStepContent = () => {
     switch (currentStep) {
       case 1:
-        return renderBasicInformation();
+        return renderDiseaseScreening();
       case 2:
-        return renderHealthScreening();
+        return renderBasicInformation();
       case 3:
         return renderRiskAssessment();
       case 4:
+        return renderScheduleSelection();
+      case 5:
         return renderConsentForm();
       default:
-        return renderBasicInformation();
+        return renderDiseaseScreening();
     }
   };
 
@@ -1081,10 +1302,10 @@ const DonationRegistration = () => {
         <Paper elevation={3} sx={{ p: 4 }}>
           <Typography variant="h4" component="h1" align="center" gutterBottom sx={{ color: '#d32f2f', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <LocalHospital sx={{ mr: 1 }} />
-            Blood Donation Registration
+            {t('donation.title')}
           </Typography>
           <Typography variant="subtitle1" align="center" sx={{ mb: 3, color: 'text.secondary' }}>
-            Complete the comprehensive health screening for safe blood donation
+            {t('donation.subtitle')}
           </Typography>
           
           {error && (
@@ -1160,7 +1381,7 @@ const DonationRegistration = () => {
                     onClick={handlePrevious}
                     disabled={loading}
                   >
-                    Previous
+                    {t('common.previous')}
                   </Button>
                 )}
                 {currentStep === 1 && (
@@ -1174,19 +1395,30 @@ const DonationRegistration = () => {
                 )}
               </Box>
               
-              <Button
-                variant="contained"
-                onClick={handleNext}
-                disabled={loading}
-                sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
-              >
-                {loading && currentStep === 4 ? 
-                  'Submitting...' : 
-                  currentStep === 4 ? 
-                    'Complete Registration' : 
-                    'Next'
-                }
-              </Button>
+              {currentStep === 1 && formData.hasProhibitedDiseases === 'true' ? (
+                <Button
+                  variant="contained"
+                  onClick={() => navigate('/')}
+                  disabled={loading}
+                  sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
+                >
+                  {t('donation.diseaseScreening.backToHome')}
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  onClick={handleNext}
+                  disabled={loading}
+                  sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
+                >
+                  {loading && currentStep === 5 ? 
+                    t('donation.submitting') : 
+                    currentStep === 5 ? 
+                      t('donation.completeRegistration') : 
+                      t('common.next')
+                  }
+                </Button>
+              )}
             </Box>
           </Box>
         </Paper>

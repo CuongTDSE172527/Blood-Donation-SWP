@@ -544,6 +544,20 @@ public class StaffController {
                 .orElse(ResponseEntity.badRequest().body("Donor not found"));
     }
 
+    @GetMapping("/users/donors/{id}/history")
+    public ResponseEntity<?> getDonorHistory(@PathVariable Long id) {
+        Optional<User> donor = userRepository.findById(id);
+        if (donor.isEmpty() || donor.get().getRole() != Role.DONOR) {
+            return ResponseEntity.badRequest().body("Donor not found");
+        }
+        
+        List<DonationRegistration> history = registrationRepo.findByUserId(id);
+        // Sort by registeredAt descending (most recent first)
+        history.sort((a, b) -> b.getRegisteredAt().compareTo(a.getRegisteredAt()));
+        
+        return ResponseEntity.ok(history);
+    }
+
     @GetMapping("/users/medicalcenters/{id}")
     public ResponseEntity<?> getMedicalCenterById(@PathVariable Long id) {
         return userRepository.findById(id)

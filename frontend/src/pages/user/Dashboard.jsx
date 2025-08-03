@@ -189,9 +189,14 @@ const UserDashboard = () => {
                           </TableRow>
                         ) : donationHistory.map((donation) => (
                           <TableRow key={donation.id}>
-                            <TableCell>{donation.date}</TableCell>
-                            <TableCell>{donation.location?.name || donation.location}</TableCell>
-                            <TableCell>{donation.units || donation.amount}</TableCell>
+                            <TableCell>
+                              {donation.registeredAt ? 
+                                new Date(donation.registeredAt).toLocaleDateString('vi-VN') : 
+                                donation.date || 'N/A'
+                              }
+                            </TableCell>
+                            <TableCell>{donation.location?.name || donation.location || 'N/A'}</TableCell>
+                            <TableCell>{donation.amount || donation.units || 'N/A'} ml</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>

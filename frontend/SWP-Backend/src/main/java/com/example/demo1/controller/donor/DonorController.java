@@ -135,15 +135,17 @@ public class DonorController {
             return ResponseEntity.badRequest().body("User not found");
         }
 
+        List<DonationRegistration> registrations;
         if (status != null) {
-            return ResponseEntity.ok(
-                    registrationRepo.findByUserIdAndStatus(userId, status)
-            );
+            registrations = registrationRepo.findByUserIdAndStatus(userId, status);
         } else {
-            return ResponseEntity.ok(
-                    registrationRepo.findByUserId(userId)
-            );
+            registrations = registrationRepo.findByUserId(userId);
         }
+
+        // Sort by registeredAt descending (most recent first)
+        registrations.sort((a, b) -> b.getRegisteredAt().compareTo(a.getRegisteredAt()));
+
+        return ResponseEntity.ok(registrations);
     }
 
 

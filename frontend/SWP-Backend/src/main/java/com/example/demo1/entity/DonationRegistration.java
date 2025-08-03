@@ -71,6 +71,9 @@ public class DonationRegistration {
     private Boolean eligibilityStatus;
     @Column(columnDefinition = "TEXT")
     private String eligibilityNotes;
+    
+    // Disease Screening
+    private Boolean hasProhibitedDiseases = false;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -79,6 +82,10 @@ public class DonationRegistration {
     @ManyToOne
     @JoinColumn(name = "location_id")
     private DonationLocation location;
+
+    @ManyToOne
+    @JoinColumn(name = "schedule_id")
+    private DonationSchedule schedule;
 
     //private String gender;
 
