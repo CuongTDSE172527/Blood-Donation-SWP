@@ -8,6 +8,8 @@ import com.example.demo1.entity.enums.Role;
 import com.example.demo1.repo.*;
 import com.example.demo1.service.BloodInventoryService;
 import com.example.demo1.service.NotificationService;
+import com.example.demo1.service.DonationEligibilityService;
+import com.example.demo1.service.DonationNotificationService;
 import com.example.demo1.dto.BloodCompatibilityResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +48,12 @@ public class StaffController {
 
     @Autowired
     private NotificationService notificationService;
+    
+    @Autowired
+    private DonationEligibilityService eligibilityService;
+    
+    @Autowired
+    private DonationNotificationService donationNotificationService;
 
     @Autowired
     private BloodRequestRepository bloodRequestRepo;
@@ -182,11 +190,103 @@ public class StaffController {
 
             // Create registration
             DonationRegistration reg = new DonationRegistration();
+            
+            // Basic information
             reg.setBloodType((String) body.get("bloodType"));
-            reg.setLastDonationDate(LocalDate.parse((String) body.get("lastDonationDate")));
-            reg.setWeight(Double.parseDouble(body.get("weight").toString()));
-            reg.setHeight(Double.parseDouble(body.get("height").toString()));
+            if (body.get("lastDonationDate") != null && !body.get("lastDonationDate").toString().isEmpty()) {
+                reg.setLastDonationDate(LocalDate.parse((String) body.get("lastDonationDate")));
+            }
+            double weight = Double.parseDouble(body.get("weight").toString());
+            double height = Double.parseDouble(body.get("height").toString());
+            reg.setWeight(weight);
+            reg.setHeight(height);
+            
+            // Calculate and store BMI
+            double heightInMeters = height / 100.0;
+            double bmi = weight / (heightInMeters * heightInMeters);
+            reg.setBmi(Math.round(bmi * 10.0) / 10.0); // Round to 1 decimal place
             reg.setAmount(Integer.parseInt(body.get("amount").toString()));
+            
+            // Health screening data
+            if (body.containsKey("bloodPressure")) {
+                Map<String, Object> bp = (Map<String, Object>) body.get("bloodPressure");
+                if (bp.get("systolic") != null && !bp.get("systolic").toString().isEmpty()) {
+                    reg.setSystolicBP(Integer.parseInt(bp.get("systolic").toString()));
+                }
+                if (bp.get("diastolic") != null && !bp.get("diastolic").toString().isEmpty()) {
+                    reg.setDiastolicBP(Integer.parseInt(bp.get("diastolic").toString()));
+                }
+            }
+            
+            if (body.containsKey("heartRate") && body.get("heartRate") != null && !body.get("heartRate").toString().isEmpty()) {
+                reg.setHeartRate(Integer.parseInt(body.get("heartRate").toString()));
+            }
+            
+            if (body.containsKey("temperature") && body.get("temperature") != null && !body.get("temperature").toString().isEmpty()) {
+                reg.setTemperature(Double.parseDouble(body.get("temperature").toString()));
+            }
+            
+            if (body.containsKey("hemoglobin") && body.get("hemoglobin") != null && !body.get("hemoglobin").toString().isEmpty()) {
+                reg.setHemoglobin(Double.parseDouble(body.get("hemoglobin").toString()));
+            }
+            
+            // Medication and surgery history
+            if (body.containsKey("currentMedications")) {
+                reg.setCurrentMedications((String) body.get("currentMedications"));
+            }
+            
+            if (body.containsKey("recentSurgery")) {
+                reg.setRecentSurgery((Boolean) body.get("recentSurgery"));
+                if (Boolean.TRUE.equals(reg.getRecentSurgery())) {
+                    if (body.containsKey("surgeryDetails")) {
+                        reg.setSurgeryDetails((String) body.get("surgeryDetails"));
+                    }
+                    if (body.containsKey("surgeryDate") && body.get("surgeryDate") != null && !body.get("surgeryDate").toString().isEmpty()) {
+                        reg.setSurgeryDate(LocalDate.parse((String) body.get("surgeryDate")));
+                    }
+                }
+            }
+            
+            // Risk factors
+            if (body.containsKey("recentTravel")) {
+                reg.setRecentTravel((Boolean) body.get("recentTravel"));
+                if (Boolean.TRUE.equals(reg.getRecentTravel()) && body.containsKey("travelDetails")) {
+                    reg.setTravelDetails((String) body.get("travelDetails"));
+                }
+            }
+            
+            if (body.containsKey("recentTattoo")) {
+                reg.setRecentTattoo((Boolean) body.get("recentTattoo"));
+                if (Boolean.TRUE.equals(reg.getRecentTattoo()) && body.containsKey("tattooDate") && body.get("tattooDate") != null && !body.get("tattooDate").toString().isEmpty()) {
+                    reg.setTattooDate(LocalDate.parse((String) body.get("tattooDate")));
+                }
+            }
+            
+            if (body.containsKey("recentPiercing")) {
+                reg.setRecentPiercing((Boolean) body.get("recentPiercing"));
+                if (Boolean.TRUE.equals(reg.getRecentPiercing()) && body.containsKey("piercingDate") && body.get("piercingDate") != null && !body.get("piercingDate").toString().isEmpty()) {
+                    reg.setPiercingDate(LocalDate.parse((String) body.get("piercingDate")));
+                }
+            }
+            
+            // Women's health
+            if (body.containsKey("isPregnant")) {
+                reg.setIsPregnant((Boolean) body.get("isPregnant"));
+            }
+            if (body.containsKey("isBreastfeeding")) {
+                reg.setIsBreastfeeding((Boolean) body.get("isBreastfeeding"));
+            }
+            
+            // Consent forms
+            if (body.containsKey("healthDeclaration")) {
+                reg.setHealthDeclaration((Boolean) body.get("healthDeclaration"));
+            }
+            if (body.containsKey("consentForm")) {
+                reg.setConsentForm((Boolean) body.get("consentForm"));
+            }
+            if (body.containsKey("dataProcessing")) {
+                reg.setDataProcessingConsent((Boolean) body.get("dataProcessing"));
+            }
 
             // Set location
             if (body.containsKey("locationId")) {
@@ -214,9 +314,55 @@ public class StaffController {
 
             // Set empty diseases set since validation passed
             reg.setDiseases(new HashSet<>());
+            
+            // Get user for eligibility check
+            User user = reg.getUser();
+            
+            // Perform comprehensive eligibility check
+            DonationEligibilityService.EligibilityResult eligibilityResult = eligibilityService.checkEligibility(reg, user);
+            
+            if (!eligibilityResult.isEligible()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "eligible", false,
+                    "errors", eligibilityResult.getErrors(),
+                    "warnings", eligibilityResult.getWarnings()
+                ));
+            }
+            
+            // Set eligibility status and notes
+            reg.setEligibilityStatus(true);
+            if (!eligibilityResult.getWarnings().isEmpty()) {
+                reg.setEligibilityNotes(String.join("; ", eligibilityResult.getWarnings()));
+            }
+            
             reg.setStatus(RegistrationStatus.PENDING);
 
-            return ResponseEntity.ok(registrationRepo.save(reg));
+            DonationRegistration savedReg = registrationRepo.save(reg);
+            
+            // Send confirmation notification
+            try {
+                donationNotificationService.sendRegistrationConfirmation(savedReg);
+                
+                // If there are warnings, send additional notification
+                if (!eligibilityResult.getWarnings().isEmpty()) {
+                    String warningMessage = String.join("; ", eligibilityResult.getWarnings());
+                    donationNotificationService.sendEligibilityResult(savedReg, true, warningMessage);
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to send notification: " + e.getMessage());
+                // Continue processing even if notification fails
+            }
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "registration", savedReg,
+                "eligible", true,
+                "warnings", eligibilityResult.getWarnings(),
+                "message", "Registration submitted successfully! " + 
+                          (eligibilityResult.getWarnings().isEmpty() ? 
+                           "You will receive a confirmation email shortly." :
+                           "Please note the warnings and consult with medical staff.")
+            ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error creating registration: " + e.getMessage());
         }

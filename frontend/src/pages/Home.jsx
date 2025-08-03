@@ -236,12 +236,26 @@ const Home = () => {
                 <Typography variant="body1" sx={{ mb: 5, textAlign: 'center', fontSize: { xs: 16, md: 20 }, color: 'text.secondary' }}>
                   {t('home.hero.subtitle')}
               </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center' }}>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  sx={{
+                      px: 4, py: 1.5, fontWeight: 600, borderRadius: 3, fontSize: 16,
+                      borderColor: '#d32f2f',
+                      color: '#d32f2f',
+                      transition: 'all 0.15s',
+                      '&:hover': { bgcolor: '#d32f2f', color: '#fff', transform: 'scale(1.02)' }
+                    }}
+                    onClick={() => navigate('/donation-information')}
+                >
+                    Learn About Donation Process
+                </Button>
                 <Button
                   variant="contained"
                   size="large"
                   sx={{
-                      px: 5, py: 1.5, fontWeight: 700, borderRadius: 3, fontSize: 20,
+                      px: 5, py: 1.5, fontWeight: 700, borderRadius: 3, fontSize: 18,
                       background: 'linear-gradient(90deg, #d32f2f 60%, #ff7961 100%)',
                       color: '#fff',
                       boxShadow: '0 2px 8px 0 rgba(211,47,47,0.15)',
