@@ -50,6 +50,8 @@ import {
   Email,
   Phone,
   Bloodtype,
+  CheckCircle,
+  Cancel,
 } from '@mui/icons-material';
 import { staffService } from '../../services/staffService';
 
@@ -189,6 +191,60 @@ const ScheduleManagement = () => {
   };
 
   const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
+
+  const handleConfirmRegistration = async (registrationId) => {
+    try {
+      // Get current user's ID from auth state or local storage
+      const userId = JSON.parse(localStorage.getItem('user'))?.id;
+      if (!userId) {
+        throw new Error('Staff ID not found');
+      }
+      
+      await staffService.confirmRegistration(registrationId, userId);
+      setSnackbar({ 
+        open: true, 
+        message: 'Registration confirmed successfully!', 
+        severity: 'success' 
+      });
+      
+      // Refresh the registrations list
+      if (selectedSchedule) {
+        const updatedRegistrations = await staffService.getDonorsBySchedule(selectedSchedule.id);
+        setRegistrations(updatedRegistrations);
+      }
+    } catch (err) {
+      console.error('Error confirming registration:', err);
+      setSnackbar({ 
+        open: true, 
+        message: err.message || 'Error confirming registration', 
+        severity: 'error' 
+      });
+    }
+  };
+
+  const handleCancelRegistration = async (registrationId) => {
+    try {
+      await staffService.cancelRegistration(registrationId);
+      setSnackbar({ 
+        open: true, 
+        message: 'Registration cancelled successfully!', 
+        severity: 'success' 
+      });
+      
+      // Refresh the registrations list
+      if (selectedSchedule) {
+        const updatedRegistrations = await staffService.getDonorsBySchedule(selectedSchedule.id);
+        setRegistrations(updatedRegistrations);
+      }
+    } catch (err) {
+      console.error('Error cancelling registration:', err);
+      setSnackbar({ 
+        open: true, 
+        message: err.message || 'Error cancelling registration', 
+        severity: 'error' 
+      });
+    }
+  };
 
   const getRegistrationStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -457,6 +513,40 @@ const ScheduleManagement = () => {
                           </Box>
                         }
                       />
+                      <Box sx={{ display: 'flex', gap: 1, ml: 2 }}>
+                        {registration.status?.toLowerCase() === 'pending' && (
+                          <>
+                            <Tooltip title="Confirm Registration">
+                              <IconButton
+                                color="success"
+                                onClick={() => handleConfirmRegistration(registration.id)}
+                                size="small"
+                                sx={{
+                                  bgcolor: 'success.light',
+                                  '&:hover': { bgcolor: 'success.main' },
+                                  color: 'white'
+                                }}
+                              >
+                                <CheckCircle />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Cancel Registration">
+                              <IconButton
+                                color="error"
+                                onClick={() => handleCancelRegistration(registration.id)}
+                                size="small"
+                                sx={{
+                                  bgcolor: 'error.light',
+                                  '&:hover': { bgcolor: 'error.main' },
+                                  color: 'white'
+                                }}
+                              >
+                                <Cancel />
+                              </IconButton>
+                            </Tooltip>
+                          </>
+                        )}
+                      </Box>
                     </ListItem>
                     {index < registrations.length - 1 && <Divider variant="inset" component="li" />}
                   </Box>

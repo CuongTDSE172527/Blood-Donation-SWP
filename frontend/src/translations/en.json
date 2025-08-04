@@ -10,6 +10,13 @@
     "summary": "Summary",
     "medicalCenter": "Medical Center"
   },
+  "common": {
+    "next": "Next",
+    "previous": "Previous",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error": "An error occurred"
+  },
   "schedule": {
     "title": "Blood Donation Schedule",
     "selectTime": "When would you like to schedule?",
@@ -675,7 +682,21 @@
       "subtitle": "Please answer this important question before proceeding",
       "notEligible": "Not Eligible for Blood Donation",
       "backToHome": "Back to Home",
-      "note": "This screening helps ensure the safety of both donors and recipients."
+      "note": "This screening helps ensure the safety of both donors and recipients.",
+      "consultDoctor": {
+        "title": "Medical Consultation Required",
+        "message": "Based on the information you provided, we recommend consulting a healthcare provider before donating blood.",
+        "reasons": "Reasons for consultation:",
+        "safety": "Ensure your health safety",
+        "assessment": "Comprehensive health assessment",
+        "guidance": "Receive appropriate guidance from medical professionals",
+        "contactInfo": "Contact Information:",
+        "hospital": "Blood Transfusion Hematology Hospital",
+        "phone": "Phone: 1900-xxxx",
+        "email": "Email: consultation@bloodtransfusion.com",
+        "continueButton": "I understand and will consult a doctor",
+        "backButton": "Back to Home"
+      }
     },
     "submitting": "Submitting...",
     "completeRegistration": "Complete Registration",
@@ -739,3 +760,4 @@
     "confirmWithAlternative": "Confirm with Alternative Blood Type"
   }
 } 
+

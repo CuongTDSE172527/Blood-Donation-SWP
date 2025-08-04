@@ -116,8 +116,12 @@ export default function Inventory() {
   return (
     <Box sx={{ bgcolor: '#fff5f5', minHeight: '100vh', py: 6 }}>
       <Container maxWidth="md">
-        <Typography variant="h4" sx={{ mb: 4, color: '#d32f2f', fontWeight: 700 }}>
+        <Typography variant="h4" sx={{ mb: 2, color: '#d32f2f', fontWeight: 700 }}>
           {t('staff.inventoryManagement') || 'Blood Inventory Management'}
+        </Typography>
+        
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 4, fontStyle: 'italic' }}>
+          💡 Lưu ý: 1 unit máu = 450ml (theo tiêu chuẩn quốc tế)
         </Typography>
         
         {error && (

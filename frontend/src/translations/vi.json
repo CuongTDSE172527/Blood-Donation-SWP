@@ -10,6 +10,13 @@
     "summary": "Tóm tắt",
     "medicalCenter": "Trung tâm Y tế"
   },
+  "common": {
+    "next": "Tiếp theo",
+    "previous": "Quay lại",
+    "cancel": "Hủy",
+    "loading": "Đang tải...",
+    "error": "Có lỗi xảy ra"
+  },
   "schedule": {
     "title": "Lịch Hiến Máu",
     "selectTime": "Bạn cần đặt lịch vào thời gian nào?",
@@ -426,7 +433,10 @@
     "status_waiting": "Chờ xử lý",
     "status_priority": "Ưu tiên",
     "editEmergencyStatus": "Chỉnh sửa trạng thái khẩn cấp",
-    "status_": "Không xác định"
+    "status_": "Không xác định",
+    "fullName": "Họ và tên",
+    "donors": "Người hiến máu",
+    "filterByBloodType": "Lọc theo nhóm máu"
   },
   "medicalCenter": {
     "title": "Trung tâm Y tế",
@@ -656,7 +666,21 @@
       "subtitle": "Vui lòng trả lời câu hỏi quan trọng này trước khi tiếp tục",
       "notEligible": "Không đủ điều kiện hiến máu",
       "backToHome": "Về trang chủ",
-      "note": "Việc sàng lọc này giúp đảm bảo an toàn cho cả người hiến và người nhận."
+      "note": "Việc sàng lọc này giúp đảm bảo an toàn cho cả người hiến và người nhận.",
+      "consultDoctor": {
+        "title": "Cần tư vấn bác sĩ",
+        "message": "Dựa trên thông tin bạn cung cấp, chúng tôi khuyến nghị bạn nên tham khảo ý kiến bác sĩ trước khi hiến máu.",
+        "reasons": "Lý do cần tư vấn:",
+        "safety": "Đảm bảo an toàn cho sức khỏe của bạn",
+        "assessment": "Đánh giá toàn diện về tình trạng sức khỏe",
+        "guidance": "Nhận hướng dẫn phù hợp từ chuyên gia y tế",
+        "contactInfo": "Thông tin liên hệ:",
+        "hospital": "Bệnh viện Truyền máu Huyết học",
+        "phone": "Điện thoại: 1900-xxxx",
+        "email": "Email: tuvan@truyenmau.com",
+        "continueButton": "Tôi hiểu và sẽ tư vấn bác sĩ",
+        "backButton": "Quay lại trang chủ"
+      }
     },
     "submitting": "Đang gửi...",
     "completeRegistration": "Hoàn thành đăng ký",
@@ -721,3 +745,4 @@
     "confirmWithAlternative": "Xác nhận với nhóm máu thay thế"
   }
 }
+
