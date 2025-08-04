@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../hooks/useAuth';
 import {
   Box,
   Container,
@@ -24,9 +25,8 @@ const cardRadius = 3;
 
 function Contact() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
     subject: '',
     message: '',
   });
@@ -53,8 +53,6 @@ function Contact() {
       severity: 'success',
     });
     setFormData({
-      name: '',
-      email: '',
       subject: '',
       message: '',
     });
@@ -146,27 +144,27 @@ function Contact() {
               </Typography>
               <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      required
-                      fullWidth
-                      label={t('contact.name')}
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                    />
+                  {/* User Information Display */}
+                  <Grid item xs={12}>
+                    <Box sx={{ 
+                      p: 2, 
+                      bgcolor: '#f5f5f5', 
+                      borderRadius: 1, 
+                      border: '1px solid #e0e0e0',
+                      mb: 2
+                    }}>
+                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        {t('contact.senderInfo')}
+                      </Typography>
+                      <Typography variant="body2" sx={{ mb: 1 }}>
+                        <strong>{t('contact.name')}</strong> {user?.fullName || user?.username || 'N/A'}
+                      </Typography>
+                      <Typography variant="body2">
+                        <strong>{t('contact.email')}</strong> {user?.email || 'N/A'}
+                      </Typography>
+                    </Box>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      required
-                      fullWidth
-                      label={t('contact.email')}
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                    />
-                  </Grid>
+                  
                   <Grid item xs={12}>
                     <TextField
                       required

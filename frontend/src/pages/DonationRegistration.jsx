@@ -30,6 +30,10 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { donorService } from '../services/donorService';
@@ -60,6 +64,7 @@ const DonationRegistration = () => {
   const fromSchedule = location.state?.fromSchedule;
   
   const [currentStep, setCurrentStep] = useState(1);
+  const [showConsultDialog, setShowConsultDialog] = useState(false);
   const [formData, setFormData] = useState({
     // Basic Information
     bloodType: '',
@@ -448,6 +453,25 @@ const DonationRegistration = () => {
       ...prev,
       hasProhibitedDiseases: value
     }));
+    
+    // Show consultation dialog if user selects "yes"
+    if (value === 'true') {
+      setShowConsultDialog(true);
+    }
+  };
+
+  const handleCloseConsultDialog = () => {
+    setShowConsultDialog(false);
+  };
+
+  const handleContactClick = () => {
+    setShowConsultDialog(false);
+    navigate('/contact');
+  };
+
+  const handleBackToHome = () => {
+    setShowConsultDialog(false);
+    navigate('/');
   };
 
   const validateCurrentStep = () => {
@@ -457,8 +481,6 @@ const DonationRegistration = () => {
       case 1: // Disease Screening
         if (!formData.hasProhibitedDiseases) {
           errors.hasProhibitedDiseases = t('donation.validation.diseaseQuestionRequired');
-        } else if (formData.hasProhibitedDiseases === 'true') {
-          errors.prohibitedDiseases = t('donation.validation.prohibitedDiseasesNotEligible');
         }
         break;
         
@@ -512,11 +534,6 @@ const DonationRegistration = () => {
   
   const handleNext = () => {
     if (validateCurrentStep()) {
-      // If user has prohibited diseases, don't allow to proceed
-      if (currentStep === 1 && formData.hasProhibitedDiseases === 'true') {
-        return;
-      }
-      
       if (currentStep < 5) {
         setCurrentStep(currentStep + 1);
       } else {
@@ -542,6 +559,12 @@ const DonationRegistration = () => {
       return;
     }
 
+    // Show warning if user has prohibited diseases but allow to continue
+    if (formData.hasProhibitedDiseases === 'true') {
+      setShowConsultDialog(true);
+      // Don't return, allow to continue with registration
+    }
+
     setLoading(true);
     setError('');
 
@@ -565,7 +588,11 @@ const DonationRegistration = () => {
         await donorService.registerDonation(user.id, registrationData);
       }
       
-      setSuccess('Blood donation registration submitted successfully! You will receive a confirmation email shortly.');
+      const successMessage = formData.hasProhibitedDiseases === 'true' 
+        ? 'Blood donation registration submitted successfully! However, we strongly recommend consulting a healthcare provider due to your health conditions. You will receive a confirmation email shortly.'
+        : 'Blood donation registration submitted successfully! You will receive a confirmation email shortly.';
+      
+      setSuccess(successMessage);
       setTimeout(() => {
         navigate('/donor/dashboard');
       }, 3000);
@@ -677,24 +704,6 @@ const DonationRegistration = () => {
                   {validationErrors.hasProhibitedDiseases}
                 </Typography>
               )}
-              
-              {validationErrors.prohibitedDiseases && (
-                <Alert severity="error" sx={{ mt: 3 }}>
-                  <Typography variant="h6" sx={{ mb: 1 }}>
-                    {t('donation.diseaseScreening.notEligible')}
-                  </Typography>
-                  <Typography variant="body2">
-                    {validationErrors.prohibitedDiseases}
-                  </Typography>
-                  <Button 
-                    variant="contained" 
-                    onClick={() => navigate('/')}
-                    sx={{ mt: 2, bgcolor: '#d32f2f' }}
-                  >
-                    {t('donation.diseaseScreening.backToHome')}
-                  </Button>
-                </Alert>
-              )}
             </FormControl>
           </Box>
           
@@ -708,6 +717,36 @@ const DonationRegistration = () => {
 
   const renderBasicInformation = () => (
     <Grid container spacing={3}>
+      {formData.hasProhibitedDiseases === 'true' && (
+        <Grid item xs={12}>
+          <Alert severity="warning" sx={{ mb: 3 }}>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              {t('donation.diseaseScreening.consultDoctor.title')}
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              {t('donation.diseaseScreening.consultDoctor.message')}
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <Button 
+                variant="outlined" 
+                size="small"
+                onClick={() => setShowConsultDialog(true)}
+                sx={{ borderColor: '#d32f2f', color: '#d32f2f' }}
+              >
+                {t('donation.diseaseScreening.consultDoctor.title')}
+              </Button>
+              <Button 
+                variant="contained" 
+                size="small"
+                onClick={handleContactClick}
+                sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
+              >
+                {t('common.contact')}
+              </Button>
+            </Box>
+          </Alert>
+        </Grid>
+      )}
       <Grid item xs={12} md={6}>
         <FormControl fullWidth required error={!!validationErrors.bloodType}>
           <InputLabel>{t('donation.bloodType')}</InputLabel>
@@ -896,6 +935,36 @@ const DonationRegistration = () => {
 
   const renderScheduleSelection = () => (
     <Grid container spacing={3}>
+      {formData.hasProhibitedDiseases === 'true' && (
+        <Grid item xs={12}>
+          <Alert severity="warning" sx={{ mb: 3 }}>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              {t('donation.diseaseScreening.consultDoctor.title')}
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              {t('donation.diseaseScreening.consultDoctor.message')}
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <Button 
+                variant="outlined" 
+                size="small"
+                onClick={() => setShowConsultDialog(true)}
+                sx={{ borderColor: '#d32f2f', color: '#d32f2f' }}
+              >
+                {t('donation.diseaseScreening.consultDoctor.title')}
+              </Button>
+              <Button 
+                variant="contained" 
+                size="small"
+                onClick={handleContactClick}
+                sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
+              >
+                {t('common.contact')}
+              </Button>
+            </Box>
+          </Alert>
+        </Grid>
+      )}
       <Grid item xs={12}>
         <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
           <CalendarToday sx={{ mr: 1, color: '#d32f2f' }} />
@@ -984,6 +1053,36 @@ const DonationRegistration = () => {
 
   const renderRiskAssessment = () => (
     <Grid container spacing={3}>
+      {formData.hasProhibitedDiseases === 'true' && (
+        <Grid item xs={12}>
+          <Alert severity="warning" sx={{ mb: 3 }}>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              {t('donation.diseaseScreening.consultDoctor.title')}
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              {t('donation.diseaseScreening.consultDoctor.message')}
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <Button 
+                variant="outlined" 
+                size="small"
+                onClick={() => setShowConsultDialog(true)}
+                sx={{ borderColor: '#d32f2f', color: '#d32f2f' }}
+              >
+                {t('donation.diseaseScreening.consultDoctor.title')}
+              </Button>
+              <Button 
+                variant="contained" 
+                size="small"
+                onClick={handleContactClick}
+                sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
+              >
+                {t('common.contact')}
+              </Button>
+            </Box>
+          </Alert>
+        </Grid>
+      )}
       <Grid item xs={12}>
         <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
           <Warning sx={{ mr: 1, color: '#d32f2f' }} />
@@ -1170,6 +1269,36 @@ const DonationRegistration = () => {
   
   const renderConsentForm = () => (
     <Grid container spacing={3}>
+      {formData.hasProhibitedDiseases === 'true' && (
+        <Grid item xs={12}>
+          <Alert severity="warning" sx={{ mb: 3 }}>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              {t('donation.diseaseScreening.consultDoctor.title')}
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              {t('donation.diseaseScreening.consultDoctor.message')}
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <Button 
+                variant="outlined" 
+                size="small"
+                onClick={() => setShowConsultDialog(true)}
+                sx={{ borderColor: '#d32f2f', color: '#d32f2f' }}
+              >
+                {t('donation.diseaseScreening.consultDoctor.title')}
+              </Button>
+              <Button 
+                variant="contained" 
+                size="small"
+                onClick={handleContactClick}
+                sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
+              >
+                {t('common.contact')}
+              </Button>
+            </Box>
+          </Alert>
+        </Grid>
+      )}
       <Grid item xs={12}>
         <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
           <Assignment sx={{ mr: 1, color: '#d32f2f' }} />
@@ -1395,16 +1524,6 @@ const DonationRegistration = () => {
                 )}
               </Box>
               
-              {currentStep === 1 && formData.hasProhibitedDiseases === 'true' ? (
-                <Button
-                  variant="contained"
-                  onClick={() => navigate('/')}
-                  disabled={loading}
-                  sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
-                >
-                  {t('donation.diseaseScreening.backToHome')}
-                </Button>
-              ) : (
                 <Button
                   variant="contained"
                   onClick={handleNext}
@@ -1418,11 +1537,89 @@ const DonationRegistration = () => {
                       t('common.next')
                   }
                 </Button>
-              )}
             </Box>
           </Box>
         </Paper>
       </Box>
+      
+      {/* Consultation Dialog */}
+      <Dialog 
+        open={showConsultDialog} 
+        onClose={handleCloseConsultDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{ 
+          bgcolor: '#fff3e0', 
+          color: '#e65100',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1
+        }}>
+          <LocalHospital />
+          {t('donation.diseaseScreening.consultDoctor.title')}
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2, color: '#d32f2f' }}>
+            {t('donation.diseaseScreening.consultDoctor.message')}
+          </Typography>
+          
+          <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+            {t('donation.diseaseScreening.consultDoctor.reasons')}
+          </Typography>
+          <List dense>
+            <ListItem>
+              <ListItemIcon>
+                <CheckCircle color="success" />
+              </ListItemIcon>
+              <ListItemText primary={t('donation.diseaseScreening.consultDoctor.safety')} />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon>
+                <CheckCircle color="success" />
+              </ListItemIcon>
+              <ListItemText primary={t('donation.diseaseScreening.consultDoctor.assessment')} />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon>
+                <CheckCircle color="success" />
+              </ListItemIcon>
+              <ListItemText primary={t('donation.diseaseScreening.consultDoctor.guidance')} />
+            </ListItem>
+          </List>
+          
+          <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+              {t('donation.diseaseScreening.consultDoctor.contactInfo')}
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 0.5 }}>
+              {t('donation.diseaseScreening.consultDoctor.hospital')}
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 0.5 }}>
+              {t('donation.diseaseScreening.consultDoctor.phone')}
+            </Typography>
+            <Typography variant="body2">
+              {t('donation.diseaseScreening.consultDoctor.email')}
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, gap: 2 }}>
+          <Button 
+            variant="outlined" 
+            onClick={handleBackToHome}
+            sx={{ borderColor: '#d32f2f', color: '#d32f2f' }}
+          >
+            {t('donation.diseaseScreening.consultDoctor.backButton')}
+          </Button>
+          <Button 
+            variant="contained" 
+            onClick={handleContactClick}
+            sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
+          >
+            {t('common.contact')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

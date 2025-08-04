@@ -23,6 +23,7 @@ import EmergencyRequest from '../pages/blood/EmergencyRequest';
 import DonationRegistration from '../pages/DonationRegistration';
 import DonationInformation from '../pages/DonationInformation';
 import Schedule from '../pages/Schedule';
+import Contact from '../pages/Contact';
 
 // === PROTECTED PAGES - Trang cần đăng nhập ===
 import DonorDashboard from '../pages/donor/Dashboard';
@@ -74,6 +75,7 @@ export const publicRoutes = [
   { path: '/schedule', element: <Schedule /> },
   { path: '/donation-registration', element: <DonationRegistration /> },
   { path: '/donation-information', element: <DonationInformation /> },
+  { path: '/contact', element: <Contact /> },
 ];
 
 /**

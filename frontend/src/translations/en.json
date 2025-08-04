@@ -113,6 +113,7 @@
     }
   },
   "common": {
+    "contact": "Contact",
     "language": "Language",
     "saving": "Saving...",
     "cancel": "Cancel",
@@ -758,6 +759,20 @@
     "selectAlternativeDesc": "Select a compatible blood type to use as alternative:",
     "alternativeBloodType": "Alternative Blood Type",
     "confirmWithAlternative": "Confirm with Alternative Blood Type"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "infoTitle": "Contact Information",
+    "formTitle": "Send Message",
+    "senderInfo": "Sender Information:",
+    "name": "Name:",
+    "email": "Email:",
+    "address": "Address",
+    "phone": "Phone",
+    "subject": "Subject",
+    "message": "Message",
+    "send": "Send Message",
+    "successMessage": "Message sent successfully! We will respond as soon as possible."
   }
 } 
 

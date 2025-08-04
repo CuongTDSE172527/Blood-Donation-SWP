@@ -113,6 +113,7 @@
     }
   },
   "common": {
+    "contact": "Liên hệ",
     "language": "Ngôn ngữ",
     "saving": "Đang lưu...",
     "cancel": "Hủy",
@@ -743,6 +744,20 @@
     "selectAlternativeDesc": "Chọn nhóm máu tương thích để sử dụng thay thế:",
     "alternativeBloodType": "Nhóm máu thay thế",
     "confirmWithAlternative": "Xác nhận với nhóm máu thay thế"
+  },
+  "contact": {
+    "title": "Liên Hệ",
+    "infoTitle": "Thông Tin Liên Hệ",
+    "formTitle": "Gửi Tin Nhắn",
+    "senderInfo": "Thông tin người gửi:",
+    "name": "Tên:",
+    "email": "Email:",
+    "address": "Địa Chỉ",
+    "phone": "Điện Thoại",
+    "subject": "Tiêu Đề",
+    "message": "Nội Dung Tin Nhắn",
+    "send": "Gửi Tin Nhắn",
+    "successMessage": "Tin nhắn đã được gửi thành công! Chúng tôi sẽ phản hồi sớm nhất có thể."
   }
 }
 
